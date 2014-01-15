@@ -116,7 +116,7 @@ td.c_e{width:18px;height:15px;}
 <!-- element information -->
 <script type="text/javascript">
 /* elemental information */
-var elements = {
+var elemental = {
 	// ordering based on periodic table so can update/add easily.
 	// not alphabetical, though would be possible
 	// takes information on row and column information so that can easily build periodic table from information
@@ -240,7 +240,7 @@ var elements = {
 	// Lactinides and actinides as a new set ofrows, as per 'normal'
 	  // row 6, Lanthanides/f-block
 	// dummy spacer
-//	chem_element[''] = new Array('',   '','', {}],
+//	elemental[''] = new Array('',   '','', {}],
 
 	Ce: [9, 1 ,140.116,   0,140, {136:0.186,138:0.251,140:88.449,142:11.114}],
 	Pr: [9, 2 , 140.90765, 0,141, {141:100}],
@@ -383,99 +383,99 @@ function calculate_info(formula){
 	if(document.getElementById){
 	expand_formula(formula);
 
-  	// get a reference to the DIV we're going to populate
-  	info = document.getElementById('info');
+		// get a reference to the DIV we're going to populate
+		info = document.getElementById('info');
 
-  	// output
+		// output
  	// make the formula look pretty
-  	formula_formatted = formula.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
-  	// add to the string
+		formula_formatted = formula.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+		// add to the string
 
-  	if(elem_added.length>0){
+		if(elem_added.length>0){
 
-                // set up a var to store the table while we work out the base formula
-  		var tmp_string2='';formula_simplified = '';
-  		// remove the end ','
-  		elem_added = elem_added.replace(/,$/,'');
-		var elem_split = elem_added.split(',');
-  		var tmp_mass=0;
-		var bg_num=0;var bg;var num_atoms;var atom_mass;
-		var show_ms = false;if((document.getElementById('show_mass_spec').checked == true)){show_ms = true;}
+			// set up a var to store the table while we work out the base formula
+			var tmp_string2='';formula_simplified = '';
+			// remove the end ','
+			elem_added = elem_added.replace(/,$/,'');
+			var elem_split = elem_added.split(',');
+			var tmp_mass=0;
+			var bg_num=0;var bg;var num_atoms;var atom_mass;
+			var show_ms = false;if((document.getElementById('show_mass_spec').checked == true)){show_ms = true;}
 
-		//header
-		tmp_string2 += '<div><div class="outline"><div class="header"><div class="element">Element</'+'div><div class="element">Number of Atoms</'+'div><div class="atomic_mass">Atomic mass</'+'div><div class="net_mass align_r">Total Mass (amu)</'+'div><div class="align_r percent_composition">% composition</'+'div><div class=clearfix></'+'div></'+'div>';
-  		// array to pass to the mass spec function arrays of(element name, number_of elements)
-  		var ms = new Array();var len = elem_split.length;var j=0;
-  		var num_isotopes = 1;var tmp_num = 0;var chn = 0;var classes = '';var bg;
-  		for(i=0;i<len;i++){
-  			classes = '';
-                        // got to exist
-  			if(elem_split[i].length>0 && (chem_element[elem_split[i]][1]>0)){
+			//header
+			tmp_string2 += '<div><div class="outline"><div class="header"><div class="element">Element</'+'div><div class="element">Number of Atoms</'+'div><div class="atomic_mass">Atomic mass</'+'div><div class="net_mass align_r">Total Mass (amu)</'+'div><div class="align_r percent_composition">% composition</'+'div><div class=clearfix></'+'div></'+'div>';
+			// array to pass to the mass spec function arrays of(element name, number_of elements)
+			var ms = new Array();var len = elem_split.length;var j=0;
+			var num_isotopes = 1;var tmp_num = 0;var chn = 0;var classes = '';var bg;
+			for(i=0;i<len;i++){
+				classes = '';
+				// got to exist
+				if(elem_split[i].length>0 && (elemental[elem_split[i]][1]>0)){
 
-                                // CHN get highlighted
-                                classes += ((elem_split[i] == 'C')||(elem_split[i] == 'H')||(elem_split[i] == 'N'))?'chn ':'';
-                                // colour
-  				bg_num++;if((bg_num % 2)>0){classes += ' highlighted';}
-  				// number of atoms
-  				num_atoms = chem_element[elem_split[i]][1];
-  				if(Math.ceil(num_atoms) !=num_atoms && isNumeric(parseFloat(num_atoms))){num_atoms =parseFloat(num_atoms).toFixed(3);}
-  				// an atom's mass
-  				atom_mass = chem_element[elem_split[i]][0];
-  				tmp_mass = parseFloat(chem_element[elem_split[i]][0]*num_atoms).toFixed(max_decimal_places);
-  				mono_mass += (chem_element[elem_split[i]][2])*chem_element[elem_split[i]][1];
-                                // html/not for class names
-                                classes = (classes.length>0)?' class="'+classes+'"':'';
-                                tmp_string2+='<div'+classes+'><div class="element">'+elem_split[i]+'</'+'div><div class="num_atoms">'+num_atoms+'</'+'div><div class="atomic_mass">'+atom_mass+'</'+'div><div class="net_mass align_r">'+tmp_mass+'</'+'div><div class="percent_composition align_r">'+parseFloat(tmp_mass/mass*100).toFixed(max_decimal_places)+'%</'+'div><div class=clearfix></'+'div></'+'div>';
-                                // update elemental analysis fields
-                                if(elem_split[i] == 'C' ||elem_split[i] == 'H' ||elem_split[i] == 'N') {
-                                  document.getElementById(elem_split[i].toLowerCase()+'_expected').innerHTML = parseFloat(tmp_mass/mass*100).toFixed(2);
-                                }
-  				// the simplified formula
-  				formula_simplified += elem_split[i];
-                                // check for non-integer value
-                                if(Math.ceil(chem_element[elem_split[i]][1]) ==chem_element[elem_split[i]][1]){formula_simplified +=chem_element[elem_split[i]][1];}
-                                else{formula_simplified += chem_element[elem_split[i]][1].toFixed(2);}
+					// CHN get highlighted
+					classes += ((elem_split[i] == 'C')||(elem_split[i] == 'H')||(elem_split[i] == 'N'))?'chn ':'';
+					// colour
+					bg_num++;if((bg_num % 2)>0){classes += ' highlighted';}
+					// number of atoms
+					num_atoms = elemental[elem_split[i]][1];
+					if(Math.ceil(num_atoms) !=num_atoms && isNumeric(parseFloat(num_atoms))){num_atoms =parseFloat(num_atoms).toFixed(3);}
+					// an atom's mass
+					atom_mass = elemental[elem_split[i]][0];
+					tmp_mass = parseFloat(elemental[elem_split[i]][0]*num_atoms).toFixed(max_decimal_places);
+					mono_mass += (elemental[elem_split[i]][2])*elemental[elem_split[i]][1];
+					// html/not for class names
+					classes = (classes.length>0)?' class="'+classes+'"':'';
+					tmp_string2+='<div'+classes+'><div class="element">'+elem_split[i]+'</'+'div><div class="num_atoms">'+num_atoms+'</'+'div><div class="atomic_mass">'+atom_mass+'</'+'div><div class="net_mass align_r">'+tmp_mass+'</'+'div><div class="percent_composition align_r">'+parseFloat(tmp_mass/mass*100).toFixed(max_decimal_places)+'%</'+'div><div class=clearfix></'+'div></'+'div>';
+					// update elemental analysis fields
+					if(elem_split[i] == 'C' ||elem_split[i] == 'H' ||elem_split[i] == 'N') {
+					  document.getElementById(elem_split[i].toLowerCase()+'_expected').innerHTML = parseFloat(tmp_mass/mass*100).toFixed(2);
+					}
+					// the simplified formula
+					formula_simplified += elem_split[i];
+					// check for non-integer value
+					if(Math.ceil(elemental[elem_split[i]][1]) ==elemental[elem_split[i]][1]){formula_simplified +=elemental[elem_split[i]][1];}
+					else{formula_simplified += elemental[elem_split[i]][1].toFixed(2);}
 				// mass spec information; number of isotopes too
 // 				tmp_num = 0;
-// 				for(var abc in chem_element[elem_split[i]][3]){tmp_num++;}
-//                                 if(tmp_num == 0){tmp_num = 1;}
-//                                 tmp_string+='('+num_isotopes+')*(Math.pow('+tmp_num+','+num_atoms+')) for atom with mass of '+atom_mass+'<br>';
-//                                 num_isotopes = (num_isotopes)*(Math.pow(tmp_num,num_atoms)); // num_atoms,tmp_num?
+// 				for(var abc in elemental[elem_split[i]][3]){tmp_num++;}
+//					 if(tmp_num == 0){tmp_num = 1;}
+//					 tmp_string+='('+num_isotopes+')*(Math.pow('+tmp_num+','+num_atoms+')) for atom with mass of '+atom_mass+'<br>';
+//					 num_isotopes = (num_isotopes)*(Math.pow(tmp_num,num_atoms)); // num_atoms,tmp_num?
 
 			    for(var x=0;x<num_atoms;x++){
-//  				tmp_string += j+"=&gt;"+elem_split[i]+":"+1+"<br>";
-  					ms[j] = Array(elem_split[i],1,chem_element[elem_split[i]][3]);
-  					j++;
-  				}
-  			}
+//					tmp_string += j+"=&gt;"+elem_split[i]+":"+1+"<br>";
+						ms[j] = Array(elem_split[i],1,elemental[elem_split[i]][3]);
+						j++;
+					}
+				}
 
-  		}
-//                 tmp_string +="total number of isotopes: '"+num_isotopes+"'<br>";
-  		if(show_ms){ms = mass_spec(ms);}else{ms = '';}
-  		tmp_string2 += '</'+'div></'+'div>';
-  		var formula_no_html = formula_simplified;
+			}
+//			 tmp_string +="total number of isotopes: '"+num_isotopes+"'<br>";
+			if(show_ms){ms = mass_spec(ms);}else{ms = '';}
+			tmp_string2 += '</'+'div></'+'div>';
+			var formula_no_html = formula_simplified;
 
-  		// format the simplified formula
+			// format the simplified formula
 			formula_simplified = formula_simplified.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
 			// remove 'C<sub>1</'+'sub>'
 			formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
 
-                var msds_link = "http://www.sigmaaldrich.com/catalog/search/SearchResultsPage?Query="+formula_no_html+"&Scope=MolecularFormulaSearch";
-                msds_link = "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>";
-//   		tmp_string += "<div>Information for <span class=formula>"+formula_formatted+"</"+"span>=&gt; <span class=formula></"+"span><br>";
-  		tmp_string+= "<table width=\"100%\" style=\"margin:10px 5px;\"><thead><tr><td>Condensed forumula</"+"td><td>Composed of</"+"td><td>Mass</"+"td><td>Monoisotopic mass</"+"td><td></"+"td><td><acronym title=\"MSDS from Sigma Aldrich\">MSDS</"+"acronym></"+"td></"+"tr></"+"thead>";
-  		tmp_string+= "<tr><td class=formula>"+formula_simplified+"</"+"td><td class=formula>"+elem_added.replace(/,/g,", ")+"</"+"td><td class=formula>"+mass.toFixed(max_decimal_places)+"</"+"td><td class=formula>"+mono_mass.toFixed(max_decimal_places)+"</"+"td><td class=formula></"+"td><td>"+msds_link+"</"+"td></"+"tr></"+"table>";
-  		// update teh elemental analysis copy paste
-  		document.getElementById('molecular_formula').innerHTML = formula_simplified;
+			var msds_link = "http://www.sigmaaldrich.com/catalog/search/SearchResultsPage?Query="+formula_no_html+"&Scope=MolecularFormulaSearch";
+			msds_link = "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>";
+// 			tmp_string += "<div>Information for <span class=formula>"+formula_formatted+"</"+"span>=&gt; <span class=formula></"+"span><br>";
+			tmp_string+= "<table width=\"100%\" style=\"margin:10px 5px;\"><thead><tr><td>Condensed forumula</"+"td><td>Composed of</"+"td><td>Mass</"+"td><td>Monoisotopic mass</"+"td><td></"+"td><td><acronym title=\"MSDS from Sigma Aldrich\">MSDS</"+"acronym></"+"td></"+"tr></"+"thead>";
+			tmp_string+= "<tr><td class=formula>"+formula_simplified+"</"+"td><td class=formula>"+elem_added.replace(/,/g,", ")+"</"+"td><td class=formula>"+mass.toFixed(max_decimal_places)+"</"+"td><td class=formula>"+mono_mass.toFixed(max_decimal_places)+"</"+"td><td class=formula></"+"td><td>"+msds_link+"</"+"td></"+"tr></"+"table>";
+			// update teh elemental analysis copy paste
+			document.getElementById('molecular_formula').innerHTML = formula_simplified;
 
-  		var mmols = (document.chemicals.amt_added.value*1000/mass);
-  		molecular_mass = mass.toFixed(max_decimal_places);
-  		tmp_string += "</'+'div><div class=clearfix></'+'div></'+'div>"+tmp_string2+ms;
-  	}
-  	else{tmp_string += '&nbsp;';}
-  	// update the div
-  	info.innerHTML = tmp_string;
-  	info.style.className = 'info';
+			var mmols = (document.chemicals.amt_added.value*1000/mass);
+			molecular_mass = mass.toFixed(max_decimal_places);
+			tmp_string += "</'+'div><div class=clearfix></'+'div></'+'div>"+tmp_string2+ms;
+		}
+		else{tmp_string += '&nbsp;';}
+		// update the div
+		info.innerHTML = tmp_string;
+		info.style.className = 'info';
   }
   
 }
@@ -484,44 +484,44 @@ function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
 	var tmp = '';
 	if(elem_amt == 0){return('');}
 	// make sure we've not already encountered the symbol
-	if(chem_element[elem_curr][1] >0){
-  	// if so, increase the current element count by the amount already entered
-  		curr_elem_num += (parseFloat(chem_element[elem_curr][1])+elem_amt);
-//  		tmp_string += "<br>found "+elem_curr+" before ("+chem_element[elem_curr][1]+")";
-  	}
-  	else{
-  		curr_elem_num = elem_amt;
-//  		tmp_string += "<br><i>never</"+"i> found "+elem_curr+" before ("+chem_element[elem_curr][1]+")..";
-  	}
-  	// increase the total mass by the number we addd in this amount
-  	mass += chem_element[elem_curr][0]*elem_amt;
+	if(elemental[elem_curr][1] >0){
+		// if so, increase the current element count by the amount already entered
+			curr_elem_num += (parseFloat(elemental[elem_curr][1])+elem_amt);
+//			tmp_string += "<br>found "+elem_curr+" before ("+elemental[elem_curr][1]+")";
+		}
+		else{
+			curr_elem_num = elem_amt;
+//			tmp_string += "<br><i>never</"+"i> found "+elem_curr+" before ("+elemental[elem_curr][1]+")..";
+		}
+		// increase the total mass by the number we addd in this amount
+		mass += elemental[elem_curr][0]*elem_amt;
 
-  	// get the number of decimal places used in the measuremnt.  if less than the initial (or subsequent) value(s), then make the figure shorter
-  	tmp = String(chem_element[elem_curr][0]).split('.');
-  	if(tmp[1]){
-  		if(String(tmp[1]).length<max_decimal_places){max_decimal_places = String(tmp[1]).length}
-  	}
+		// get the number of decimal places used in the measuremnt.  if less than the initial (or subsequent) value(s), then make the figure shorter
+		tmp = String(elemental[elem_curr][0]).split('.');
+		if(tmp[1]){
+			if(String(tmp[1]).length<max_decimal_places){max_decimal_places = String(tmp[1]).length}
+		}
 
 //	tmp_string+= "<br>trying to add "+elem_curr+" ("+curr_elem_num+" atoms)";
 	// add the information
-  	try{
-  		// number
-  		chem_element[elem_curr][1] = curr_elem_num;
-  		// add to list of added elements so we don't trawl through all 118 off them in the end
-  		if(!elem_added.match(pattern)){
-//  			tmp_string+= "<br>added "+elem_curr+" ==&gt; number of atoms: "+chem_element[elem_curr][1]+" ("+curr_elem_num+"); &nbsp; mass of that number of atoms: "+chem_element[elem_curr][3]+"::";
-  			elem_added +=elem_curr+',';
-  		}
-  		else{
-//  			tmp_string += "already found "+elem_curr+" in "+elem_added;
-  		}
+		try{
+			// number
+			elemental[elem_curr][1] = curr_elem_num;
+			// add to list of added elements so we don't trawl through all 118 off them in the end
+			if(!elem_added.match(pattern)){
+//				tmp_string+= "<br>added "+elem_curr+" ==&gt; number of atoms: "+elemental[elem_curr][1]+" ("+curr_elem_num+"); &nbsp; mass of that number of atoms: "+elemental[elem_curr][3]+"::";
+				elem_added +=elem_curr+',';
+			}
+			else{
+//				tmp_string += "already found "+elem_curr+" in "+elem_added;
+			}
 
-  	}
-  	catch(e){
-  		tmp_string += 'Error message for "'+elem_curr+'" while adding to array: "'+e+'"';
-  	}
-//  	if(!(smg['a'+elem_curr])){tmp_string += 'adding '+elem_curr+'failed<br>';}
-//  	else{tmp_string+= '=&gt;Added '+elem_curr+', elemental[a'+elem_curr+'] = '+multiplier+'*'+elem_amt+'.  We now have '+smg.length+' chemical elements added<br>';}
+		}
+		catch(e){
+			tmp_string += 'Error message for "'+elem_curr+'" while adding to array: "'+e+'"';
+		}
+//		if(!(smg['a'+elem_curr])){tmp_string += 'adding '+elem_curr+'failed<br>';}
+//		else{tmp_string+= '=&gt;Added '+elem_curr+', elemental[a'+elem_curr+'] = '+multiplier+'*'+elem_amt+'.  We now have '+smg.length+' chemical elements added<br>';}
 	;
 	return tmp_string;
 }
@@ -545,8 +545,8 @@ function expand_brackets(formula){
     try{
       // clear the error message on each loop
       if(document.getElementById){
-      	document.getElementById('error').innerHTML = '';
-       	document.getElementById('error').className = '';
+    		document.getElementById('error').innerHTML = '';
+     		document.getElementById('error').className = '';
       }
 
       if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
@@ -560,8 +560,8 @@ function expand_brackets(formula){
       }
       else{
         if(document.getElementById){
-        	document.getElementById('error').innerHTML = brackets_error;
-        	document.getElementById('error').className = 'error';
+      		document.getElementById('error').innerHTML = brackets_error;
+      		document.getElementById('error').className = 'error';
         }
 //        tmp_string += brackets_error; //"Regular expression problem: "+
         break;
@@ -621,48 +621,48 @@ function expand_formula(formula){
 
 	var formula_mod = expand_brackets(formula);
 // 	tmp_string +="<br>expand_formula(): &nbsp;'expand_brackets' gave formula: "+formula_mod+'<br>';
-  	// match the elements.
-  	var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
+		// match the elements.
+		var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
 //	alert(formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g));
-  	
-  	// check we've matched something entered
-  	if((formula_mod.length) && (isArray(elements_match)) ){
+		
+		// check we've matched something entered
+		if((formula_mod.length) && (isArray(elements_match)) ){
      if(formula_mod.length>0){
 	  // check we've got something resembling a formula
 	  if((elements_match.length>0)){
-  		//might need to multiply items if inside brackets
-  		for(var i=0;i<elements_match.length;i++){
-  			// got a match of [a-z][0-9].  will need to split those apart, and form a
-  			// NEW array containing element and amount.  Note, we need to check if an element has already
-  			// been added so that formulas such as NiNO3.6H20 work well
-  			if(elements_match[i]){
-  				// clear this out to be safe
+			//might need to multiply items if inside brackets
+			for(var i=0;i<elements_match.length;i++){
+				// got a match of [a-z][0-9].  will need to split those apart, and form a
+				// NEW array containing element and amount.  Note, we need to check if an element has already
+				// been added so that formulas such as NiNO3.6H20 work well
+				if(elements_match[i]){
+					// clear this out to be safe
 
-  				var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
-//  				tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
+					var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
+//					tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
 			        // for the elements already added, we can use to check if already in 'elem_added'/not
-  				var pattern= new RegExp(tmp_match[1]+',');
+					var pattern= new RegExp(tmp_match[1]+',');
 
 				// force it to definitely be a string, and with no whitespace at the ends
  				tmp_match[1] = new String(tmp_match[1].replace(/^\s+|\s+$/g, ''));
-  				// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
-  				// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
-  				if(!pattern.test(elem_added) && chem_element[tmp_match[1]]){
-  					chem_element[tmp_match[1]][1] = 0;
-//  					tmp_string += "<br>setting chem_element[tmp_match[2]][1] AND chem_element[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
-  				}
-  				// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
-  				if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
-  					tmp_match[2]=1;
-//  					tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
-  				}
-  				// Make sure that the matched value is a number
+					// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
+					// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
+					if(!pattern.test(elem_added) && elemental[tmp_match[1]]){
+						elemental[tmp_match[1]][1] = 0;
+//						tmp_string += "<br>setting elemental[tmp_match[2]][1] AND elemental[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
+					}
+					// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
+					if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
+						tmp_match[2]=1;
+//						tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
+					}
+					// Make sure that the matched value is a number
 				else{tmp_match[2] = parseFloat(tmp_match[2]);}
 
 
 
 
-				if(!chem_element[tmp_match[1]] && !conversion[tmp_match[1]]){
+				if(!elemental[tmp_match[1]] && !conversion[tmp_match[1]]){
 					tmp_string += calculator.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
 				}
 				else if(conversion[tmp_match[1]]){
@@ -679,10 +679,10 @@ function expand_formula(formula){
 					tmp_string = add_element(pattern,tmp_string,tmp_match[1],tmp_match[2],curr_elem_num);
 				}
 
-  			}
-  		}
-  	  }
-  	 }
+				}
+			}
+		  }
+		 }
     }
 }
 
@@ -734,11 +734,11 @@ function element_list(visible){
 			var row = 1;var col=1;
 
 			// loop through the data
-			for(i in chem_element){
+			for(i in elemental){
 				data = '';
 				no_isotopes = 'class="no_isotopes_entered"';
 				// check for at least 1 isotope.  If not, we display it as a red flag
-				for(j in chem_element[i][3]){
+				for(j in elemental[i][3]){
 					if(j>0){
 						no_isotopes = '';
 						break;
@@ -746,7 +746,7 @@ function element_list(visible){
 				}
 
 				// rows
-				if(parseInt(chem_element[i][4]) != row){
+				if(parseInt(elemental[i][4]) != row){
 					if(row!=1){element_list_2 += '</'+'tr>';}
 					element_list_2 +='<tr>';
 					row++;
@@ -754,10 +754,10 @@ function element_list(visible){
 				}
 
 				// spacing columns
-				if(chem_element[i][5]-col>1){
-					while(chem_element[i][5]>col){
+				if(elemental[i][5]-col>1){
+					while(elemental[i][5]>col){
 						col++;
-						data = col+' :: '+chem_element[i][5];
+						data = col+' :: '+elemental[i][5];
 						data = '';
 						element_list_2 += '<td>'+data+'</'+'td>';
 					}
@@ -765,7 +765,7 @@ function element_list(visible){
 				else{col++;}
 
 				// data
-				data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+chem_element[i][0]+'\',  Monoisotopic mass:\''+chem_element[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
+				data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+elemental[i][0]+'\',  Monoisotopic mass:\''+elemental[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
 				element_list_2 +='<td '+data+'td>';
 				element_list+='<div '+data+'div>'+"\n";
 			}
@@ -788,17 +788,17 @@ function element_list(visible){
 function show_element_info(id){
 	if(document.getElementById){
 		if(document.getElementById('element_info')){
-			if(chem_element[id]){
+			if(elemental[id]){
 				var o = document.getElementById('element_info');
-				var str = "<b>"+id+"</"+"b><br>Mass:"+chem_element[id][0]+"";
+				var str = "<b>"+id+"</"+"b><br>Mass:"+elemental[id][0]+"";
 				var i;
-				if(typeof(chem_element[id][3]) == 'object'){
-					str+="<br>Monoisotopic mass: "+chem_element[id][2]+"<br><br><i>Isotopes & abundances</"+"i>:<br>";
+				if(typeof(elemental[id][3]) == 'object'){
+					str+="<br>Monoisotopic mass: "+elemental[id][2]+"<br><br><i>Isotopes & abundances</"+"i>:<br>";
 					var tmp_str= '';
 					var summing = 0;
-					for(i in chem_element[id][3]){
-						tmp_str+="<div>"+i+" - "+chem_element[id][3][i]+"%</"+"div>";
-						summing = summing + chem_element[id][3][i];
+					for(i in elemental[id][3]){
+						tmp_str+="<div>"+i+" - "+elemental[id][3][i]+"%</"+"div>";
+						summing = summing + elemental[id][3][i];
 					}
 					if(tmp_str.length==0){tmp_str = "<div class=\"no_isotopes_entered\">No isotopes known/entered for this element</"+"div>";}
 					str+=tmp_str;
@@ -832,15 +832,15 @@ function show_hide(element){
 
 function update_mmols(mol_mass){;
   if(document.getElementById){
-  	document.getElementById('mmols').value = document.getElementById('mass').value*document.getElementById('mass_multiplier').value/mol_mass/document.getElementById('mmol_multiplier').value;
-  	// reset the equivalents
-  	document.getElementById('equivalents').value = 1;
+		document.getElementById('mmols').value = document.getElementById('mass').value*document.getElementById('mass_multiplier').value/mol_mass/document.getElementById('mmol_multiplier').value;
+		// reset the equivalents
+		document.getElementById('equivalents').value = 1;
   }
 }
 function update_mass(mol_mass){;
   if(document.getElementById){
-  	// update the mass
-  	document.getElementById('mass').value = document.getElementById('mmols').value*document.getElementById('mmol_multiplier').value*document.getElementById('equivalents').value*mol_mass/document.getElementById('mass_multiplier').value;
+		// update the mass
+		document.getElementById('mass').value = document.getElementById('mmols').value*document.getElementById('mmol_multiplier').value*document.getElementById('equivalents').value*mol_mass/document.getElementById('mass_multiplier').value;
 	// update the volume
 	update_volume(mol_mass);
   }
@@ -849,16 +849,16 @@ function update_mass(mol_mass){;
 
 function update_mmols_volume(mol_mass){;
   if(document.getElementById){
-  	document.getElementById('mmols').value = document.getElementById('volume').value/document.getElementById('volume_multiplier').value*document.getElementById('density').value/mol_mass/document.getElementById('mmol_multiplier').value;
-  	// reset the equivalents
-  	document.getElementById('equivalents').value = 1;
-  	
+		document.getElementById('mmols').value = document.getElementById('volume').value/document.getElementById('volume_multiplier').value*document.getElementById('density').value/mol_mass/document.getElementById('mmol_multiplier').value;
+		// reset the equivalents
+		document.getElementById('equivalents').value = 1;
+		
   }
 }
 
 function update_volume(mol_mass){
 	// update the volume based on the density
-  	document.getElementById('volume').value = document.getElementById('mmols').value*document.getElementById('mmol_multiplier').value*mol_mass/document.getElementById('density').value*document.getElementById('volume_multiplier').value;
+		document.getElementById('volume').value = document.getElementById('mmols').value*document.getElementById('mmol_multiplier').value*mol_mass/document.getElementById('density').value*document.getElementById('volume_multiplier').value;
 }
 
 function mass_spec(elemental_composition){
@@ -941,7 +941,7 @@ function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 	// mass spec max percentage can only increase.  If it's a peak that will be noise, we need to kill it off
     if(((ion_info[1]/mass_spec_max_percentage)<(mass_spec_min_visible/10))){
 //	  console.info("Stopped ion of "+ion_info[1]+"% from being added.  Molecular mass was:"+ion_info[0]+" max_mass_spec: "+mass_spec_max_percentage);
-    	return false;
+  		return false;
     }
 	if(info[curr_elem] && (typeof(info[curr_elem][2]) == 'object')){
 		// tmp vars
@@ -952,7 +952,7 @@ function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 			curr_mass = parseFloat(ion_info[0])+parseFloat(i);
 // 			console.info(curr_isotope+"	 : "+i+" : "+info[curr_elem][2][i]+" -- Gives: mass number of '"+curr_mass+"' and probability of '"+(parseFloat(ion_info[1])*(info[curr_elem][2][i]/100))+"'");
 
-                        tmp = run_through_isotopes(info,curr_elem+1,i,all_ions,Array(curr_mass,parseFloat(ion_info[1])*(info[curr_elem][2][i]/100)));
+			        tmp = run_through_isotopes(info,curr_elem+1,i,all_ions,Array(curr_mass,parseFloat(ion_info[1])*(info[curr_elem][2][i]/100)));
 		}
 	}
 	else{
@@ -961,14 +961,14 @@ function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 	    if(ion_info[1]>mass_spec_max_percentage){mass_spec_max_percentage = ion_info[1];}
 		// add percentage value if needed
 		if(mass_spec_info[ion_info[0]]){
-//                   console.info("appending information");
+//			   console.info("appending information");
 			ion_info[1] += mass_spec_info[ion_info[0]];
 		}
 		// for debug only
-//                 else{                  console.info("setting first instance of ion");}
+//			 else{			  console.info("setting first instance of ion");}
 		if(ion_info[1]){
-                  mass_spec_info[ion_info[0]] = ion_info[1];
-                }
+			  mass_spec_info[ion_info[0]] = ion_info[1];
+			}
 	}
 	return(true);
 }
