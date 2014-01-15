@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>Chemical composition calculations (as you type)</title>
+<meta name="description" content="Chemical Composition Calculator that calculates elemental analysis, monoisotopic mass, molecular ion pattern, and reaction equivalents all in your browser, meaning you can more quickly determine what your products are">
+
+<!-- base stylesheet -->
+<style type="text/css" media="screen,print">
+body{font-family:arial;font-size:0.8em}
+table{border-collapse:collapse;}
+td{padding:2px;}
+table#periodic td{padding:0px;}
+table#periodic a{padding:2px;}
+
+thead td{font-weight:bold;font-size:0.9em;}
+h1{margin-top:5px;font-size:1.5em;margin-bottom:0px}
+input{background-color:#EEEEFF;border:1px solid black;margin: 3px 0px 0px 10px;color:black;}
+input #show_mass_spec{border:0px;}
+select{background-color:#FFEEFF;margin-top:3px;}
+div{margin:2px 0px 0px 0px;}
+div.chn div{background-color:#DDDDFF;}
+.align_r{text-align:right;}
+.code{font-family:courier;color:black}
+.error{color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;}
+.warning{text-align:center;float:left;width:594px;clear:both;border:1px solid orange;padding:2px;background-color:#FFEECC;}
+.formula{color:green;font-weight:bold;}
+.highlighted{background-color:#EEEEFF;}
+.help {Position:absolute;right:0px;width:430px;text-align:left;background-color:#FFEEDD;padding:3px;border:1px solid #BBAA99;padding-top:48px;}
+.shorthand_toggles{text-align:right;}
+.help_toggles{float:left;}
+.help_toggles h2{margin:0px 2px;}
+.help h2{margin:0px;}
+.shorthand{Position:absolute;right:5px;top:15px;width:426px;border:1px solid red;overflow:auto;}
+.information{width:220px;text-align:right;float:left;}
+.data{width:375px;float:left;padding-left:3px}
+.chn{}
+/* units */
+.mass{width: 70px;float:left;text-align:center;}
+input.mass{width:60px;text-align:right;}
+.unit{margin-left:5px;width: 60px;float:left;text-align:center;}
+.volume{float:left;width:60px;text-align:center;}
+#volume{width:60px;text-align:right;}
+.density{float:left;width:60px;text-align:center;}
+input.density{margin-left:10px;width:45px;text-align:right;}
+
+.update{float:left;width:70px;text-align:center;}
+.mmols{width:110px;float:left;text-align:center;}
+input.mmols{width:100px;text-align:right}
+.equivalents{width:35px;float:left;text-align:center;}
+input.equivalents{width:35px;text-align:right;margin-left:0px;}
+select.unit{width:50px;}
+.auto_overflow{width:600px}
+
+/* elemental composition output */
+.element{    float:left;width:20%;}
+.num_atoms{  float:left;width:20%;}
+.atomic_mass{float:left;width:20%;}
+.net_mass{   float:left;width:20%;}
+.percent_composition{float:left;width:20%;}
+.ms_header{float:left;width:100%;}
+.m_z{height:12px;padding:0px;float:left;width:10%;font-style:italic;}
+.ms_intensity{height:12px;float:left;width:78%;}
+.ms_intensity div.percentage{height:10px;background-color:#000080;margin-bottom:4px;}
+.ms_intensity_num{height:12px;float:left;width:12%; text-align:right;}
+.header div{font-weight:bold;background-color:#DDDD88;border:0px}
+
+.info{width:600px;clear:both;}
+#conversion_section{width:550px;float:left;}
+
+#shorthand{
+	visibility:hidden;
+	display:none;
+	background-color:#BBDDBB;
+	clear:both;
+}
+#element_list{
+	visibility:hidden;
+	display:none;
+	background-color:#DDEEFF;
+	padding:2px;
+	overflow:auto;
+	clear:both;
+}
+#element_info{
+	right:435px;position:absolute;top:8px;
+	visibility:hidden;
+	display:none;
+	width:150px;
+	border:1px solid #BBDDFF;
+	background-color:#DDEEFF;
+}
+div.c_e{float:left;width:20%;text-align:center;margin-top:0px;}
+td.c_e{width:18px;height:15px;}
+.c_e a{display:block;}
+.c_e a:hover{background-color:#CCCCDD;}
+.no_isotopes_entered{background-color:#FFDDBB;}
+
+/* quick elemental analysis */
+#element_analysis{
+	background-color:#FFFFDF;
+	clear:both;
+}
+.e_c, .e_h, .e_n, .multiplier, #yields{width:50px;float:left;text-align:center;color:#888888;}
+#e_c, #e_h, #e_n{color:black;}
+.e_c input, .e_h input, .e_n input, .multiplier input{margin:0px;width:45px;color:#AAAAAA;}
+.e_c input.field_enter_text, .e_h input.field_enter_text, .e_n input.field_enter_text, .multiplier input.field_enter_text{color:black;}
+#chn_copy_paste{clear:both;padding-top:3px;padding-left:3px;}
+/* generic */
+.clearfix {display:inline-block;}
+
+/* Hides from IE-mac \*/
+* html .clearfix {height: 1%;}
+.clearfix {display: block;clear:both;}
+/* End hide from IE-mac */
+
+</style>
+<style type="text/css" media="print">
+.help, .shorthand{display:none;}
+
+</style>
+
+<!-- element information -->
+<script type="text/javascript">
+/* elemental information */
+var elemental = {
+	// ordering based on periodic table so can update/add easily.
+	// not alphabetical, though would be possible
+	// takes information on row and column information so that can easily build periodic table from information
+
+	// all values for masses taken from Sigma-Aldrich wall chart, and precise mass used where known
+	// format of array is Array(ROW,COL,PRECISE_MASS,NUM_ELEMENTS_IN_FORMULA,MOST_COMMON_ISOTOPE,array(OTHER_ISOTOPES=>percentages_as_numbers_not_decimals);
+	// MOST_COMMON_ISOTOPE is used for creating the monoisotopic mass
+
+	// row1
+	H:   [1, 1,  1.0079,    0,1,  {1:99.9885,2:0.0115},1,1],
+	He:  [1, 18, 4.002602,  0,4,  {3:0.000137,4:99.999863},1,18],
+	// row 2
+	Li:  [2, 1, 6.941,      0,7,  {6:7.59,7:92.41},2,1],
+	Be:  [2, 2, 9.012182,   0,9,  {9:100},2,2],
+
+	// row 2, p block
+	B:   [2, 13, 10.811,    0,11, {10:19.9,11:80.1}],
+	C:   [2, 14, 12.0107,   0,12, {12:98.93,13:1.07}],
+	N:   [2, 15, 14.0067,   0,14, {14:99.632,15:0.368}],
+	O:   [2, 16, 15.9994,   0,16, {16:99.757,17:0.038,18:0.205}],
+	F:   [2, 17, 18.998403, 0,19, {19:100}],
+	Ne:  [2, 18, 20.1797,   0,20, {20:90.48,21:0.27,22:9.25}],
+
+	// row 3
+	Na:  [3, 1, 22.98977,   0,23, {23:100}],
+	Mg:  [3, 2, 24.305,     0,24, {24:78.99,25:10,26:11.01}],
+
+	// row 3, p block
+	Al:  [3, 13, 26.981538, 0,27, {27:100}],
+	Si:  [3, 14, 28.0855,   0,28, {28:92.2297,29:4.6832,30:3.0872}],
+	P:   [3, 15, 30.973761, 0,31, {31:100}],
+	S:   [3, 16, 32.065,    0,32, {32:94.93,33:0.76,34:4.29,36:0.02}],
+	Cl:  [3, 17, 35.453,    0,35, {35:75.78,37:24.22}],
+	Ar:  [3, 18, 39.948,    0,40, {36:0.3365,38:0.0632,40:99.6003}],
+
+	// row 4
+	K:  [4, 1, 39.0983,     0,39, {39:93.25811,40:0.011672,41:6.73022}],
+	Ca: [4, 2, 40.078,      0,40, {40:96.941,42:0.647,43:0.135,44:2.086,46:0.004,48:0.187}],
+	  // row 4, d-block metals
+	Sc: [4, 3 , 44.95591,   0,45, {45:100}],
+	Ti: [4, 4 , 47.867,     0,48, {46:8.249,47:7.437,48:73.720,49:5.409,50:5.185}],
+	V:  [4, 5 , 50.9415,    0,51, {50:0.2497,51:99.7503}],
+	Cr: [4, 6 , 51.9961,    0,52, {50:4.3452,52:83.7895,53:9.5006,54:2.3647}],
+	Mn: [4, 7 , 54.938049,  0,55, {55:100}],
+	Fe: [4, 8 , 55.845,     0,56, {54:5.845,56:91.754,57:2.1191, 58:0.2819}],
+	Co: [4, 9 , 58.9332,    0,59, {59:100}],
+	Ni: [4, 10, 58.6934,    0,58, {58:68.0769,60:26.2231,61:1.1399,62:3.6345,64:0.9256}],
+	Cu: [4, 11, 63.546,     0,63, {63:69.174,65:30.826}],
+	Zn: [4, 12, 65.409,     0,64, {64:48.63,66:27.90,67:4.10,68:18.75,70:0.62}],
+	// row 4, p-block
+	Ga: [4, 13, 69.732,     0,69, {69:60.1079,71:39.8921}],
+	Ge: [4, 14, 72.64,      0,74, {70:21.234,72:27.662,73:7.717,74:35.943,76:7.444}],
+	As: [4, 15, 74.9216,    0,75, {75:100}],
+	Se: [4, 16, 78.96,      0,80, {74:0.889,76:9.366,77:7.635,78:23.772,80:49.607,82:8.731}],
+	Br: [4, 17, 79.904,     0,79, {79:50.686,81:49.314}],
+	Kr: [4, 18, 83.798,     0,84, {78:0.35351,80:2.28086,82:11.58304,83:11.49533,84:56.9889,86:17.29835}],
+
+	//row 5
+	Rb: [5, 1, 85.4678,     0,85, {85:72.1654,87:27.8346}],
+	Sr: [5, 2, 87.62,       0,88, {84:0.5574,86:9.8566,87:7.0015,88:82.5845}],
+	// row 5, d-block metals
+	Y:  [5, 3 , 88.90585,   0,89, {89:100}],
+	Zr: [5, 4 , 91.224,     0,90, {90:51.452,91:11.223,92:17.146,94:17.380,96:2.799}],
+	Nb: [5, 5 , 92.90638,   0,93, {93:100}],
+	Mo: [5, 6 , 95.94,      0,98, {92:14.8362,94:9.2466,95:15.9201,96:16.6756,97:9.5551,98:24.1329,100:9.6335}],
+	Tc: [5, 7 , 98,         0,98, {98:100}],
+	Ru: [5, 8 , 101.07,     0,102,{96:5.542,98:1.8688,99:12.7579,100:12.5985,101:17.0600,102:31.5519,104:18.6210}],
+	Rh: [5, 9 , 102.9055,   0,103, {103:100}],
+	Pd: [5, 10, 106.42,     0,106, {102:1.020,104:11.14,105:22.33,106:27.33,108:26.46,110:11.72}],
+	Ag: [5, 11, 107.8682,   0,107, {107:51.8392,109:48.1608}],
+	Cd: [5, 12, 112.411,    0,114, {106:1.25,108:0.89,110:12.49,111:12.80,112:24.13,113:12.22,114:28.73,116:7.49}],
+	  // row 5, p-block
+	In: [5, 13, 114.818,    0,115, {113:4.288,115:95.712}],
+	Sn: [5, 14, 118.71,     0,120, {112:0.973,114:0.659,115:0.339,116:14.536,117:7.676,118:24.223,119:8.585,120:32.593,122:4.629,124:5.789}],
+	Sb: [5, 15, 121.76,     0,121, {121:57.213,123:42.787}],
+	Te: [5, 16, 127.6,      0,130, {120:0.096,122:2.603,123:0.908,124:4.816,125:7.139,126:18.952,128:31.687,130:33.799}],
+	I:  [5, 17, 126.90447,  0,127, {127:100}],
+	Xe: [5, 18, 131.293,    0,132, {124:0.08913,126:0.08880,128:1.91732,129:26.43964,130:4.08721,131:21.17961,132:26.89157,134:10.44232,136:8.8680}],
+
+	// row 6
+	Cs: [6, 1, 132.9045,    0,133, {133:100}],
+	Ba: [6, 2, 137.327,     0,138, {130:0.1058,132:0.1012,134:2.417,135:6.592,136:7.853,137:11.232,138:71.699}],
+	  // row 6, d-block metals
+	La: [6, 3 , 138.9055,   0,139, {138:0.09017,139:99.90983}],
+	Hf: [6, 4 , 178.49,     0,178, {174:0.1620,176:5.2604,177:18.5953,178:27.2811,179:13.6210,180:35.0802}],
+	Ta: [6, 5 , 180.9479,   0,181, {180:0.0123,181:99.9877}],
+	W:  [6, 6 , 183.84,     0,184, {180:0.1198,182:26.4985,183:14.3136,184:30.6422,186:28.4259}],
+	Re: [6, 7 , 186.207,    0,187, {185:37.398,187:62.602}],
+	Os: [6, 8 , 190.23,     0,192, {184:0.0197,186:1.5859,187:1.9644,188:13.2434,189:16.1466,190:26.2584,92:40.7815}],
+	Ir: [6, 9 , 192.217,    0,193, {191:37.272,193:62.728}],
+	Pt: [6, 10, 195.078,    0,195, {190:0.013634,192:0.782659,194:32.96700,195:33.831557,196:25.24166,198:7.16349}],
+	Au: [6, 11, 195.96655,  0,197, {197:100}],
+	Hg: [6, 12, 200.59,     0,202, {196:0.15344,198:9.968,199:16.873,200:23.096,201:13.181,202:29.863,204:6.865}],
+	  // row 6, p-block
+	Tl: [6, 13, 204.3833,   0,205, {203:29.524,205:70.476}],
+	Pb: [6, 14, 207.2,      0,208, {204:1.4245,206:24.1447,207:22.0827,208:52.3481}],
+	Bi: [6, 15, 208.98038,  0,209, {209:100}],
+	Po: [6, 16, 209,        0,209, {}],
+	At: [6, 17, 210,        0,210, {}],
+	Rn: [6, 18, 222,        0,222, {}],
+
+	// row 7
+	Fr: [7, 1, 223,         0,223, {}],
+	Ra: [7, 2, 226,         0,226, {}],
+	  // row 7, d-block metals
+	Ac: [7, 3, 227,         0,227, {}],
+
+	Rf: [7, 4, 261,         0,261, {}],
+	Db: [7, 5, 262,         0,262, {}],
+	Sg: [7, 6, 266,         0,266, {}],
+	Bh: [7, 7, 264,         0,264, {}],
+	Hs: [7, 8, 277,         0,277, {}],
+	Mt: [7, 9, 268,         0,268, {}],
+	Ds: [7, 10, 281,        0,281, {}],
+	  // row 7, p-block (very little data, so most not shown)
+	Uuu: [7, 11, 272,       0,272, {}],
+	Uub: [7, 12, 285,       0,285, {}],
+	// Uut: [1, 1, ,0,,{}],
+	Uuq: [7, 1, 289,        0,289, {}],
+
+	// Lactinides and actinides as a new set ofrows, as per 'normal'
+	  // row 6, Lanthanides/f-block
+	// dummy spacer
+//	elemental[''] = new Array('',   '','', {}],
+  dummy:[8,1],
+
+	Ce: [9, 1 ,140.116,     0,140, {136:0.186,138:0.251,140:88.449,142:11.114}],
+	Pr: [9, 2 , 140.90765,  0,141, {141:100}],
+	Nd: [9, 3 , 144.24,     0,142, {142:27.16,143:12.18,144:23.83,145:8.30,146:17.17,148:5.74,150:5.62}],
+	Pm: [9, 4 , 145,        0,145, {}],
+	Sm: [9, 5 , 150.36,     0,152, {144:3.0734,147:14.9934,148:11.2406,149:13.8189,150:7.3796,152:26.7421,154:22.7520}],
+	Eu: [9, 6 , 151.964,    0,153, {151:47.810,153:52.190}],
+	Gd: [9, 7 , 157.25,     0,158, {152:0.2029,154:2.1809,155:14.7998,156:20.4664,157:15.6518,158:24.8347,160:21.8635}],
+	Tb: [9, 8 , 158.92534,  0,159, {159:100}],
+	Dy: [9, 9 , 162.5,      0,164, {156:0.056,158:0.096,160:2.34,161:18.91,162:25.51,163:24.90,164:28.19}],
+	Ho: [9, 10, 164.93032,  0,165, {165:100}],
+	Er: [9, 11, 167.259,    0,166, {162:0.137,164:1.609,166:33.61,167:22.93,168:26.79,170:14.93}],
+	Tm: [9, 12, 168.93421,  0,169, {169:100}],
+	Yb: [9, 13, 173.04,     0,172, {168:0.127,170:3.04,171:14.28,172:21.83,173:16.13,174:31.83,176:12.76}],
+	Lu: [9, 14, 174.967,    0,175, {175:97.416,176:2.584}],
+
+	  // row 7, actinides
+	Th: [10, 1 ,232.0381,   0,232, {}],
+	Pa: [10, 2 , 231.03588, 0,231, {}],
+	U:  [10, 3 , 238.02891, 0,238, {}],
+	Np: [10, 4 , 237,       0,237, {}],
+	Pu: [10, 5 , 244,       0,244, {}],
+	Am: [10, 6 , 243,       0,243, {}],
+	Cm: [10, 7 , 247,       0,247, {}],
+	Bk: [10, 8 , 247,       0,247, {}],
+	Cf: [10, 9 , 251,       0,251, {}],
+	Es: [10, 10, 252,       0,252, {}],
+	Fm: [10, 11, 257,       0,257, {}],
+	Md: [10, 12, 258,       0,258, {}],
+	No: [10, 13, 259,       0,259, {}],
+	Lr: [10, 14, 262,       0,262, {}],
+
+	// Uup: [1, 1, ,0,,{}],
+	// Uuh: [1, 1, ,0,,{}],
+	// Uus: [1, 1, ,0,,{}],
+	// Uuo: [1, 1, ,0,,{}],
+
+
+	// so we can have a ',' at the end of all lines and not forget things
+	end_el:[]
+}
+
+var calculator = {
+	/* place to store the shorthand and periocid table; don't regenerate the HTML unnecessarily */
+	shorthand:'',
+	periodic:'',
+
+	message:function(message, type){
+		return '<div class="'+type+'">'+message+'</div>';
+	},
+
+	td:function(msg,cls){
+		cls = (cls.length && cls.length>0)?' class="'+cls+'"':'';
+		return '<td'+cls+'>'+msg+'</td>';
+	},
+	tr:function(arr){
+		var html=  '';
+		var i;
+		// build the row?
+		if(arr.length>0){
+			html += '<tr>';
+			for (i in arr){html += this.td(arr[i],'');}
+			html += '</tr>';
+		}
+		return html;;
+	},
+
+	spacing_columns:function(from,to,current){
+		html = '';
+
+		for(i=from;i<to;i++){
+			html += this.td('','blank');
+		}
+
+		current = i;
+
+		return {current:current,html:html}
+	}
+}
+</script>
+
+<script type="text/javascript">
+<!--
+var elements_used = '';
+var chem_element = new Array();
+var chem_isotopes;
+var mass=0;
+var molecular_mass = 0;
+var max_decimal_places = 20;
+var elem_added = '';
+var tmp_string = '';
+var formula_simplified = '';
+var formula_formatted;
+var curr_elem_num = 0;
+var expand_formula_iteration = 0;
+var mass_used = 0;
+var mmol_used = 0;
+var prev_formula = '';
+var mass_spec_info = new Array();
+var mass_spec_max_percentage = 0.000000001;
+// minimum percentage to need for showing in the mass spec peaks
+var mass_spec_min_visible =0.01;
+var show_mass_spec;
+// all values for masses taken from Sigma-Aldrich wall chart, and precise mass used where known
+// format of array is Array(PRECISE_MASS,NUM_ELEMENTS_IN_FORMULA,MOST_COMMON_ISOTOPE,array(OTHER_ISOTOPES=>percentages_as_numbers_not_decimals);
+// MOST_COMMON_ISOTOPE is used for creating the monoisotopic mass
+
+var chem_row = 1;
+var chem_col = 1;
+
+// -->
+</script>
+
+<!-- common fragment information -->
+<script type="text/javascript">
+<!--
+
+var fragments = {
+	Me:   'CH3',
+	Et:   'CH2CH3',
+	Pro:  '(CH2)2CH3',
+	Bu:   '(CH2)3CH3',
+	Vi:   'HCCH2',
+	Ph:   'C6H5',
+	Ac:   'COCH3',
+	Cy:   '(CH2)5CH',
+	Cp:   '(CH)5',
+	Dmf:  '(CH3)2NCOH',
+	Def:  '(CH3)2(CH2)2NCOH',
+	Thf:  'C4H8O',
+	Dmso: '(CH3)2SO',
+	Dcm:  'CH2Cl2'
+}
+
+// -->
+</script>
+
+<!-- the heavy lifting -->
+<script type="text/javascript">
+<!--
+// scientific reasoning on the significant figures after the decimal place is thus:  you can't have
+// anything more precise than that which is the least precise.  i.e. 0.5+0.00005 = 0.5 because the first
+// measurement was not measured so accurately, and is actually 0.5 with a variance of 0.049 which nullifies
+// the 0.00005 measurement
+
+function calculate_info(formula){
+	// declare (clear) the variables
+	var info = '';
+	var i=0;
+	tmp_string = '';
+	max_decimal_places = 6;
+	var key=0;
+	elem_added = '';formula_simplified = '';var formula_mod = '';
+	mass=0;
+	var mono_mass = 0;
+	expand_formula_iteration = 0;
+
+	// check that the checked field is even valid before performing checks
+	if(show_mass_spec == null){
+		show_mass_spec = document.getElementById('show_mass_spec').checked? 1:0;
+	}
+
+	// we will need to check for a change in the state of the checkbox for the mass spec too
+	// do we have to run through?   Keys back and forth don't count
+	if((formula == prev_formula) && (show_mass_spec == (document.getElementById('show_mass_spec').checked? 1:0))){return false;}
+	else{prev_formula = formula;}
+
+  // reset first as we don't always have a clean slate
+  reset_chn();
+
+	// update the show mass spec field if we gt this far
+	show_mass_spec = document.getElementById('show_mass_spec').checked? 1:0;
+
+	// use the DOM method
+	if(document.getElementById){
+		expand_formula(formula);
+
+		// get a reference to the DIV we're going to populate
+		info = document.getElementById('info');
+	
+		// output
+ 	// make the formula look pretty
+		formula_formatted = formula.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+		// add to the string
+
+		if(elem_added.length>0){
+
+			// set up a var to store the table while we work out the base formula
+			var tmp_string2='';formula_simplified = '';
+			// remove the end ','
+			elem_added = elem_added.replace(/,$/,'');
+			var elem_split = elem_added.split(',');
+			var tmp_mass=0;
+			var bg_num=0;var bg;var num_atoms;var atom_mass;
+			var show_ms = false;if((document.getElementById('show_mass_spec').checked == true)){show_ms = true;}
+
+			//header
+			tmp_string2 += '<div><div class="outline"><div class="header"><div class="element">Element</'+'div><div class="element">Number of Atoms</'+'div><div class="atomic_mass">Atomic mass</'+'div><div class="net_mass align_r">Total Mass (amu)</'+'div><div class="align_r percent_composition">% composition</'+'div><div class=clearfix></'+'div></'+'div>';
+			// array to pass to the mass spec function arrays of(element name, number_of elements)
+			var ms = new Array();var len = elem_split.length;var j=0;
+			var num_isotopes = 1;var tmp_num = 0;var chn = 0;var classes = '';var bg;
+			for(i=0;i<len;i++){
+				classes = '';
+				// got to exist
+				if(elem_split[i].length>0 && (elemental[elem_split[i]][3]>0)){
+
+					// CHN get highlighted
+					classes += ((elem_split[i] == 'C')||(elem_split[i] == 'H')||(elem_split[i] == 'N'))?'chn ':'';
+					// colour
+					bg_num++;if((bg_num % 2)>0){classes += ' highlighted';}
+					// number of atoms
+					num_atoms = elemental[elem_split[i]][3];
+					if(Math.ceil(num_atoms) !=num_atoms && isNumeric(parseFloat(num_atoms))){num_atoms =parseFloat(num_atoms).toFixed(3);}
+					// an atom's mass
+					atom_mass = elemental[elem_split[i]][2];
+					tmp_mass = parseFloat(elemental[elem_split[i]][2]*num_atoms).toFixed(max_decimal_places);
+					mono_mass += num_atoms*elemental[elem_split[i]][4];
+					// html/not for class names
+					classes = (classes.length>0)?' class="'+classes+'"':'';
+					tmp_string2+='<div'+classes+'><div class="element">'+elem_split[i]+'</'+'div><div class="num_atoms">'+num_atoms+'</'+'div><div class="atomic_mass">'+atom_mass+'</'+'div><div class="net_mass align_r">'+tmp_mass+'</'+'div><div class="percent_composition align_r">'+parseFloat(tmp_mass/mass*100).toFixed(max_decimal_places)+'%</'+'div><div class=clearfix></'+'div></'+'div>';
+					// update elemental analysis fields
+					if(elem_split[i] == 'C' ||elem_split[i] == 'H' ||elem_split[i] == 'N') {
+					  document.getElementById(elem_split[i].toLowerCase()+'_expected').innerHTML = parseFloat(tmp_mass/mass*100).toFixed(2);
+					}
+					// the simplified formula
+					formula_simplified += elem_split[i];
+					// check for non-integer value
+					if(Math.ceil(elemental[elem_split[i]][3]) ==elemental[elem_split[i]][3]){formula_simplified +=elemental[elem_split[i]][3];}
+					else{formula_simplified += elemental[elem_split[i]][3].toFixed(2);}
+				// mass spec information; number of isotopes too
+// 				tmp_num = 0;
+// 				for(var abc in elemental[elem_split[i]][3]){tmp_num++;}
+//					 if(tmp_num == 0){tmp_num = 1;}
+//					 tmp_string+='('+num_isotopes+')*(Math.pow('+tmp_num+','+num_atoms+')) for atom with mass of '+atom_mass+'<br>';
+//					 num_isotopes = (num_isotopes)*(Math.pow(tmp_num,num_atoms)); // num_atoms,tmp_num?
+
+			    for(var x=0;x<num_atoms;x++){
+//					tmp_string += j+"=&gt;"+elem_split[i]+":"+1+"<br>";
+						ms[j] = Array(elem_split[i],1,elemental[elem_split[i]][5]);
+						j++;
+					}
+				}
+
+			}
+//			 tmp_string +="total number of isotopes: '"+num_isotopes+"'<br>";
+			if(show_ms){ms = mass_spec(ms);}else{ms = '';}
+			tmp_string2 += '</'+'div></'+'div>';
+			var formula_no_html = formula_simplified;
+
+			// format the simplified formula
+			formula_simplified = formula_simplified.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+			// remove 'C<sub>1</'+'sub>'
+			formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
+
+			var msds_link = "http://www.sigmaaldrich.com/catalog/search/SearchResultsPage?Query="+formula_no_html+"&Scope=MolecularFormulaSearch";
+			msds_link = "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>";
+// 			tmp_string += "<div>Information for <span class=formula>"+formula_formatted+"</"+"span>=&gt; <span class=formula></"+"span><br>";
+			tmp_string+= "<table width=\"100%\" style=\"margin:10px 5px;\"><thead><tr><td>Condensed formula</"+"td><td>Composed of</"+"td><td>Mass</"+"td><td>Monoisotopic mass</"+"td><td></"+"td><td><acronym title=\"MSDS from Sigma Aldrich\">MSDS</"+"acronym></"+"td></"+"tr></"+"thead>";
+			tmp_string+= "<tr>"+
+				calculator.td(formula_simplified,'formula')+
+				calculator.td(elem_added.replace(/,/g,", "),'formula')+
+				calculator.td(mass.toFixed(max_decimal_places),'formula')+
+				calculator.td(mono_mass.toFixed(max_decimal_places),'formula')+
+				"<td>"+msds_link+"</"+"td></"+"tr></"+"table>";
+			// update teh elemental analysis copy paste
+			document.getElementById('molecular_formula').innerHTML = formula_simplified;
+
+			var mmols = (document.chemicals.amt_added.value*1000/mass);
+			molecular_mass = mass.toFixed(max_decimal_places);
+			tmp_string += "</'+'div><div class=clearfix></'+'div></'+'div>"+tmp_string2+ms;
+		}
+		else{tmp_string += '&nbsp;';}
+		// update the div
+		info.innerHTML = tmp_string;
+		info.style.className = 'info';
+  }
+  
+}
+
+function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
+	var tmp = '';
+	if(elem_amt == 0){return('');}
+	// make sure we've not already encountered the symbol
+	if(elemental[elem_curr][3] >0){
+		// if so, increase the current element count by the amount already entered
+			curr_elem_num += (parseFloat(elemental[elem_curr][3])+elem_amt);
+//			tmp_string += "<br>found "+elem_curr+" before ("+elemental[elem_curr][1]+")";
+		}
+		else{
+			curr_elem_num = elem_amt;
+//			tmp_string += "<br><i>never</"+"i> found "+elem_curr+" before ("+elemental[elem_curr][1]+")..";
+		}
+		// increase the total mass by the number we addd in this amount
+		mass += elemental[elem_curr][2]*elem_amt;
+
+		// get the number of decimal places used in the measuremnt.  if less than the initial (or subsequent) value(s), then make the figure shorter
+		tmp = String(elemental[elem_curr][2]).split('.');
+		if(tmp[1]){
+			if(String(tmp[1]).length<max_decimal_places){max_decimal_places = String(tmp[1]).length}
+		}
+
+
+//	tmp_string+= "<br>trying to add "+elem_curr+" ("+curr_elem_num+" atoms)";
+	// add the information
+		try{
+			// number
+			elemental[elem_curr][3] = curr_elem_num;
+			// add to list of added elements so we don't trawl through all 118 off them in the end
+			if(!elem_added.match(pattern)){
+//				tmp_string+= "<br>added "+elem_curr+" ==&gt; number of atoms: "+elemental[elem_curr][1]+" ("+curr_elem_num+"); &nbsp; mass of that number of atoms: "+elemental[elem_curr][3]+"::";
+				elem_added +=elem_curr+',';
+			}
+			else{
+//				tmp_string += "already found "+elem_curr+" in "+elem_added;
+			}
+
+		}
+		catch(e){
+			tmp_string += 'Error message for "'+elem_curr+'" while adding to array: "'+e+'"';
+		}
+//		if(!(smg['a'+elem_curr])){tmp_string += 'adding '+elem_curr+'failed<br>';}
+//		else{tmp_string+= '=&gt;Added '+elem_curr+', elemental[a'+elem_curr+'] = '+multiplier+'*'+elem_amt+'.  We now have '+smg.length+' chemical elements added<br>';}
+	;
+	return tmp_string;
+}
+
+function expand_brackets(formula){
+  var tmp_match;var key;
+  var pattern_elements = '/([A-Z][a-z]*)([0-9\.]*)/g';
+  var reg_brackets = '/\(([^\[\(]*)\)([0-9\.]*)/';
+  var reg_square_brackets = '/(\([^\[\(]*\)[0-9\.]*)/';
+  var tmp_formula;var tmp_elements;var tmp_elements_all;
+  var brackets_error = "You appear to have a mismatched or empty set of brackets <br>Such as <span class=code>C6<b class=highlighted>()</"+"b></"+"span> or <span class=code>C6H3<b class=highlighted>(</"+"b>CH2Cl</"+"span>";
+  // misc variables
+  var i=0;var a;var tmp;
+  // ignore any empty brackets
+//  tmp_string+= "<br>expand_brackets(): working with "+formula;
+  formula = formula.replace(/\(\)/,'');
+  formula = formula.replace(/\[\]/,'');
+
+  while(formula.match(/[\[\(]/)){
+    tmp_match = new Array();tmp_formula = '';
+    try{
+      // clear the error message on each loop
+      if(document.getElementById){
+    		document.getElementById('error').innerHTML = '';
+     		document.getElementById('error').className = '';
+      }
+
+      if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
+        // temporarily get the information out
+        tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
+// 	tmp_string+="<br>got "+tmp_match.length+" elements: "+tmp_match[0]+","+tmp_match[1]+","+tmp_match[2]+"!";
+      }
+      else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
+        tmp_match = formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i);
+
+      }
+      else{
+        if(document.getElementById){
+      		document.getElementById('error').innerHTML = brackets_error;
+      		document.getElementById('error').className = 'error';
+        }
+//        tmp_string += brackets_error; //"Regular expression problem: "+
+        break;
+      }
+
+
+    }
+    catch(e){tmp_string += "<br>Error message of: "+e;}
+    if(tmp_match.length>0){
+      // check for a value of '' after a bracket
+      if(tmp_match[2].length==0){tmp_match[2] = 1;}
+      tmp_formula = '';tmp_elements = '';tmp_elements_all = '';
+      // match all style of formulae in the brackets
+      tmp_elements_all = String(tmp_match[1]).match(/([A-Z][a-z]*[0-9\.]*)/g);
+      for(a=0;a<tmp_elements_all.length;a++){
+        // now match individual elements
+        tmp_elements = String(tmp_elements_all[a]).match(/([A-Z][a-z]*)([0-9\.]*)/);
+	// check we've not got a n element with an implicit value of '1'
+        if(tmp_elements[1].length>0){
+          if(!tmp_elements[2]){tmp_elements[2] = 1;}
+          tmp_elements[2] = tmp_match[2]*tmp_elements[2];
+          tmp_formula += tmp_elements[1]+tmp_elements[2];
+        }
+      }
+
+      // replace in the formula the section we matched and dealt with
+//       tmp_string += "<br>"+i+") Temporary formula becomes: '"+tmp_formula+"' while trying to replace '"+tmp_match[0]+"' with '"+tmp_formula+"'";
+      // replace all types of brackets
+      if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);}
+      else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
+//         tmp_string+="using []";
+	formula.replace(/\\\[([a-z0-9]*)\\\]([0-9\.]*)/i,tmp_formula);
+
+      }
+//       formula = formula.replace(,tmp_formula);
+//       formula.replace(tmp_match[0],tmp_formula);
+    }
+    else{
+//       tmp_string+= "could not match anything in "+formula+" tmp_match has no values in it at all";
+    }
+    // check if we go too far (far, far too many brackets)
+    i++;
+    if(i>10){
+//       tmp_string += brackets_error;
+      break;
+    }
+//     else{alert("Countdown to 10:"+(11-i));}
+  }
+  return(formula);
+}
+
+// function to add a run through a string; made into a function simply because expanding the shorthand made it simpler
+function expand_formula(formula){
+	expand_formula_iteration++;
+//	tmp_string+= expand_formula_iteration+") Given the formula '"+formula+"'";
+	var curr_elem_num = 0;var tmp_formula;
+
+	var formula_mod = expand_brackets(formula);
+// 	tmp_string +="<br>expand_formula(): &nbsp;'expand_brackets' gave formula: "+formula_mod+'<br>';
+	// match the elements.
+	var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
+
+	// check we've matched something entered
+	if((formula_mod.length) && (isArray(elements_match)) ){
+		// check we've got something resembling a formula
+		if(formula_mod.length>0 && elements_match.length>0){
+
+			//might need to multiply items if inside brackets
+			for(var i=0;i<elements_match.length;i++){
+				// got a match of [a-z][0-9].  will need to split those apart, and form a
+				// NEW array containing element and amount.  Note, we need to check if an element has already
+				// been added so that formulas such as NiNO3.6H20 work well
+				if(elements_match[i]){
+
+					var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
+//					tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
+					// for the elements already added, we can use to check if already in 'elem_added'/not
+					var pattern= new RegExp(tmp_match[1]+',');
+					// force it to definitely be a string, and with no whitespace at the ends
+					tmp_match[1] = new String(tmp_match[1].replace(/^\s+|\s+$/g, ''));
+					// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
+					// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
+					if(!pattern.test(elem_added) && elemental[tmp_match[1]]){
+						elemental[tmp_match[1]][3] = 0;
+//						tmp_string += "<br>setting elemental[tmp_match[2]][1] AND elemental[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
+					}
+					// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
+					if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
+						tmp_match[2]=1;
+// 								tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
+					}
+					// Make sure that the matched value is a number
+					else{tmp_match[2] = parseFloat(tmp_match[2]);}
+
+					if(!elemental[tmp_match[1]] && !fragments[tmp_match[1]]){
+						tmp_string += calculator.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
+					}
+					else if(fragments[tmp_match[1]]){
+						// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
+						tmp_formula = "("+fragments[tmp_match[1]]+")"+tmp_match[2];
+
+						// check for needed expansion of brackets
+						expand_formula(tmp_formula);
+//					tmp_string+="expand_formula: Before conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
+//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
+//					tmp_string+="expand_formula: After conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
+					}
+					else{
+//					tmp_string+= "Added "+tmp_match[1]+"<sub>"+tmp_match[2]+"</"+"sub> ("+formula_mod+")<br>";
+						tmp_string = add_element(pattern,tmp_string,tmp_match[1],tmp_match[2],curr_elem_num);
+					}
+				}
+			}
+		}
+	}
+}
+
+// check for an array of an object
+function isArray(obj) {
+   if(obj){
+     if (obj.constructor.toString().indexOf("Array") == -1){
+      
+      return false;
+     } 
+     else
+      {return true;}
+   }else{return false;}
+}
+
+// show the shorthand supported
+function shorthand(visible){
+	var id;
+	if(document.getElementById){
+		if(document.getElementById('shorthand')){
+			id = document.getElementById('shorthand');
+		  if(calculator.shorthand ===''){
+				var shorthand = 'Supported:<br>';
+			  // gather the information
+			  var i;
+			  shorthand +='<table>';
+			  // generate all rows
+				for(i in fragments){shorthand += calculator.tr(Array(i,fragments[i]));}
+			  shorthand += '</table>';
+			  calculator.shorthand = shorthand;
+			}
+			else{
+				shorthand = calculator.shorthand;
+			}
+		  // populate it with the information
+		  id.innerHTML = shorthand;
+		  // set its height to '0', make it visible, and then try to make it visibl
+//		  alert(id.style['visibility']);
+		  show_hide('shorthand');
+		}
+	}
+	return false;
+	 	
+}
+// show the shorthand supported
+function element_list(visible){
+	var id;
+	if(calculator.periodic === ''){
+		;
+	}
+
+	var element_list_2 = '<table id="periodic">';
+	var data;
+	if(document.getElementById){
+		if(document.getElementById('element_list')){
+			id = document.getElementById('element_list');
+			if(calculator.periodic !==''){
+				element_list_2 = calculator.periodic;
+			}
+			else{
+				var element_list = 'Elements:<br>';
+				// gather the information
+				var i, no_isotopes, j;
+				var row, col;
+				row=col=1;
+	
+				// loop through the data
+				for(i in elemental){
+	// 				console.log(i+"\t"+row+'::'+col+' vs. '+elemental[i][0]+'::'+elemental[i][1]);
+					if(i=='end_el'){break;}
+	
+					data = '';
+					no_isotopes = 'class="no_isotopes_entered"';
+					// check for at least 1 isotope.  If not, we display it as a red flag
+					for(j in elemental[i][5]){
+						if(j>0){
+							no_isotopes = '';
+							break;
+						}
+					}
+	
+					// rows
+					if(parseInt(elemental[i][0]) != row){
+						if(row!=1){element_list_2 += '</'+'tr>';}
+						element_list_2 +='<tr>';
+						row++;
+						col=0;
+					}
+	
+					// spacer for lanthanid and actinides
+					if(i=='dummy'){
+						element_list_2 +='<tr><td colspan=18>&nbsp;</td></tr>';
+						row++;
+						continue;
+					}
+	
+					// spacing columns
+					if(elemental[i][1]-col>1){
+						// fixes an odd bug I've not time to fix, yet
+						if(row>1){col++;}
+						tmp = calculator.spacing_columns(col,elemental[i][1],col);
+						element_list_2 += tmp.html;
+						col = tmp;
+					}
+					else{col++;}
+	
+					// data
+					data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+elemental[i][0]+'\',  Monoisotopic mass:\''+elemental[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
+					element_list_2 +='<td '+data+'td>';
+					element_list+='<div '+data+'div>'+"\n";
+				}
+				element_list_2 += '</'+'tr></'+'table>';
+
+				// add in source of data
+				element_list_2 += "<div style=\"float:left;width:100%;margin-top:5px;text-align:center\"><a href=\"http://www.iupac.org/reports/1998/7001rosman/iso.pdf\" style=\"text-decoration:none;\" target=\"_blank\">Isotope data from 1997 Iupac report</"+"a></"+"div>";;
+			
+			  // cache this
+			  calculator.periodic = element_list_2;
+			}
+
+
+			// populate it with the information
+			id.innerHTML = element_list_2;
+			// set its height to '0', make it visible, and then try to make it visibl
+//		  alert(id.style['visibility']);
+			show_hide('element_list');
+		}
+		return false;
+	}
+	return false;
+
+}
+
+function show_element_info(id){
+	if(document.getElementById){
+		if(document.getElementById('element_info')){
+			if(elemental[id]){
+				var o = document.getElementById('element_info');
+				var str = "<b>"+id+"</"+"b><br>Mass:"+elemental[id][2]+"";
+				var i;
+				if(typeof(elemental[id][5]) == 'object'){
+					str+="<br>Monoisotopic mass: "+elemental[id][4]+"<br><br><i>Isotopes & abundances</"+"i>:<br>";
+					var tmp_str= '';
+					var summing = 0;
+					for(i in elemental[id][5]){
+						tmp_str+="<div>"+i+" - "+elemental[id][5][i]+"%</"+"div>";
+						summing = summing + elemental[id][5][i];
+					}
+					if(tmp_str.length==0){tmp_str = "<div class=\"no_isotopes_entered\">No isotopes known/entered for this element</"+"div>";}
+					str+=tmp_str;
+// 					str+= '<br>Total abundance check: '+summing+'%';
+				}
+				o.innerHTML = str;
+				show_hide('element_info');
+				;
+
+			}
+		}
+	}
+}
+
+function show_hide(element){
+	if(document.getElementById){
+		if(document.getElementById(element)){
+			var o = document.getElementById(element);
+// 			alert(element+'--> style.visibility = '+o.style.visibility+"\n"+'style.display = '+o.style.display);
+			if((o.style.visibility =='hidden')){
+				o.style.visibility = 'visible';
+				o.style.display = 'block';
+			}
+			else{
+				o.style.visibility = "hidden";
+				o.style.display = 'none';
+			}
+		}
+	}
+}
+
+function update_mmols(mol_mass){;
+	if(document.getElementById){
+		document.getElementById('mmols').value = document.getElementById('mass').value*document.getElementById('mass_multiplier').value/mol_mass/document.getElementById('mmol_multiplier').value;
+		// reset the equivalents
+		document.getElementById('equivalents').value = 1;
+	}
+}
+function update_mass(mol_mass){;
+  if(document.getElementById){
+		// update the mass
+		document.getElementById('mass').value = document.getElementById('mmols').value*document.getElementById('mmol_multiplier').value*document.getElementById('equivalents').value*mol_mass/document.getElementById('mass_multiplier').value;
+	// update the volume
+	update_volume(mol_mass);
+  }
+
+}
+
+function update_mmols_volume(mol_mass){;
+  if(document.getElementById){
+		document.getElementById('mmols').value = document.getElementById('volume').value/document.getElementById('volume_multiplier').value*document.getElementById('density').value/mol_mass/document.getElementById('mmol_multiplier').value;
+		// reset the equivalents
+		document.getElementById('equivalents').value = 1;
+
+  }
+}
+
+function update_volume(mol_mass){
+	// update the volume based on the density
+		document.getElementById('volume').value = document.getElementById('mmols').value*document.getElementById('mmol_multiplier').value*mol_mass/document.getElementById('density').value*document.getElementById('volume_multiplier').value;
+}
+
+function mass_spec(elemental_composition){
+	var r = '<div class=outline><div class=header><div class="ms_header">Predicted Mass Spectrum for the molecular ion [M<sup>+</'+'sup>].</'+'div></'+'div>';
+	// clear the global variable of information
+	mass_spec_info = new Array();
+	mass_spec_max_percentage = 0.0000001;
+	var percentage = 0;
+	var bg;var prev_m_z = 0;var shown=false;
+
+	// work it out (uses a global value)
+	run_through_isotopes(elemental_composition,0,0,Array(),Array(0,1));
+//         console.info("number of isotopes:"+mass_spec_info.length);
+	// sort the information
+	// due to JavaScript's poor support for numbered incides, we're going to have:
+	// to loop through the data,
+	// making the indices a value,
+	// sort based on the value, and THEN display the information (joy)
+	var i;var tmp = Array();var j = 0;
+	for(var i in mass_spec_info){
+		tmp[j] = Array(i,mass_spec_info[i]);
+// 		console.info("re-sorting: "+i+" : "+mass_spec_info[i]);
+		if(mass_spec_max_percentage<mass_spec_info[i]){mass_spec_max_percentage = mass_spec_info[i];}
+		j++;
+	}
+	tmp.sort();
+
+	var k=0;
+	// output it
+	r+="<div>";j=0;
+	// for later comparison
+	var tmp_len = r.length;
+	// modern browsers
+	var img_src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAKCAYAAAB10jRKAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABRJREFUCNdjYGBo+M/EwMDAQCwBAEdGAZK3aijLAAAAAElFTkSuQmCC';
+	// IE does not support this
+	if(navigator.appName == 'Microsoft Internet Explorer'){img_src = 'chemical_formula_blue_bar.png'}
+
+	for(var i in tmp){
+		// percentage of total
+		percentage = parseFloat(tmp[i][1])/parseFloat(mass_spec_max_percentage)*100;
+		// format nicely
+		percentage = percentage.toFixed(4);
+		// check if needed to show due to being too small
+		if(!shown && (percentage<mass_spec_min_visible)){continue;}
+		else{shown=true;}
+//           console.info("Ion '"+tmp[i][0]+"' -- prev_m_z = '"+prev_m_z+"'");
+		if(j%2 == 1){bg = 'highlighted';}else{bg='';}
+		if((prev_m_z>0) && (tmp[i][0]-prev_m_z)>1){
+//	    console.info("attempting iterations: ");
+			for(k=1;k<(tmp[i][0]-prev_m_z);k++){
+//	      console.info("iteration "+k);
+				r+='<div class="'+bg+' auto_overflow">';
+				r+='<div class="m_z '+bg+'">'+(prev_m_z+k)+'&nbsp;</'+'div>';
+				r+='<div class="ms_intensity '+bg+'">&nbsp;</'+'div>';
+				r+='<div class="ms_intensity_num '+bg+'">&nbsp;</'+'div>';
+				r+='<div class="clearfix"></'+'div></'+'div>';
+				// backgrounds
+				j++;if(j%2 == 1){bg = 'highlighted';}else{bg='';}
+			}
+		}
+		r+='<div class="'+bg+'">';
+		r+= '<div class="m_z '+bg+'">'+tmp[i][0]+'&nbsp;</'+'div>';
+		r+='<div class="ms_intensity '+bg+'"><div style="width:'+percentage+'%" class="percentage"><img src="'+img_src+'" style="width:100%;height:10px"></'+'div></'+'div>';
+		r+='<div class="ms_intensity_num '+bg+'">'+percentage+'% </'+'div>';
+		r+='<div class="clearfix"></'+'div></'+'div>';
+		j++;
+		prev_m_z = parseInt(tmp[i][0]);
+	}
+  // check for no information
+  if(r.length == tmp_len){r+="<div class=\"warning\">One (or more) of the elements you've entered does not have isotopic abundance data entered into this system.<br><i>The mass spectrum cannot be calculated</"+"i><br><br>This could be because no data exists, or because the sustance is naturally radioactive and so does not have a stable isotopic composition</"+"div>";}
+  r +='</'+'div>';
+	return(r);
+}
+
+// will need to call itself itereatively to make this all work
+// run_through_isotopes(array_all_info,number,value_from_object,array_of_final_ions,??)
+function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
+	var curr_mass;var tmp;
+//    console.info("CURR_ELEM "+curr_elem+":: "+ion_info+" vs. "+mass_spec_min_visible+" & remembering:"+mass_spec_max_percentage);
+	// mass spec max percentage can only increase.  If it's a peak that will be noise, we need to kill it off
+    if(((ion_info[1]/mass_spec_max_percentage)<(mass_spec_min_visible/10))){
+//	  console.info("Stopped ion of "+ion_info[1]+"% from being added.  Molecular mass was:"+ion_info[0]+" max_mass_spec: "+mass_spec_max_percentage);
+  		return false;
+    }
+	if(info[curr_elem] && (typeof(info[curr_elem][2]) == 'object')){
+		// tmp vars
+		var tmp;
+		// loop through the isotopes, and call recursively if needed
+		for(var i in info[curr_elem][2]){
+			curr_isotope=i;
+			curr_mass = parseFloat(ion_info[0])+parseFloat(i);
+// 			console.info(curr_isotope+"	 : "+i+" : "+info[curr_elem][2][i]+" -- Gives: mass number of '"+curr_mass+"' and probability of '"+(parseFloat(ion_info[1])*(info[curr_elem][2][i]/100))+"'");
+
+			        tmp = run_through_isotopes(info,curr_elem+1,i,all_ions,Array(curr_mass,parseFloat(ion_info[1])*(info[curr_elem][2][i]/100)));
+		}
+	}
+	else{
+// 		console.info("STOP! got the following ion: '"+ion_info[0]+"' with an 'abundance' listed at: '"+ion_info[1]+"'");
+		// set a new max percentage, if needed
+	    if(ion_info[1]>mass_spec_max_percentage){mass_spec_max_percentage = ion_info[1];}
+		// add percentage value if needed
+		if(mass_spec_info[ion_info[0]]){
+//			   console.info("appending information");
+			ion_info[1] += mass_spec_info[ion_info[0]];
+		}
+		// for debug only
+//			 else{			  console.info("setting first instance of ion");}
+		if(ion_info[1]){
+			  mass_spec_info[ion_info[0]] = ion_info[1];
+			}
+	}
+	return(true);
+}
+
+function toggleInputText(field_obj,initial_text,initial_class,highlighted_class){
+        if(!field_obj.value){return;}
+        // reset the text
+        if(field_obj.value.replace(/\s/g,'')==''){
+          field_obj.value=initial_text;
+          // note this will clear any classes set
+          set_class(field_obj,initial_class);
+        }
+        // clear the text
+	else if(field_obj.value == initial_text){
+          field_obj.value = '';
+          set_class(field_obj,highlighted_class);
+        }
+}
+
+// set the classes for objects
+function set_class(objectID,new_class){
+  if (document.getElementById) {
+//     alert("current classname (if already an object):"+objectID.className);
+    // perhaps already an object passed?
+    if(objectID.style){
+      objectID.className = new_class;
+//       alert(objectID.className);
+    }
+    else if(document.getElementById(objectID)){
+      document.getElementById(objectID).className = new_class;
+    }
+  }
+  else if (document.layers){
+    if(document.layers[object]) {document.layers[objectID][className] = new_class;}
+    // perhaps already an object passed?
+    else if(objectID[style]){objectID[className] = new_class;}
+
+  }
+  else if (document.all) {
+    if(document.all[objectID]){document.all[objectID].className = new_class;}
+    else if(objectID.style){objectID.className = new_class;}
+  }
+  ;
+}
+
+function calculate_chn(){
+  var c, h, n, multiplier;
+
+	// can we?
+  if(document.getElementById){
+		if(document.getElementById('formula').value.length >0
+			&& document.getElementById('chn_copy_paste').style.visibility == 'hidden'){
+				show_hide('chn_copy_paste');
+		}
+
+    // get the values
+    c = document.getElementById('c').value;
+		h = document.getElementById('h').value;
+		n = document.getElementById('n').value;
+    multiplier = document.getElementById('multiplier').value;
+
+    // default values
+    if(!isNumeric(c)){c = 0;}if(!isNumeric(h)){h = 0;}if(!isNumeric(n)){n = 0;}if(!isNumeric(multiplier)){multiplier = 1;}
+
+    // write into section for copy paste to documents
+    document.getElementById('c_found').innerHTML = c;
+    document.getElementById('h_found').innerHTML = h;
+    document.getElementById('n_found').innerHTML = n;
+    // check we're not doing something stupid with div/0
+    if(c+h+n == 0){return false;}
+		// alert('calculating CHN');
+
+    // convert to initial mol
+    c = c/12.011;
+    h = h/1.0079;
+    n = n/14.007;
+    // sort to figure out which is the smaller
+    var tmp = new Array(c,h,n);
+    tmp.sort(function(a,b){return a - b});
+    min = 0;
+    for(var a in tmp){
+      if(tmp[a] == 0){continue;}
+      else{min = tmp[a];}
+    }
+    // normalise everything & round off.  note, need *100, then /100 to round to 2 decimals
+    c=Math.round(c/min*multiplier*100)/100;
+    h=Math.round(h/min*multiplier*100)/100;
+    n=Math.round(n/min*multiplier*100)/100;
+
+		// write the values
+		document.getElementById('e_c').innerHTML = c;
+		document.getElementById('e_h').innerHTML = h;
+		document.getElementById('e_n').innerHTML = n;
+	}
+}
+
+function reset_chn(){
+	var c = document.getElementById('c').value = '%C';
+	c = document.getElementById('h').value = '%H';
+	c = document.getElementById('n').value = '%N';
+	document.getElementById('multiplier').value = 'mult';
+	set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
+	document.getElementById('e_c').innerHTML = document.getElementById('e_h').innerHTML = document.getElementById('e_n').innerHTML = '';
+	document.getElementById('c_found').innerHTML = document.getElementById('h_found').innerHTML = document.getElementById('n_found').innerHTML = '0';
+	document.getElementById('c_expected').innerHTML = document.getElementById('h_expected').innerHTML = document.getElementById('n_expected').innerHTML = '';
+	document.getElementById('chn_copy_paste').style.visibility = 'hidden';
+}
+
+function isNumeric(value) {return typeof value != "boolean" && value !== null && !isNaN(+ value);}
+//-->
+</script>
+</head>
+
+<!-- template for the HTML -->
+<body onload="document.chemicals.formula.focus();calculate_info(document.chemicals.formula.value);calculate_chn();">
+
+<div class="help">
+<div id="help"><b>How to use</b>:
+<ol><li>Place your cursor in the field at the top-left (it should be automatically there).</li>
+
+<li>Type a Chemical Formula, using only normal brackets (meaning '(' and ')'
+ ).*</li>
+<li>Chemical composition and elemental analysis will be shown <i>as you type</i></li>
+</ol>
+* For some reason I can't get other types of brackets to work, but
+ given the tool tells you of a mistyped formula,  you should not have
+ a problem.<br>
+ 
+<br><b>optional</b>:<br>
+for each conversion, please alter the type of units as needed before converting
+<ul>
+<li>Converting mass to mmol
+ <ul>
+  <li>Enter a mass in the mass field, and click the arrow with the yellow box on it to get the mmol</li>
+ </ul>
+</li>
+<li>Converting volume to mmol (no mass needed)
+ <ul>
+  <li>Enter a volume in the volume field, and a density, and click the arrow with the blue droplet on it to get the mmol</li>
+ </ul>
+</li>
+<li>Converting mmol to volume/mass
+ <ul>
+  <li>Fill in the density field (if needed), and enter the value of mol/mmol.  conversion is automatic
+  </li>
+ </ul>
+</li>
+</ul>
+
+<b>Error Messages</b>:
+They appear in a box like below, and describe the error. Two exist; one
+saying that the element is unknown (a mistype or use of shorthand),
+and the other saying your brackets are mismatched
+<div class="error" style="width:288px">Sample Error Message</div>
+</div>
+</div>
+
+<h1>Chemical composition calculations</h1>
+<p>Please use only standard brackets: '(' and ')'.  Formulae entered with square brackets <span class="highlighted">[ ]</span>) will not always give expected results</p>
+<div class="shorthand">
+	<div class="help_toggles">
+		<h2>Help</h2>
+		<a href="#" onclick="show_hide('help');return false;">(show/hide)</a>
+	</div>
+	<div class="shorthand_toggles"><a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;">toggle supported shorthand</a></div>
+	<div class="shorthand_toggles"><a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">toggle elements &amp; isotopes list</a></div>
+	<div id="shorthand" style="visibility:hidden;display:none;"></div>
+	<div id="element_list" style="visibility:hidden;display:none;"></div>
+</div>
+<div id="element_info" style="visibility:hidden;display:none;"></div>
+
+<div class="auto_overflow">
+<form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
+<p>
+	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text">
+	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict molecular ion peak</label><input value="clear form" onclick="molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');reset_chn();" type="reset">
+</p>
+
+<div class="auto_overflow">
+ <div class="conversion_section auto_overflow">
+  <div class="mass">
+   <div class="mass">Mass used</div>
+   <div class="mass"><input id="mass" name="amt_added" onkeyup="update_mmols(molecular_mass)" class="mass" type="text"><!-- onkeyup="calculate_info(document.chemicals.formula.value)" --></div>
+  </div>
+  <div class="unit">
+   <div class="unit">unit</div>
+   <div class="unit"><select name="mass_multiplier" id="mass_multiplier"><option selected="selected" value="1">g</option><option value="0.001">mg</option><option value="1000">kg</option></select></div>
+  </div>
+  <!-- volume and units -->
+  <div class="volume">
+   <div class="volume">volume</div>
+   <div class="volume"><input name="volume" id="volume" value="1" type="text"></div>
+  </div>    
+  <div class="unit">
+   <div class="unit">unit</div>
+   <div class="unit"><select name="volume_multiplier" id="volume_multiplier" onchange="update_volume(molecular_mass)"><option value="1000">µL</option><option value="1" selected="selected">ml</option><option value="0.001">L</option></select></div>
+  </div>
+
+  <div class="density">
+   <div class="density">density</div>
+   <div class="density"><input name="density" id="density" value="1" style="width:20px;" type="text"></div>
+  </div>    
+
+  <div class="update">
+   <div class="update">update</div>
+   <div class="update">
+    <map id="arrows" name="arrows">
+    <area shape="rect" coords="0,0,27,25" href="#" onclick="update_mass(molecular_mass)" alt="update the mass based on the mmol">
+    <area shape="rect" coords="28,0,55,12" href="#" onclick="update_mmols(molecular_mass)" alt="update the mmol based on the mass">
+    <area shape="rect" coords="28,13,55,25" href="#" onclick="update_mmols_volume(molecular_mass)" alt="update the mmol based on the volume">
+    </map>
+    <script type="text/javascript">
+    <!--
+    // modern browsers
+    var img_src = 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAZCAYAAACVfbYAAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2AMNCyk07tQSUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAABRElEQVRYw92XIRKDMBBFSSa6qqZTWcEBuAOnwFZ1MJgKNKIGw1TVcoregQMgKjs1VRyAVKWTCbsN0JKkWZsJ5GV3/98EgcdBXD1Ymqb803pVVe+z0zzkfdEOWJirUPvTY7B2OW7QfRAgczVTEIgAxiBVQONwNA/hcuvgbAkYdQ37jgxIfRQSAe4lnABE4da7O/9nuL5oCfsnMCEk59VVCwb6nAz2vG2N+aDO11Rvw8RFVktiOmNLXJiAU32O+tRj4PhlEsxkqRPTmRsLJ/cg1mu62ZLauNGxYHVUfjX5MPVWbamlGnVUBkmTTRYWVC3VEl1S2bA4dHEgZy1pMq2vYeJCbTc9ljUI+GezpQ1ACEKAzgF0bnCGRGSKsMil6eWrQPQcs/Vj2ANiPmcvNltSHzPmLBzkbWP8Dp0tXQrs6aMbwaB4AbAJruvzJ6U9AAAAAElFTkSuQmCC';
+    // IE does not support this
+    if(navigator.appName == 'Microsoft Internet Explorer'){img_src = 'chemical_formula_toggle.png'}
+    // bad style, but it works easily
+    document.write('<img src="'+img_src+'" usemap="#arrows" border=0>');
+    // -->
+    </script><img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAZCAYAAACVfbYAAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2AMNCyk07tQSUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAABRElEQVRYw92XIRKDMBBFSSa6qqZTWcEBuAOnwFZ1MJgKNKIGw1TVcoregQMgKjs1VRyAVKWTCbsN0JKkWZsJ5GV3/98EgcdBXD1Ymqb803pVVe+z0zzkfdEOWJirUPvTY7B2OW7QfRAgczVTEIgAxiBVQONwNA/hcuvgbAkYdQ37jgxIfRQSAe4lnABE4da7O/9nuL5oCfsnMCEk59VVCwb6nAz2vG2N+aDO11Rvw8RFVktiOmNLXJiAU32O+tRj4PhlEsxkqRPTmRsLJ/cg1mu62ZLauNGxYHVUfjX5MPVWbamlGnVUBkmTTRYWVC3VEl1S2bA4dHEgZy1pMq2vYeJCbTc9ljUI+GezpQ1ACEKAzgF0bnCGRGSKsMil6eWrQPQcs/Vj2ANiPmcvNltSHzPmLBzkbWP8Dp0tXQrs6aMbwaB4AbAJruvzJ6U9AAAAAElFTkSuQmCC" usemap="#arrows" border="0">
+   </div>
+  </div>
+  <div class="equivalents">
+   <div class="equivalents"><acronym title="works only when updating the mass/volume">equiv</acronym></div>
+   <div class="equivalents"><input name="equivalents" id="equivalents" class="equivalents" value="1" type="text"></div>
+  </div>
+  <div class="mmols">
+   <div class="mmols">mmols</div>
+   <div class="mmols"><input name="mmols" id="mmols" class="mmols" onkeyup="update_mass(molecular_mass)" type="text"></div>
+  </div>
+
+  <div class="unit">
+   <div class="unit">unit</div>
+   <div class="unit"><select id="mmol_multiplier" name="mmol_multiplier"><option selected="selected" value="0.001">mmol</option><option value="1">mol</option></select></div>
+  </div>
+  <div class="clearfix"></div>
+ </div>
+ <div class="clearfix"></div>
+</div>
+<div id="elemental_analysis">
+<b>Elemental analysis workup</b><br>
+<div class="e_c"><input name="c" id="c" value="%C" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%C','','field_enter_text');calculate_chn();" onblur="toggleInputText(this,'%C','','field_enter_text');calculate_chn();"></div>
+<div class="e_h"><input name="h" id="h" value="%H" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%H','','field_enter_text');calculate_chn();" onblur="toggleInputText(this,'%H','','field_enter_text');calculate_chn();"></div>
+<div class="e_n"><input name="n" id="n" value="%N" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%N','','field_enter_text','');calculate_chn();" onblur="toggleInputText(this,'%N','','field_enter_text','');calculate_chn();"></div>
+<div class="multiplier"><input name="multiplier" id="multiplier" value="mult" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'mult','','field_enter_text');calculate_chn();" onblur="toggleInputText(this,'mult','','field_enter_text');calculate_chn();"></div>
+<div id="yields">=&gt;</div>
+
+<div class="e_c">C: <span id="e_c"></span></div>
+<div class="e_h">H: <span id="e_h"></span></div>
+<div class="e_n">N: <span id="e_n"></span></div>
+<div id="chn_copy_paste" style="visibility:hidden;display:none;">expected for <span id="molecular_formula"></span>&nbsp;(found):
+C: <span id="c_expected"></span>&nbsp;(<span id="c_found">0</span>)
+H: <span id="h_expected"></span>&nbsp;(<span id="h_found">0</span>)
+N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
+</div>
+</div>
+</form>
+ <div class="clearfix"></div>
+
+</div>
+<div class="auto_overflow">
+ <div id="error"></div>
+ <div class="clearfix"></div>
+</div>
+<div class="auto_overflow">
+ <div id="info" class="info">&nbsp;</div>
+ <div class="clearfix"></div>
+</div>
+<div style="position: fixed;bottom: 10px;left: 10px;margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right">Version 1.2.2 (15-Jan-2014)</div>
+<div style="position: fixed;bottom: 10px;right: 10px;margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right">
+ If you like this tool or want to send on comments, please contact <a href="http://www.gazard.com/index.php?m=6&amp;subject=3">Stephen</a>
+</div>
+</body>
+</html>

@@ -17,3 +17,7 @@ Features
 To use
 ======
 Simply point your browser at the file here on git.  Or, save it to your computer.  Modern browsers will need only to save one file, making it easier to move around once saved
+
+Why it was built
+================
+Simply, I needed it in 2008 during my PHD.  It's been available online, but I wanted to improve the code (certain parts are horrible), make it cleaner, and improve performance where possible
