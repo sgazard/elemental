@@ -6,6 +6,11 @@
 <!-- base stylesheet -->
 <style type="text/css" media="screen,print">
 body{font-family:arial;font-size:0.8em}
+table{border-collapse:collapse;}
+td{padding:2px;}
+table#periodic td{padding:0px;}
+table#periodic a{padding:2px;}
+
 thead td{font-weight:bold;font-size:0.9em;}
 h1{margin-top:5px;font-size:1.5em;margin-bottom:0px}
 input{background-color:#EEEEFF;border:1px solid black;margin: 3px 0px 0px 10px;color:black;}
@@ -417,12 +422,12 @@ function calculate_info(formula){
 					// colour
 					bg_num++;if((bg_num % 2)>0){classes += ' highlighted';}
 					// number of atoms
-					num_atoms = elemental[elem_split[i]][1];
+					num_atoms = elemental[elem_split[i]][3];
 					if(Math.ceil(num_atoms) !=num_atoms && isNumeric(parseFloat(num_atoms))){num_atoms =parseFloat(num_atoms).toFixed(3);}
 					// an atom's mass
-					atom_mass = elemental[elem_split[i]][0];
-					tmp_mass = parseFloat(elemental[elem_split[i]][0]*num_atoms).toFixed(max_decimal_places);
-					mono_mass += (elemental[elem_split[i]][2])*elemental[elem_split[i]][1];
+					atom_mass = elemental[elem_split[i]][2];
+					tmp_mass = parseFloat(elemental[elem_split[i]][2]*num_atoms).toFixed(max_decimal_places);
+					mono_mass += (elemental[elem_split[i]][4])*elemental[elem_split[i]][3];
 					// html/not for class names
 					classes = (classes.length>0)?' class="'+classes+'"':'';
 					tmp_string2+='<div'+classes+'><div class="element">'+elem_split[i]+'</'+'div><div class="num_atoms">'+num_atoms+'</'+'div><div class="atomic_mass">'+atom_mass+'</'+'div><div class="net_mass align_r">'+tmp_mass+'</'+'div><div class="percent_composition align_r">'+parseFloat(tmp_mass/mass*100).toFixed(max_decimal_places)+'%</'+'div><div class=clearfix></'+'div></'+'div>';
@@ -433,8 +438,8 @@ function calculate_info(formula){
 					// the simplified formula
 					formula_simplified += elem_split[i];
 					// check for non-integer value
-					if(Math.ceil(elemental[elem_split[i]][1]) ==elemental[elem_split[i]][1]){formula_simplified +=elemental[elem_split[i]][1];}
-					else{formula_simplified += elemental[elem_split[i]][1].toFixed(2);}
+					if(Math.ceil(elemental[elem_split[i]][1]) ==elemental[elem_split[i]][1]){formula_simplified +=elemental[elem_split[i]][3];}
+					else{formula_simplified += elemental[elem_split[i]][3].toFixed(2);}
 				// mass spec information; number of isotopes too
 // 				tmp_num = 0;
 // 				for(var abc in elemental[elem_split[i]][3]){tmp_num++;}
@@ -444,7 +449,7 @@ function calculate_info(formula){
 
 			    for(var x=0;x<num_atoms;x++){
 //					tmp_string += j+"=&gt;"+elem_split[i]+":"+1+"<br>";
-						ms[j] = Array(elem_split[i],1,elemental[elem_split[i]][3]);
+						ms[j] = Array(elem_split[i],1,elemental[elem_split[i]][5]);
 						j++;
 					}
 				}
@@ -723,7 +728,7 @@ function shorthand(visible){
 // show the shorthand supported
 function element_list(visible){
 	var id;
-	var element_list_2 = '<table>';
+	var element_list_2 = '<table id="periodic">';
 	var data;
 	if(document.getElementById){
 		if(document.getElementById('element_list')){
@@ -735,10 +740,12 @@ function element_list(visible){
 
 			// loop through the data
 			for(i in elemental){
+				console.log(row+'::'+col);
+				if(i=='end_el'){break;}
 				data = '';
 				no_isotopes = 'class="no_isotopes_entered"';
 				// check for at least 1 isotope.  If not, we display it as a red flag
-				for(j in elemental[i][3]){
+				for(j in elemental[i][5]){
 					if(j>0){
 						no_isotopes = '';
 						break;
@@ -746,7 +753,7 @@ function element_list(visible){
 				}
 
 				// rows
-				if(parseInt(elemental[i][4]) != row){
+				if(parseInt(elemental[i][0]) != row){
 					if(row!=1){element_list_2 += '</'+'tr>';}
 					element_list_2 +='<tr>';
 					row++;
@@ -754,12 +761,14 @@ function element_list(visible){
 				}
 
 				// spacing columns
-				if(elemental[i][5]-col>1){
-					while(elemental[i][5]>col){
+				if(elemental[i][1]-col>1){
+					console.log('spacing column: '+col);
+					while(elemental[i][1]>col){
 						col++;
-						data = col+' :: '+elemental[i][5];
+						data = col+' :: '+elemental[i][1];
 						data = '';
 						element_list_2 += '<td>'+data+'</'+'td>';
+				console.log(row+'::'+col+' - spacing');
 					}
 				}
 				else{col++;}
@@ -782,7 +791,7 @@ function element_list(visible){
 		return false;
 	}
 	return false;
-	 	
+
 }
 
 function show_element_info(id){
@@ -790,24 +799,24 @@ function show_element_info(id){
 		if(document.getElementById('element_info')){
 			if(elemental[id]){
 				var o = document.getElementById('element_info');
-				var str = "<b>"+id+"</"+"b><br>Mass:"+elemental[id][0]+"";
+				var str = "<b>"+id+"</"+"b><br>Mass:"+elemental[id][2]+"";
 				var i;
-				if(typeof(elemental[id][3]) == 'object'){
-					str+="<br>Monoisotopic mass: "+elemental[id][2]+"<br><br><i>Isotopes & abundances</"+"i>:<br>";
+				if(typeof(elemental[id][5]) == 'object'){
+					str+="<br>Monoisotopic mass: "+elemental[id][4]+"<br><br><i>Isotopes & abundances</"+"i>:<br>";
 					var tmp_str= '';
 					var summing = 0;
-					for(i in elemental[id][3]){
-						tmp_str+="<div>"+i+" - "+elemental[id][3][i]+"%</"+"div>";
-						summing = summing + elemental[id][3][i];
+					for(i in elemental[id][5]){
+						tmp_str+="<div>"+i+" - "+elemental[id][5][i]+"%</"+"div>";
+						summing = summing + elemental[id][5][i];
 					}
 					if(tmp_str.length==0){tmp_str = "<div class=\"no_isotopes_entered\">No isotopes known/entered for this element</"+"div>";}
 					str+=tmp_str;
-					str+= '<br>Total abundance check: '+summing+'%';
+// 					str+= '<br>Total abundance check: '+summing+'%';
 				}
 				o.innerHTML = str;
 				show_hide('element_info');
 				;
-				
+
 			}
 		}
 	}
@@ -831,11 +840,11 @@ function show_hide(element){
 }
 
 function update_mmols(mol_mass){;
-  if(document.getElementById){
+	if(document.getElementById){
 		document.getElementById('mmols').value = document.getElementById('mass').value*document.getElementById('mass_multiplier').value/mol_mass/document.getElementById('mmol_multiplier').value;
 		// reset the equivalents
 		document.getElementById('equivalents').value = 1;
-  }
+	}
 }
 function update_mass(mol_mass){;
   if(document.getElementById){
@@ -844,7 +853,7 @@ function update_mass(mol_mass){;
 	// update the volume
 	update_volume(mol_mass);
   }
-  
+
 }
 
 function update_mmols_volume(mol_mass){;
@@ -852,7 +861,7 @@ function update_mmols_volume(mol_mass){;
 		document.getElementById('mmols').value = document.getElementById('volume').value/document.getElementById('volume_multiplier').value*document.getElementById('density').value/mol_mass/document.getElementById('mmol_multiplier').value;
 		// reset the equivalents
 		document.getElementById('equivalents').value = 1;
-		
+
   }
 }
 
