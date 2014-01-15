@@ -348,21 +348,22 @@ var chem_col = 1;
 <script type="text/javascript">
 <!--
 
-var conversion = new Array();
-conversion['Me'] = 'CH3';
-conversion['Et'] = 'CH2CH3';
-conversion['Pro'] = '(CH2)2CH3';
-conversion['Bu'] = '(CH2)3CH3';
-conversion['Vi'] = 'HCCH2';
-conversion['Ph'] = 'C6H5';
-conversion['Ac'] = 'COCH3';
-conversion['Cy'] = '(CH2)5CH';
-conversion['Cp'] = '(CH)5';
-conversion['Dmf'] = '(CH3)2NCOH';
-conversion['Def'] = '(CH3)2(CH2)2NCOH';
-conversion['Thf'] = 'C4H8O';
-conversion['Dmso'] = '(CH3)2SO';
-conversion['Dcm'] = 'CH2Cl2';
+var fragments = {
+	Me:   'CH3',
+	Et:   'CH2CH3',
+	Pro:  '(CH2)2CH3',
+	Bu:   '(CH2)3CH3',
+	Vi:   'HCCH2',
+	Ph:   'C6H5',
+	Ac:   'COCH3',
+	Cy:   '(CH2)5CH',
+	Cp:   '(CH)5',
+	Dmf:  '(CH3)2NCOH',
+	Def:  '(CH3)2(CH2)2NCOH',
+	Thf:  'C4H8O',
+	Dmso: '(CH3)2SO',
+	Dcm:  'CH2Cl2'
+}
 
 // -->
 </script>
@@ -686,17 +687,17 @@ function expand_formula(formula){
 					// Make sure that the matched value is a number
 					else{tmp_match[2] = parseFloat(tmp_match[2]);}
 
-					if(!elemental[tmp_match[1]] && !conversion[tmp_match[1]]){
+					if(!elemental[tmp_match[1]] && !fragments[tmp_match[1]]){
 						tmp_string += calculator.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
 					}
-					else if(conversion[tmp_match[1]]){
+					else if(fragments[tmp_match[1]]){
 						// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
-						tmp_formula = "("+conversion[tmp_match[1]]+")"+tmp_match[2];
+						tmp_formula = "("+fragments[tmp_match[1]]+")"+tmp_match[2];
 
 						// check for needed expansion of brackets
 						expand_formula(tmp_formula);
 //					tmp_string+="expand_formula: Before conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
-//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+conversion[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
+//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
 //					tmp_string+="expand_formula: After conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
 					}
 					else{
@@ -731,7 +732,7 @@ function shorthand(visible){
 		  // gather the information
 		  var i;
 		  for(i in conversion){
-				shorthand+=i+" -- "+conversion[i]+"<br>";
+				shorthand+=i+" -- "+fragments[i]+"<br>";
 		  }
 		  // populate it with the information
 		  id.innerHTML = shorthand;
