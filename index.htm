@@ -115,6 +115,180 @@ td.c_e{width:18px;height:15px;}
 
 <!-- element information -->
 <script type="text/javascript">
+/* elemental information */
+var elements = {
+	// ordering based on periodic table so can update/add easily.
+	// not alphabetical, though would be possible
+	// takes information on row and column information so that can easily build periodic table from information
+
+	// all values for masses taken from Sigma-Aldrich wall chart, and precise mass used where known
+	// format of array is Array(PRECISE_MASS,NUM_ELEMENTS_IN_FORMULA,MOST_COMMON_ISOTOPE,array(OTHER_ISOTOPES=>percentages_as_numbers_not_decimals);
+	// MOST_COMMON_ISOTOPE is used for creating the monoisotopic mass
+
+	// row1
+	H:   [1, 1, 1.0079,0,1,{1:99.9885,2:0.0115},1,1],
+	He:  [1, 18, 4.002602,  0,4,  {3:0.000137,4:99.999863},1,18],
+	// row 2
+	Li:  [2, 1, 6.941,     0,7,  {6:7.59,7:92.41},2,1],
+	Be:  [2, 2, 9.012182,  0,9,  {9:100},2,2],
+
+	// row 2, p block
+	B:   [2, 13, 10.811,     0,11, {10:19.9,11:80.1}],
+	C:   [2, 14, 12.0107,    0,12, {12:98.93,13:1.07}],
+	N:   [2, 15, 14.0067,    0,14, {14:99.632,15:0.368}],
+	O:   [2, 16, 15.9994,    0,16, {16:99.757,17:0.038,18:0.205}],
+	F:   [2, 17, 18.998403,  0,19, {19:100}],
+	Ne:  [2, 18, 20.1797,   0,20, {20:90.48,21:0.27,22:9.25}],
+
+	// row 3
+	Na:  [3, 1, 22.98977,  0,23, {23:100}],
+	Mg:  [3, 2, 24.305,    0,24, {24:78.99,25:10,26:11.01}],
+
+	// row 3, p block
+	Al:  [3, 13, 26.981538, 0,27, {27:100}],
+	Si:  [3, 14, 28.0855,   0,28, {28:92.2297,29:4.6832,30:3.0872}],
+	P:   [3, 15, 30.973761, 0,31, {31:100}],
+	S:   [3, 16, 32.065,    0,32, {32:94.93,33:0.76,34:4.29,36:0.02}],
+	Cl:  [3, 17, 35.453,    0,35, {35:75.78,37:24.22}],
+	Ar:  [3, 18, 39.948,    0,40, {36:0.3365,38:0.0632,40:99.6003}],
+
+	// row 4
+	K:  [4, 1, 39.0983,   0 ,39, {39:93.25811,40:0.011672,41:6.73022}],
+	Ca: [4, 2, 40.078,    0,40, {40:96.941,42:0.647,43:0.135,44:2.086,46:0.004,48:0.187}],
+	  // row 4, d-block metals
+	Sc: [4, 3 , 44.95591,  0,45, {45:100}],
+	Ti: [4, 4 , 47.867,    0,48, {46:8.249,47:7.437,48:73.720,49:5.409,50:5.185}],
+	V:  [4, 5 , 50.9415,    0,51, {50:0.2497,51:99.7503}],
+	Cr: [4, 6 , 51.9961,   0,52, {50:4.3452,52:83.7895,53:9.5006,54:2.3647}],
+	Mn: [4, 7 , 54.938049, 0,55, {55:100}],
+	Fe: [4, 8 , 55.845,    0,56, {54:5.845,56:91.754,57:2.1191, 58:0.2819}],
+	Co: [4, 9 , 58.9332,   0,59, {59:100}],
+	Ni: [4, 10, 58.6934,   0,58, {58:68.0769,60:26.2231,61:1.1399,62:3.6345,64:0.9256}],
+	Cu: [4, 11, 63.546,    0,63, {63:69.174,65:30.826}],
+	Zn: [4, 12, 65.409,    0,64, {64:48.63,66:27.90,67:4.10,68:18.75,70:0.62}],
+	// row 4, p-block
+	Ga: [4, 13, 69.732,    0,69, {69:60.1079,71:39.8921}],
+	Ge: [4, 14, 72.64,     0,74, {70:21.234,72:27.662,73:7.717,74:35.943,76:7.444}],
+	As: [4, 15, 74.9216,   0,75, {75:100}],
+	Se: [4, 16, 78.96,     0,80, {74:0.889,76:9.366,77:7.635,78:23.772,80:49.607,82:8.731}],
+	Br: [4, 17, 79.904,    0,79, {79:50.686,81:49.314}],
+	Kr: [4, 18, 83.798,    0,84, {78:0.35351,80:2.28086,82:11.58304,83:11.49533,84:56.9889,86:17.29835}],
+
+	//row 5
+	Rb: [5, 1, 85.4678,   0,85, {85:72.1654,87:27.8346}],
+	Sr: [5, 2, 87.62,     0,88, {84:0.5574,86:9.8566,87:7.0015,88:82.5845}],
+	// row 5, d-block metals
+	Y:  [5, 3 , 88.90585,   0,89, {89:100}],
+	Zr: [5, 4 , 91.224,    0,90, {90:51.452,91:11.223,92:17.146,94:17.380,96:2.799}],
+	Nb: [5, 5 , 92.90638,  0,93, {93:100}],
+	Mo: [5, 6 , 95.94,     0,98, {92:14.8362,94:9.2466,95:15.9201,96:16.6756,97:9.5551,98:24.1329,100:9.6335}],
+	Tc: [5, 7 , 98,        0,98,  {98:100}],
+	Ru: [5, 8 , 101.07,	 0 ,102, {96:5.542,98:1.8688,99:12.7579,100:12.5985,101:17.0600,102:31.5519,104:18.6210}],
+	Rh: [5, 9 , 102.9055,  0,103, {103:100}],
+	Pd: [5, 10, 106.42,    0,106, {102:1.020,104:11.14,105:22.33,106:27.33,108:26.46,110:11.72}],
+	Ag: [5, 11, 107.8682,  0,107, {107:51.8392,109:48.1608}],
+	Cd: [5, 12, 112.411,   0,114, {106:1.25,108:0.89,110:12.49,111:12.80,112:24.13,113:12.22,114:28.73,116:7.49}],
+	  // row 5, p-block
+	In: [5, 13, 114.818,   0,115, {113:4.288,115:95.712}],
+	Sn: [5, 14, 118.71,    0,120, {112:0.973,114:0.659,115:0.339,116:14.536,117:7.676,118:24.223,119:8.585,120:32.593,122:4.629,124:5.789}],
+	Sb: [5, 15, 121.76,    0,121, {121:57.213,123:42.787}],
+	Te: [5, 16, 127.6,     0,130, {120:0.096,122:2.603,123:0.908,124:4.816,125:7.139,126:18.952,128:31.687,130:33.799}],
+	I:  [5, 17, 126.90447,  0,127, {127:100}],
+	Xe: [5, 18, 131.293,   0,132, {124:0.08913,126:0.08880,128:1.91732,129:26.43964,130:4.08721,131:21.17961,132:26.89157,134:10.44232,136:8.8680}],
+
+	// row 6
+	Cs: [6, 1, 132.9045,  0,133, {133:100}],
+	Ba: [6, 2, 137.327,   0,138, {130:0.1058,132:0.1012,134:2.417,135:6.592,136:7.853,137:11.232,138:71.699}],
+	  // row 6, d-block metals
+	La: [6, 3 , 138.9055,  0,139, {138:0.09017,139:99.90983}],
+	Hf: [6, 4 , 178.49,    0,178, {174:0.1620,176:5.2604,177:18.5953,178:27.2811,179:13.6210,180:35.0802}],
+	Ta: [6, 5 , 180.9479,  0,181, {180:0.0123,181:99.9877}],
+	W:  [6, 6 , 183.84,     0,184, {180:0.1198,182:26.4985,183:14.3136,184:30.6422,186:28.4259}],
+	Re: [6, 7 , 186.207,   0,187, {185:37.398,187:62.602}],
+	Os: [6, 8 , 190.23,    0,192, {184:0.0197,186:1.5859,187:1.9644,188:13.2434,189:16.1466,190:26.2584,92:40.7815}],
+	Ir: [6, 9 , 192.217,   0,193, {191:37.272,193:62.728}],
+	Pt: [6, 10, 195.078,   0,195, {190:0.013634,192:0.782659,194:32.96700,195:33.831557,196:25.24166,198:7.16349}],
+	Au: [6, 11, 195.96655, 0,197, {197:100}],
+	Hg: [6, 12, 200.59,    0,202, {196:0.15344,198:9.968,199:16.873,200:23.096,201:13.181,202:29.863,204:6.865}],
+	  // row 6, p-block
+	Tl: [6, 13, 204.3833,  0,205, {203:29.524,205:70.476}],
+	Pb: [6, 14, 207.2,     0,208, {204:1.4245,206:24.1447,207:22.0827,208:52.3481}],
+	Bi: [6, 15, 208.98038, 0,209, {209:100}],
+	Po: [6, 16, 209,       0,209, {}],
+	At: [6, 17, 210,       0,210, {}],
+	Rn: [6, 18, 222,       0,222, {}],
+
+	// row 7
+	Fr: [7, 1, 223,       0,223, {}],
+	Ra: [7, 1, 226,       0,226, {}],
+	  // row 7, d-block metals
+	Ac: [7, 1, 227,       0,227, {}],
+
+	Rf: [7, 1, 261,       0,261, {}],
+	Db: [7, 1, 262,       0,262, {}],
+	Sg: [7, 1, 266,       0,266, {}],
+	Bh: [7, 1, 264,       0,264, {}],
+	Hs: [7, 1, 277,       0,277, {}],
+	Mt: [7, 1, 268,       0,268, {}],
+	Ds: [7, 1, 281,       0,281, {}],
+	  // row 7, p-block (very little data, so most not shown)
+	Uuu: [7, 1, 272,      0,272, {}],
+	Uub: [7, 1, 285,      0,285, {}],
+	// Uut: [1, 1, ,0,,{}],
+	Uuq: [7, 1, 289,      0,289, {}],
+
+	// Lactinides and actinides as a new set ofrows, as per 'normal'
+	  // row 6, Lanthanides/f-block
+	// dummy spacer
+//	chem_element[''] = new Array('',   '','', {}],
+
+	Ce: [9, 1 ,140.116,   0,140, {136:0.186,138:0.251,140:88.449,142:11.114}],
+	Pr: [9, 2 , 140.90765, 0,141, {141:100}],
+	Nd: [9, 3 , 144.24,    0,142, {142:27.16,143:12.18,144:23.83,145:8.30,146:17.17,148:5.74,150:5.62}],
+	Pm: [9, 4 , 145,       0,145, {}],
+	Sm: [9, 5 , 150.36,    0,152, {144:3.0734,147:14.9934,148:11.2406,149:13.8189,150:7.3796,152:26.7421,154:22.7520}],
+	Eu: [9, 6 , 151.964,   0,153, {151:47.810,153:52.190}],
+	Gd: [9, 7 , 157.25,    0,158, {152:0.2029,154:2.1809,155:14.7998,156:20.4664,157:15.6518,158:24.8347,160:21.8635}],
+	Tb: [9, 8 , 158.92534, 0,159, {159:100}],
+	Dy: [9, 9 , 162.5,     0,164, {156:0.056,158:0.096,160:2.34,161:18.91,162:25.51,163:24.90,164:28.19}],
+	Ho: [9, 10, 164.93032, 0,165, {165:100}],
+	Er: [9, 11, 167.259,   0,166, {162:0.137,164:1.609,166:33.61,167:22.93,168:26.79,170:14.93}],
+	Tm: [9, 12, 168.93421, 0,169, {169:100}],
+	Yb: [9, 13, 173.04,    0,172, {168:0.127,170:3.04,171:14.28,172:21.83,173:16.13,174:31.83,176:12.76}],
+	Lu: [9, 14, 174.967,   0,175, {175:97.416,176:2.584}],
+
+	  // row 7, actinides
+	Th: [10, 1 ,232.0381,  0,232, {}],
+	Pa: [10, 2 , 231.03588, 0,231, {}],
+	U:  [10, 3 , 238.02891,  0,238, {}],
+	Np: [10, 4 , 237,       0,237, {}],
+	Pu: [10, 5 , 244,       0,244, {}],
+	Am: [10, 6 , 243,       0,243, {}],
+	Cm: [10, 7 , 247,       0,247, {}],
+	Bk: [10, 8 , 247,       0,247, {}],
+	Cf: [10, 9 , 251,       0,251, {}],
+	Es: [10, 10, 252,       0,252, {}],
+	Fm: [10, 11, 257,       0,257, {}],
+	Md: [10, 12, 258,       0,258, {}],
+	No: [10, 13, 259,       0,259, {}],
+	Lr: [10, 14, 262,       0,262, {}],
+
+	// Uup: [1, 1, ,0,,{}],
+	// Uuh: [1, 1, ,0,,{}],
+	// Uus: [1, 1, ,0,,{}],
+	// Uuo: [1, 1, ,0,,{}],
+
+
+	// so we can have a ',' at the end of all lines and not forget things
+	end_el:[]
+}
+
+var calculator = {
+	message:function(message, type){
+		return '<div class="'+type+'">'+message+'</div>';
+	}
+}
+
 <!--
 var elements_used = '';
 var chem_element = new Array();
@@ -142,178 +316,6 @@ var show_mass_spec;
 
 var chem_row = 1;
 var chem_col = 1;
-// row1
-chem_element['H'] = new Array(1.0079,0,1,{1:99.9885,2:0.0115},chem_row,chem_col);
-// chem_isotope
-chem_col = 18;chem_element['He'] = new Array(4.002602,  0,4,  {3:0.000137,4:99.999863},chem_row,chem_col);
-
-chem_row++;
-chem_col = 1;
-// row 2
-					 chem_element['Li'] = new Array(6.941,     0,7,  {6:7.59,7:92.41},chem_row,chem_col);
-chem_col++;chem_element['Be'] = new Array(9.012182,  0,9,  {9:100},chem_row,chem_col);
-
-chem_col = 9+chem_col;
-chem_col++;chem_element['B'] = new Array(10.811,     0,11, {10:19.9,11:80.1},chem_row,chem_col);
-chem_col++;chem_element['C'] = new Array(12.0107,    0,12, {12:98.93,13:1.07},chem_row,chem_col);
-chem_col++;chem_element['N'] = new Array(14.0067,    0,14, {14:99.632,15:0.368},chem_row,chem_col);
-chem_col++;chem_element['O'] = new Array(15.9994,    0,16, {16:99.757,17:0.038,18:0.205},chem_row,chem_col);
-chem_col++;chem_element['F'] = new Array(18.998403,  0,19, {19:100},chem_row,chem_col);
-chem_col++;chem_element['Ne'] = new Array(20.1797,   0,20, {20:90.48,21:0.27,22:9.25},chem_row,chem_col);
-
-chem_row++;
-chem_col = 1;
-// row 3
-						chem_element['Na'] = new Array(22.98977,  0,23, {23:100},chem_row,chem_col);
-chem_col++;chem_element['Mg'] = new Array(24.305,    0,24, {24:78.99,25:10,26:11.01},chem_row,chem_col);
-
-chem_col = 10+chem_col;
-					chem_element['Al'] = new Array(26.981538, 0,27, {27:100},chem_row,chem_col);
-chem_col++;chem_element['Si'] = new Array(28.0855,   0,28, {28:92.2297,29:4.6832,30:3.0872},chem_row,chem_col);
-chem_col++;chem_element['P'] = new Array(30.973761,  0,31, {31:100},chem_row,chem_col);
-chem_col++;chem_element['S'] = new Array(32.065,     0,32, {32:94.93,33:0.76,34:4.29,36:0.02},chem_row,chem_col);
-chem_col++;chem_element['Cl'] = new Array(35.453,		0,35, {35:75.78,37:24.22},chem_row,chem_col);
-chem_col++;chem_element['Ar'] = new Array(39.948,		0,40, {36:0.3365,38:0.0632,40:99.6003},chem_row,chem_col);
-
-chem_row++;
-chem_col = 1;
-// row 4
-						chem_element['K'] = new Array(39.0983,		0 ,39, {39:93.25811,40:0.011672,41:6.73022},chem_row,chem_col);
-chem_col++;chem_element['Ca'] = new Array(40.078,    0,40, {40:96.941,42:0.647,43:0.135,44:2.086,46:0.004,48:0.187},chem_row,chem_col);
-  // row 4, d-block metals
-chem_col++;chem_element['Sc'] = new Array(44.95591,  0,45, {45:100},chem_row,chem_col);
-chem_col++;chem_element['Ti'] = new Array(47.867,    0,48, {46:8.249,47:7.437,48:73.720,49:5.409,50:5.185},chem_row,chem_col);
-chem_col++;chem_element['V'] = new Array(50.9415,    0,51, {50:0.2497,51:99.7503},chem_row,chem_col);
-chem_col++;chem_element['Cr'] = new Array(51.9961,   0,52, {50:4.3452,52:83.7895,53:9.5006,54:2.3647},chem_row,chem_col);
-chem_col++;chem_element['Mn'] = new Array(54.938049, 0,55, {55:100},chem_row,chem_col);
-chem_col++;chem_element['Fe'] = new Array(55.845,    0,56, {54:5.845,56:91.754,57:2.1191, 58:0.2819},chem_row,chem_col);
-chem_col++;chem_element['Co'] = new Array(58.9332,   0,59, {59:100},chem_row,chem_col);
-chem_col++;chem_element['Ni'] = new Array(58.6934,   0,58, {58:68.0769,60:26.2231,61:1.1399,62:3.6345,64:0.9256},chem_row,chem_col);
-chem_col++;chem_element['Cu'] = new Array(63.546,    0,63, {63:69.174,65:30.826},chem_row,chem_col);
-chem_col++;chem_element['Zn'] = new Array(65.409,    0,64, {64:48.63,66:27.90,67:4.10,68:18.75,70:0.62},chem_row,chem_col);
-// row 4, p-block
-chem_col++;chem_element['Ga'] = new Array(69.732,    0,69, {69:60.1079,71:39.8921},chem_row,chem_col);
-chem_col++;chem_element['Ge'] = new Array(72.64,     0,74, {70:21.234,72:27.662,73:7.717,74:35.943,76:7.444},chem_row,chem_col);
-chem_col++;chem_element['As'] = new Array(74.9216,   0,75, {75:100},chem_row,chem_col);
-chem_col++;chem_element['Se'] = new Array(78.96,     0,80, {74:0.889,76:9.366,77:7.635,78:23.772,80:49.607,82:8.731},chem_row,chem_col);
-chem_col++;chem_element['Br'] = new Array(79.904,    0,79, {79:50.686,81:49.314},chem_row,chem_col);
-chem_col++;chem_element['Kr'] = new Array(83.798,    0,84, {78:0.35351,80:2.28086,82:11.58304,83:11.49533,84:56.9889,86:17.29835},chem_row,chem_col);
-
-chem_col = 1;
-chem_row++;
-//row 5
-chem_element['Rb'] = new Array(85.4678,   0,85, {85:72.1654,87:27.8346},chem_row,chem_col);
-chem_col++;chem_element['Sr'] = new Array(87.62,     0,88, {84:0.5574,86:9.8566,87:7.0015,88:82.5845},chem_row,chem_col);
-  // row 5, d-block metals
-chem_col++;chem_element['Y'] = new Array(88.90585,   0,89, {89:100},chem_row,chem_col);
-chem_col++;chem_element['Zr'] = new Array(91.224,    0,90, {90:51.452,91:11.223,92:17.146,94:17.380,96:2.799},chem_row,chem_col);
-chem_col++;chem_element['Nb'] = new Array(92.90638,  0,93, {93:100},chem_row,chem_col);
-chem_col++;chem_element['Mo'] = new Array(95.94,     0,98, {92:14.8362,94:9.2466,95:15.9201,96:16.6756,97:9.5551,98:24.1329,100:9.6335},chem_row,chem_col);
-chem_col++;chem_element['Tc'] = new Array(98,        0,98,  {98:100},chem_row,chem_col);
-chem_col++;chem_element['Ru'] = new Array(101.07,	 0 ,102, {96:5.542,98:1.8688,99:12.7579,100:12.5985,101:17.0600,102:31.5519,104:18.6210},chem_row,chem_col);
-chem_col++;chem_element['Rh'] = new Array(102.9055,  0,103, {103:100},chem_row,chem_col);
-chem_col++;chem_element['Pd'] = new Array(106.42,    0,106, {102:1.020,104:11.14,105:22.33,106:27.33,108:26.46,110:11.72},chem_row,chem_col);
-chem_col++;chem_element['Ag'] = new Array(107.8682,  0,107, {107:51.8392,109:48.1608},chem_row,chem_col);
-chem_col++;chem_element['Cd'] = new Array(112.411,   0,114, {106:1.25,108:0.89,110:12.49,111:12.80,112:24.13,113:12.22,114:28.73,116:7.49},chem_row,chem_col);
-  // row 5, p-block
-chem_col++;chem_element['In'] = new Array(114.818,   0,115, {113:4.288,115:95.712},chem_row,chem_col);
-chem_col++;chem_element['Sn'] = new Array(118.71,    0,120, {112:0.973,114:0.659,115:0.339,116:14.536,117:7.676,118:24.223,119:8.585,120:32.593,122:4.629,124:5.789},chem_row,chem_col);
-chem_col++;chem_element['Sb'] = new Array(121.76,    0,121, {121:57.213,123:42.787},chem_row,chem_col);
-chem_col++;chem_element['Te'] = new Array(127.6,     0,130, {120:0.096,122:2.603,123:0.908,124:4.816,125:7.139,126:18.952,128:31.687,130:33.799},chem_row,chem_col);
-chem_col++;chem_element['I'] = new Array(126.90447,  0,127, {127:100},chem_row,chem_col);
-chem_col++;chem_element['Xe'] = new Array(131.293,   0,132, {124:0.08913,126:0.08880,128:1.91732,129:26.43964,130:4.08721,131:21.17961,132:26.89157,134:10.44232,136:8.8680},chem_row,chem_col);
-
-chem_row++;
-chem_col = 1;
-// row 6
-						chem_element['Cs'] = new Array(132.9045,  0,133, {133:100},chem_row,chem_col);
-chem_col++;chem_element['Ba'] = new Array(137.327,   0,138, {130:0.1058,132:0.1012,134:2.417,135:6.592,136:7.853,137:11.232,138:71.699},chem_row,chem_col);
-  // row 6, d-block metals
-chem_col++;chem_element['La'] = new Array(138.9055,  0,139, {138:0.09017,139:99.90983},chem_row,chem_col);
-chem_col++;chem_element['Hf'] = new Array(178.49,    0,178, {174:0.1620,176:5.2604,177:18.5953,178:27.2811,179:13.6210,180:35.0802},chem_row,chem_col);
-chem_col++;chem_element['Ta'] = new Array(180.9479,  0,181, {180:0.0123,181:99.9877},chem_row,chem_col);
-chem_col++;chem_element['W'] = new Array(183.84,     0,184, {180:0.1198,182:26.4985,183:14.3136,184:30.6422,186:28.4259},chem_row,chem_col);
-chem_col++;chem_element['Re'] = new Array(186.207,   0,187, {185:37.398,187:62.602},chem_row,chem_col);
-chem_col++;chem_element['Os'] = new Array(190.23,    0,192, {184:0.0197,186:1.5859,187:1.9644,188:13.2434,189:16.1466,190:26.2584,92:40.7815},chem_row,chem_col);
-chem_col++;chem_element['Ir'] = new Array(192.217,   0,193, {191:37.272,193:62.728},chem_row,chem_col);
-chem_col++;chem_element['Pt'] = new Array(195.078,   0,195, {190:0.013634,192:0.782659,194:32.96700,195:33.831557,196:25.24166,198:7.16349},chem_row,chem_col);
-chem_col++;chem_element['Au'] = new Array(195.96655, 0,197, {197:100},chem_row,chem_col);
-chem_col++;chem_element['Hg'] = new Array(200.59,    0,202, {196:0.15344,198:9.968,199:16.873,200:23.096,201:13.181,202:29.863,204:6.865},chem_row,chem_col);
-  // row 6, p-block
-chem_col++;chem_element['Tl'] = new Array(204.3833,  0,205, {203:29.524,205:70.476},chem_row,chem_col);
-chem_col++;chem_element['Pb'] = new Array(207.2,     0,208, {204:1.4245,206:24.1447,207:22.0827,208:52.3481},chem_row,chem_col);
-chem_col++;chem_element['Bi'] = new Array(208.98038, 0,209, {209:100},chem_row,chem_col);
-chem_col++;chem_element['Po'] = new Array(209,       0,209, {},chem_row,chem_col);
-chem_col++;chem_element['At'] = new Array(210,       0,210, {},chem_row,chem_col);
-chem_col++;chem_element['Rn'] = new Array(222,       0,222, {},chem_row,chem_col);
-
-chem_row++;
-chem_col = 1;
-// row 7
-chem_element['Fr'] = new Array(223,       0,223, {},chem_row,chem_col);
-chem_col++;chem_element['Ra'] = new Array(226,       0,226, {},chem_row,chem_col);
-  // row 7, d-block metals
-chem_col++;chem_element['Ac'] = new Array(227,       0,227, {},chem_row,chem_col);
-
-chem_col++;chem_element['Rf'] = new Array(261,       0,261, {},chem_row,chem_col);
-chem_col++;chem_element['Db'] = new Array(262,       0,262, {},chem_row,chem_col);
-chem_col++;chem_element['Sg'] = new Array(266,       0,266, {},chem_row,chem_col);
-chem_col++;chem_element['Bh'] = new Array(264,       0,264, {},chem_row,chem_col);
-chem_col++;chem_element['Hs'] = new Array(277,       0,277, {},chem_row,chem_col);
-chem_col++;chem_element['Mt'] = new Array(268,       0,268, {},chem_row,chem_col);
-chem_col++;chem_element['Ds'] = new Array(281,       0,281, {},chem_row,chem_col);
-  // row 7, p-block (very little data, so most not shown)
-chem_col++;chem_element['Uuu'] = new Array(272,      0,272, {},chem_row,chem_col);
-chem_col++;chem_element['Uub'] = new Array(285,      0,285, {},chem_row,chem_col);
-// chem_element['Uut'] = new Array(,0,,{},chem_row,chem_col);
-chem_col++;chem_element['Uuq'] = new Array(289,      0,289, {},chem_row,chem_col);
-
-// Lactinides and actinides as a new set ofrows, as per 'normal'
-  // row 6, Lanthanides/f-block
-// dummy spacer
-chem_row++;
-chem_col = 1;
-chem_element[''] = new Array('',   '','', {},chem_row,chem_col);
-chem_row++;
-chem_col = 1;
-
-					chem_element['Ce'] = new Array(140.116,   0,140, {136:0.186,138:0.251,140:88.449,142:11.114},chem_row,chem_col);
-chem_col++;chem_element['Pr'] = new Array(140.90765, 0,141, {141:100},chem_row,chem_col);
-chem_col++;chem_element['Nd'] = new Array(144.24,    0,142, {142:27.16,143:12.18,144:23.83,145:8.30,146:17.17,148:5.74,150:5.62},chem_row,chem_col);
-chem_col++;chem_element['Pm'] = new Array(145,       0,145, {},chem_row,chem_col);
-chem_col++;chem_element['Sm'] = new Array(150.36,    0,152, {144:3.0734,147:14.9934,148:11.2406,149:13.8189,150:7.3796,152:26.7421,154:22.7520},chem_row,chem_col);
-chem_col++;chem_element['Eu'] = new Array(151.964,   0,153, {151:47.810,153:52.190},chem_row,chem_col);
-chem_col++;chem_element['Gd'] = new Array(157.25,    0,158, {152:0.2029,154:2.1809,155:14.7998,156:20.4664,157:15.6518,158:24.8347,160:21.8635},chem_row,chem_col);
-chem_col++;chem_element['Tb'] = new Array(158.92534, 0,159, {159:100},chem_row,chem_col);
-chem_col++;chem_element['Dy'] = new Array(162.5,     0,164, {156:0.056,158:0.096,160:2.34,161:18.91,162:25.51,163:24.90,164:28.19},chem_row,chem_col);
-chem_col++;chem_element['Ho'] = new Array(164.93032, 0,165, {165:100},chem_row,chem_col);
-chem_col++;chem_element['Er'] = new Array(167.259,   0,166, {162:0.137,164:1.609,166:33.61,167:22.93,168:26.79,170:14.93},chem_row,chem_col);
-chem_col++;chem_element['Tm'] = new Array(168.93421, 0,169, {169:100},chem_row,chem_col);
-chem_col++;chem_element['Yb'] = new Array(173.04,    0,172, {168:0.127,170:3.04,171:14.28,172:21.83,173:16.13,174:31.83,176:12.76},chem_row,chem_col);
-chem_col++;chem_element['Lu'] = new Array(174.967,   0,175, {175:97.416,176:2.584},chem_row,chem_col);
-
-  // row 7, actinides
-chem_row++;
-chem_col = 1;
-chem_element['Th'] = new Array(232.0381,  0,232, {},chem_row,chem_col);
-chem_col++;chem_element['Pa'] = new Array(231.03588, 0,231, {},chem_row,chem_col);
-chem_col++;chem_element['U'] = new Array(238.02891,  0,238, {},chem_row,chem_col);
-chem_col++;chem_element['Np'] = new Array(237,       0,237, {},chem_row,chem_col);
-chem_col++;chem_element['Pu'] = new Array(244,       0,244, {},chem_row,chem_col);
-chem_col++;chem_element['Am'] = new Array(243,       0,243, {},chem_row,chem_col);
-chem_col++;chem_element['Cm'] = new Array(247,       0,247, {},chem_row,chem_col);
-chem_col++;chem_element['Bk'] = new Array(247,       0,247, {},chem_row,chem_col);
-chem_col++;chem_element['Cf'] = new Array(251,       0,251, {},chem_row,chem_col);
-chem_col++;chem_element['Es'] = new Array(252,       0,252, {},chem_row,chem_col);
-chem_col++;chem_element['Fm'] = new Array(257,       0,257, {},chem_row,chem_col);
-chem_col++;chem_element['Md'] = new Array(258,       0,258, {},chem_row,chem_col);
-chem_col++;chem_element['No'] = new Array(259,       0,259, {},chem_row,chem_col);
-chem_col++;chem_element['Lr'] = new Array(262,       0,262, {},chem_row,chem_col);
-
-// chem_element['Uup'] = new Array(,0,,{},chem_row,chem_col);
-// chem_element['Uuh'] = new Array(,0,,{},chem_row,chem_col);
-// chem_element['Uus'] = new Array(,0,,{},chem_row,chem_col);
-// chem_element['Uuo'] = new Array(,0,,{},chem_row,chem_col);
 
 // -->
 </script>
@@ -661,7 +663,7 @@ function expand_formula(formula){
 
 
 				if(!chem_element[tmp_match[1]] && !conversion[tmp_match[1]]){
-					tmp_string += '<div class=error>Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b></'+'div>';
+					tmp_string += calculator.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
 				}
 				else if(conversion[tmp_match[1]]){
 					// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
