@@ -297,6 +297,17 @@ var calculator = {
 	td:function(msg,cls){
 		return '<td class="'+cls+'">'+msg+'</td>';
 	},
+	tr:function(arr){
+		var html=  '';
+		var i;
+		// build the row?
+		if(arr.length>0){
+			html += '<tr>';
+			for (i in arr){html += this.td(arr[i],'');}
+			html += '</tr>';
+		}
+		return html;;
+	},
 
 	spacing_columns:function(from,to,current){
 		html = '';
@@ -731,9 +742,10 @@ function shorthand(visible){
 		  var shorthand = 'Supported:<br>';
 		  // gather the information
 		  var i;
-		  for(i in conversion){
-				shorthand+=i+" -- "+fragments[i]+"<br>";
-		  }
+		  shorthand +='<table>';
+		  // generate all rows
+			for(i in fragments){shorthand += calculator.tr(Array(i,fragments[i]));}
+		  shorthand += '</table>';
 		  // populate it with the information
 		  id.innerHTML = shorthand;
 		  // set its height to '0', make it visible, and then try to make it visibl
