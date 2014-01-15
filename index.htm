@@ -1,8 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>Chemical composition calculations (as you type)</title>
 <meta name="description" content="Chemical Composition Calculator that calculates elemental analysis, monoisotopic mass, molecular ion pattern, and reaction equivalents all in your browser, meaning you can more quickly determine what your products are">
 
+<!-- base stylesheet -->
 <style type="text/css" media="screen,print">
 body{font-family:arial;font-size:0.8em}
 thead td{font-weight:bold;font-size:0.9em;}
@@ -111,7 +112,8 @@ td.c_e{width:18px;height:15px;}
 .help, .shorthand{display:none;}
 
 </style>
-<!-- <script type="text/javascript" src="chemical_formula.js"></script> -->
+
+<!-- element information -->
 <script type="text/javascript">
 <!--
 var elements_used = '';
@@ -308,19 +310,17 @@ chem_col++;chem_element['Md'] = new Array(258,       0,258, {},chem_row,chem_col
 chem_col++;chem_element['No'] = new Array(259,       0,259, {},chem_row,chem_col);
 chem_col++;chem_element['Lr'] = new Array(262,       0,262, {},chem_row,chem_col);
 
-
-
-
-
-
-
-
-
-
 // chem_element['Uup'] = new Array(,0,,{},chem_row,chem_col);
 // chem_element['Uuh'] = new Array(,0,,{},chem_row,chem_col);
 // chem_element['Uus'] = new Array(,0,,{},chem_row,chem_col);
 // chem_element['Uuo'] = new Array(,0,,{},chem_row,chem_col);
+
+// -->
+</script>
+
+<!-- common fragment information -->
+<script type="text/javascript">
+<!--
 
 var conversion = new Array();
 conversion['Me'] = 'CH3';
@@ -337,9 +337,16 @@ conversion['Def'] = '(CH3)2(CH2)2NCOH';
 conversion['Thf'] = 'C4H8O';
 conversion['Dmso'] = '(CH3)2SO';
 conversion['Dcm'] = 'CH2Cl2';
+
+// -->
+</script>
+
+<!-- the heavy lifting -->
+<script type="text/javascript">
+<!--
 // scientific reasoning on the significant figures after the decimal place is thus:  you can't have
 // anything more precise than that which is the least precise.  i.e. 0.5+0.00005 = 0.5 because the first
-// measurement was not measured so accurately, and is actually 0.5 with a variance of 0.049 which nullifies 
+// measurement was not measured so accurately, and is actually 0.5 with a variance of 0.049 which nullifies
 // the 0.00005 measurement
 
 function calculate_info(formula){
@@ -1072,6 +1079,8 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 //-->
 </script>
 </head>
+
+<!-- template for the HTML -->
 <body onload="document.chemicals.formula.focus();calculate_info(document.chemicals.formula.value);calculate_chn();">
 
 <div class="help">
@@ -1227,7 +1236,9 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
  <div id="info" class="info">&nbsp;</div>
  <div class="clearfix"></div>
 </div>
- <div style="position: fixed;bottom: 10px;left: 10px;margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right">Version 1.2.1 (18-Apr-2011)</div>
- <div style="position: fixed;bottom: 10px;right: 10px;margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right">
+<div style="position: fixed;bottom: 10px;left: 10px;margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right">Version 1.2.2 (15-Jan-2014)</div>
+<div style="position: fixed;bottom: 10px;right: 10px;margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right">
  If you like this tool or want to send on comments, please contact <a href="http://www.gazard.com/index.php?m=6&amp;subject=3">Stephen</a>
- </div></body></html>
+</div>
+</body>
+</html>
