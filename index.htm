@@ -290,12 +290,17 @@ var elemental = {
 }
 
 var calculator = {
+	/* place to store the shorthand and periocid table; don't regenerate the HTML unnecessarily */
+	shorthand:'',
+	periodic:'',
+
 	message:function(message, type){
 		return '<div class="'+type+'">'+message+'</div>';
 	},
 
 	td:function(msg,cls){
-		return '<td class="'+cls+'">'+msg+'</td>';
+		cls = (cls.length && cls.length>0)?' class="'+cls+'"':'';
+		return '<td'+cls+'>'+msg+'</td>';
 	},
 	tr:function(arr){
 		var html=  '';
@@ -739,13 +744,19 @@ function shorthand(visible){
 	if(document.getElementById){
 		if(document.getElementById('shorthand')){
 			id = document.getElementById('shorthand');
-		  var shorthand = 'Supported:<br>';
-		  // gather the information
-		  var i;
-		  shorthand +='<table>';
-		  // generate all rows
-			for(i in fragments){shorthand += calculator.tr(Array(i,fragments[i]));}
-		  shorthand += '</table>';
+		  if(calculator.shorthand ===''){
+				var shorthand = 'Supported:<br>';
+			  // gather the information
+			  var i;
+			  shorthand +='<table>';
+			  // generate all rows
+				for(i in fragments){shorthand += calculator.tr(Array(i,fragments[i]));}
+			  shorthand += '</table>';
+			  calculator.shorthand = shorthand;
+			}
+			else{
+				shorthand = calculator.shorthand;
+			}
 		  // populate it with the information
 		  id.innerHTML = shorthand;
 		  // set its height to '0', make it visible, and then try to make it visibl
@@ -759,76 +770,82 @@ function shorthand(visible){
 // show the shorthand supported
 function element_list(visible){
 	var id;
+	if(calculator.periodic === ''){
+		;
+	}
+
 	var element_list_2 = '<table id="periodic">';
 	var data;
 	if(document.getElementById){
 		if(document.getElementById('element_list')){
 			id = document.getElementById('element_list');
-			var element_list = 'Elements:<br>';
-			// gather the information
-			var i, no_isotopes, j;
-			var row, col;
-			row=col=1;
-
-			// loop through the data
-			for(i in elemental){
-// 				console.log(i+"\t"+row+'::'+col+' vs. '+elemental[i][0]+'::'+elemental[i][1]);
-				if(i=='end_el'){break;}
-
-				data = '';
-				no_isotopes = 'class="no_isotopes_entered"';
-				// check for at least 1 isotope.  If not, we display it as a red flag
-				for(j in elemental[i][5]){
-					if(j>0){
-						no_isotopes = '';
-						break;
-					}
-				}
-
-				// rows
-				if(parseInt(elemental[i][0]) != row){
-					if(row!=1){element_list_2 += '</'+'tr>';}
-					element_list_2 +='<tr>';
-					row++;
-					col=0;
-				}
-
-				if(i=='dummy'){
-					element_list_2 +='<tr><td colspan=18>&nbsp;</td></tr>';
-					row++;
-					continue;
-				}
-
-				// spacing columns
-				if(elemental[i][1]-col>1){
-					// fixes an odd bug I've not time to fix, yet
-					if(row>1){col++;}
-					tmp = calculator.spacing_columns(col,elemental[i][1],col);
-					element_list_2 += tmp.html;
-					col = tmp;
-					console.log(tmp);
-// 					while(elemental[i][1]>col){
-// 						console.log('spacing column: '+col+'  '+elemental[i][1]+'-'+col+'>1');
-// 						col++;
-// 						data = col+' :: '+elemental[i][1];
-// 						data = '';
-// 						element_list_2 += '<td class="blank">'+data+'</'+'td>';
-// 						console.log(row+'::'+col+' - spacing');
-// 					}
-				}
-				else{col++;}
-
-				// data
-				data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+elemental[i][0]+'\',  Monoisotopic mass:\''+elemental[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
-				element_list_2 +='<td '+data+'td>';
-				element_list+='<div '+data+'div>'+"\n";
+			if(calculator.periodic !==''){
+				element_list_2 = calculator.periodic;
 			}
-			element_list_2 += '</'+'tr></'+'table>';
-// 			element_list += '<br><br>New version:<br>'+element_list_2;
+			else{
+				var element_list = 'Elements:<br>';
+				// gather the information
+				var i, no_isotopes, j;
+				var row, col;
+				row=col=1;
+	
+				// loop through the data
+				for(i in elemental){
+	// 				console.log(i+"\t"+row+'::'+col+' vs. '+elemental[i][0]+'::'+elemental[i][1]);
+					if(i=='end_el'){break;}
+	
+					data = '';
+					no_isotopes = 'class="no_isotopes_entered"';
+					// check for at least 1 isotope.  If not, we display it as a red flag
+					for(j in elemental[i][5]){
+						if(j>0){
+							no_isotopes = '';
+							break;
+						}
+					}
+	
+					// rows
+					if(parseInt(elemental[i][0]) != row){
+						if(row!=1){element_list_2 += '</'+'tr>';}
+						element_list_2 +='<tr>';
+						row++;
+						col=0;
+					}
+	
+					// spacer for lanthanid and actinides
+					if(i=='dummy'){
+						element_list_2 +='<tr><td colspan=18>&nbsp;</td></tr>';
+						row++;
+						continue;
+					}
+	
+					// spacing columns
+					if(elemental[i][1]-col>1){
+						// fixes an odd bug I've not time to fix, yet
+						if(row>1){col++;}
+						tmp = calculator.spacing_columns(col,elemental[i][1],col);
+						element_list_2 += tmp.html;
+						col = tmp;
+					}
+					else{col++;}
+	
+					// data
+					data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+elemental[i][0]+'\',  Monoisotopic mass:\''+elemental[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
+					element_list_2 +='<td '+data+'td>';
+					element_list+='<div '+data+'div>'+"\n";
+				}
+				element_list_2 += '</'+'tr></'+'table>';
+
+				// add in source of data
+				element_list_2 += "<div style=\"float:left;width:100%;margin-top:5px;text-align:center\"><a href=\"http://www.iupac.org/reports/1998/7001rosman/iso.pdf\" style=\"text-decoration:none;\" target=\"_blank\">Isotope data from 1997 Iupac report</"+"a></"+"div>";;
+			
+			  // cache this
+			  calculator.periodic = element_list_2;
+			}
+
+
 			// populate it with the information
 			id.innerHTML = element_list_2;
-			// add in source of data
-			id.innerHTML += "<div style=\"float:left;width:100%;margin-top:5px;text-align:center\"><a href=\"http://www.iupac.org/reports/1998/7001rosman/iso.pdf\" style=\"text-decoration:none;\" target=\"_blank\">Isotope data from 1997 Iupac report</"+"a></"+"div>";
 			// set its height to '0', make it visible, and then try to make it visibl
 //		  alert(id.style['visibility']);
 			show_hide('element_list');
