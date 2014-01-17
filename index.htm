@@ -104,6 +104,12 @@ td.c_e{width:18px;height:15px;}
 .e_c input, .e_h input, .e_n input, .multiplier input{margin:0px;width:45px;color:#AAAAAA;}
 .e_c input.field_enter_text, .e_h input.field_enter_text, .e_n input.field_enter_text, .multiplier input.field_enter_text{color:black;}
 #chn_copy_paste{clear:both;padding-top:3px;padding-left:3px;}
+/* 'footer' */
+.bottom{
+	position: fixed;bottom: 10px;
+	margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right
+}
+
 /* generic */
 .clearfix {display:inline-block;}
 
@@ -551,7 +557,7 @@ function calculate_info(formula){
 		info = calculator.setHTML('info',tmp_string);
 		info.style.className = 'info';
 	}
-  
+
 }
 
 function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
@@ -1308,8 +1314,8 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
  <div id="info" class="info">&nbsp;</div>
  <div class="clearfix"></div>
 </div>
-<div style="position: fixed;bottom: 10px;left: 10px;margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right">Version 1.2.2 (15-Jan-2014)</div>
-<div style="position: fixed;bottom: 10px;right: 10px;margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right">
+<div class="bottom" style="left: 10px;">Version 1.2.2 (15-Jan-2014)</div>
+<div class="bottom" style="right: 10px;">
  If you like this tool or want to send on comments, please contact <a href="http://www.gazard.com/index.php?m=6&amp;subject=3">Stephen</a>
 </div>
 </body>
