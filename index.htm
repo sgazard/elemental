@@ -337,6 +337,21 @@ var calculator = {
 		if(document.getElementById){
 			return document.getElementById(id);
 		}
+	},
+
+	get_value:function(id){
+		var el = this.get_el(id);
+		if(el !== false){
+			return el.value;
+		}
+		else{return '';}
+	},
+
+	set_value:function(id, val){
+		var el = this.get_el(id);
+		if(el !== false){
+			el.value = val;
+		}
 	}
 }
 </script>
@@ -896,36 +911,30 @@ function show_element_info(id){
 }
 
 function show_hide(element){
-	if(document.getElementById){
-		if(document.getElementById(element)){
-			var o = document.getElementById(element);
+	if(document.getElementById && document.getElementById(element)){
+		var o = document.getElementById(element);
 // 			alert(element+'--> style.visibility = '+o.style.visibility+"\n"+'style.display = '+o.style.display);
-			if((o.style.visibility =='hidden')){
-				o.style.visibility = 'visible';
-				o.style.display = 'block';
-			}
-			else{
-				o.style.visibility = "hidden";
-				o.style.display = 'none';
-			}
+		if((o.style.visibility =='hidden')){
+			o.style.visibility = 'visible';
+			o.style.display = 'block';
+		}
+		else{
+			o.style.visibility = "hidden";
+			o.style.display = 'none';
 		}
 	}
 }
 
 function update_mmols(mol_mass){;
-	if(document.getElementById){
-		document.getElementById('mmols').value = document.getElementById('mass').value*document.getElementById('mass_multiplier').value/mol_mass/document.getElementById('mmol_multiplier').value;
-		// reset the equivalents
-		document.getElementById('equivalents').value = 1;
-	}
+	calculator.set_value('mmols', calculator.get_value('mass')*calculator.get_value('mass_multiplier')/mol_mass/calculator.get_value('mmol_multiplier').value);
+	// reset the equivalents
+	calculator.set_value('equivalents',1);
 }
 function update_mass(mol_mass){;
-	if(document.getElementById){
-		// update the mass
-		document.getElementById('mass').value = document.getElementById('mmols').value*document.getElementById('mmol_multiplier').value*document.getElementById('equivalents').value*mol_mass/document.getElementById('mass_multiplier').value;
+	// update the mass
+	calculator.set_value('mass', calculator.get_value('mmols')*calculator.get_value('mmol_multiplier')*calculator.get_value('equivalents')*mol_mass/calculator.get_value('mass_multiplier');
 	// update the volume
 	update_volume(mol_mass);
-	}
 
 }
 
