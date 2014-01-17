@@ -324,11 +324,14 @@ var calculator = {
 		current = i;
 
 		return {current:current,html:html}
-	}
-	
+	},
+
 	setHTML:function(id,str){
-		;
-	}
+		var el = this.get_el(id);
+		if(el !== false){
+			el.innerHTML = str;
+		}
+	},
 
 	get_el:function(id){
 		if(document.getElementById){
@@ -479,7 +482,7 @@ function calculate_info(formula){
 					tmp_string2+='<div'+classes+'><div class="element">'+elem_split[i]+'</'+'div><div class="num_atoms">'+num_atoms+'</'+'div><div class="atomic_mass">'+atom_mass+'</'+'div><div class="net_mass align_r">'+tmp_mass+'</'+'div><div class="percent_composition align_r">'+parseFloat(tmp_mass/mass*100).toFixed(max_decimal_places)+'%</'+'div><div class=clearfix></'+'div></'+'div>';
 					// update elemental analysis fields
 					if(elem_split[i] == 'C' ||elem_split[i] == 'H' ||elem_split[i] == 'N') {
-						document.getElementById(elem_split[i].toLowerCase()+'_expected').innerHTML = parseFloat(tmp_mass/mass*100).toFixed(2);
+						calculator.setHTML(elem_split[i].toLowerCase()+'_expected',parseFloat(tmp_mass/mass*100).toFixed(2));
 					}
 					// the simplified formula
 					formula_simplified += elem_split[i];
@@ -522,7 +525,7 @@ function calculate_info(formula){
 				calculator.td(mono_mass.toFixed(max_decimal_places),'formula')+
 				"<td>"+msds_link+"</"+"td></"+"tr></"+"table>";
 			// update teh elemental analysis copy paste
-			document.getElementById('molecular_formula').innerHTML = formula_simplified;
+			calculator.setHTML('molecular_formula',formula_simplified);
 
 			var mmols = (document.chemicals.amt_added.value*1000/mass);
 			molecular_mass = mass.toFixed(max_decimal_places);
@@ -602,7 +605,7 @@ function expand_brackets(formula){
     try{
       // clear the error message on each loop
 			if(document.getElementById){
-				document.getElementById('error').innerHTML = '';
+				calculator.setHTML('error','');
  				document.getElementById('error').className = '';
 			}
 
@@ -617,7 +620,7 @@ function expand_brackets(formula){
 			}
       else{
 				if(document.getElementById){
-					document.getElementById('error').innerHTML = brackets_error;
+					calculator.setHTML('error',brackets_error);
 					document.getElementById('error').className = 'error';
 				}
 //        tmp_string += brackets_error; //"Regular expression problem: "+
@@ -1109,9 +1112,9 @@ function calculate_chn(){
 		if(!isNumeric(c)){c = 0;}if(!isNumeric(h)){h = 0;}if(!isNumeric(n)){n = 0;}if(!isNumeric(multiplier)){multiplier = 1;}
 
 		// write into section for copy paste to documents
-		document.getElementById('c_found').innerHTML = c;
-		document.getElementById('h_found').innerHTML = h;
-		document.getElementById('n_found').innerHTML = n;
+		calculator.setHTML('c_found',c);
+		calculator.setHTML('h_found',h);
+		calculator.setHTML('n_found',n);
 		// check we're not doing something stupid with div/0
 		if(c+h+n == 0){return false;}
 		// alert('calculating CHN');
@@ -1134,9 +1137,9 @@ function calculate_chn(){
 		n=Math.round(n/min*multiplier*100)/100;
 
 		// write the values
-		document.getElementById('e_c').innerHTML = c;
-		document.getElementById('e_h').innerHTML = h;
-		document.getElementById('e_n').innerHTML = n;
+		calculator.setHTML('e_c',c);
+		calculator.setHTML('e_h',h);
+		calculator.setHTML('e_n',n);
 	}
 }
 
@@ -1146,9 +1149,9 @@ function reset_chn(){
 	c = document.getElementById('n').value = '%N';
 	document.getElementById('multiplier').value = 'mult';
 	set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
-	document.getElementById('e_c').innerHTML = document.getElementById('e_h').innerHTML = document.getElementById('e_n').innerHTML = '';
-	document.getElementById('c_found').innerHTML = document.getElementById('h_found').innerHTML = document.getElementById('n_found').innerHTML = '0';
-	document.getElementById('c_expected').innerHTML = document.getElementById('h_expected').innerHTML = document.getElementById('n_expected').innerHTML = '';
+	calculator.setHTML('e_c','');calculator.setHTML('e_h','');calculator.setHTML('e_n','');
+	calculator.setHTML('c_found',0);calculator.setHTML('h_found',0);calculator.setHTML('n_found',0)
+	calculator.setHTML('c_expected','');calculator.setHTML('h_expected','');calculator.setHTML('n_expected','');
 	document.getElementById('chn_copy_paste').style.visibility = 'hidden';
 }
 
