@@ -160,7 +160,7 @@ var elemental = {
 	// row 4
 	K:  [4, 1, 39.0983,     0,39, {39:93.25811,40:0.011672,41:6.73022}],
 	Ca: [4, 2, 40.078,      0,40, {40:96.941,42:0.647,43:0.135,44:2.086,46:0.004,48:0.187}],
-	  // row 4, d-block metals
+		// row 4, d-block metals
 	Sc: [4, 3 , 44.95591,   0,45, {45:100}],
 	Ti: [4, 4 , 47.867,     0,48, {46:8.249,47:7.437,48:73.720,49:5.409,50:5.185}],
 	V:  [4, 5 , 50.9415,    0,51, {50:0.2497,51:99.7503}],
@@ -193,7 +193,7 @@ var elemental = {
 	Pd: [5, 10, 106.42,     0,106, {102:1.020,104:11.14,105:22.33,106:27.33,108:26.46,110:11.72}],
 	Ag: [5, 11, 107.8682,   0,107, {107:51.8392,109:48.1608}],
 	Cd: [5, 12, 112.411,    0,114, {106:1.25,108:0.89,110:12.49,111:12.80,112:24.13,113:12.22,114:28.73,116:7.49}],
-	  // row 5, p-block
+		// row 5, p-block
 	In: [5, 13, 114.818,    0,115, {113:4.288,115:95.712}],
 	Sn: [5, 14, 118.71,     0,120, {112:0.973,114:0.659,115:0.339,116:14.536,117:7.676,118:24.223,119:8.585,120:32.593,122:4.629,124:5.789}],
 	Sb: [5, 15, 121.76,     0,121, {121:57.213,123:42.787}],
@@ -204,7 +204,7 @@ var elemental = {
 	// row 6
 	Cs: [6, 1, 132.9045,    0,133, {133:100}],
 	Ba: [6, 2, 137.327,     0,138, {130:0.1058,132:0.1012,134:2.417,135:6.592,136:7.853,137:11.232,138:71.699}],
-	  // row 6, d-block metals
+		// row 6, d-block metals
 	La: [6, 3 , 138.9055,   0,139, {138:0.09017,139:99.90983}],
 	Hf: [6, 4 , 178.49,     0,178, {174:0.1620,176:5.2604,177:18.5953,178:27.2811,179:13.6210,180:35.0802}],
 	Ta: [6, 5 , 180.9479,   0,181, {180:0.0123,181:99.9877}],
@@ -215,7 +215,7 @@ var elemental = {
 	Pt: [6, 10, 195.078,    0,195, {190:0.013634,192:0.782659,194:32.96700,195:33.831557,196:25.24166,198:7.16349}],
 	Au: [6, 11, 195.96655,  0,197, {197:100}],
 	Hg: [6, 12, 200.59,     0,202, {196:0.15344,198:9.968,199:16.873,200:23.096,201:13.181,202:29.863,204:6.865}],
-	  // row 6, p-block
+		// row 6, p-block
 	Tl: [6, 13, 204.3833,   0,205, {203:29.524,205:70.476}],
 	Pb: [6, 14, 207.2,      0,208, {204:1.4245,206:24.1447,207:22.0827,208:52.3481}],
 	Bi: [6, 15, 208.98038,  0,209, {209:100}],
@@ -226,7 +226,7 @@ var elemental = {
 	// row 7
 	Fr: [7, 1, 223,         0,223, {}],
 	Ra: [7, 2, 226,         0,226, {}],
-	  // row 7, d-block metals
+		// row 7, d-block metals
 	Ac: [7, 3, 227,         0,227, {}],
 
 	Rf: [7, 4, 261,         0,261, {}],
@@ -236,14 +236,14 @@ var elemental = {
 	Hs: [7, 8, 277,         0,277, {}],
 	Mt: [7, 9, 268,         0,268, {}],
 	Ds: [7, 10, 281,        0,281, {}],
-	  // row 7, p-block (very little data, so most not shown)
+		// row 7, p-block (very little data, so most not shown)
 	Uuu: [7, 11, 272,       0,272, {}],
 	Uub: [7, 12, 285,       0,285, {}],
 	// Uut: [1, 1, ,0,,{}],
 	Uuq: [7, 1, 289,        0,289, {}],
 
 	// Lactinides and actinides as a new set ofrows, as per 'normal'
-	  // row 6, Lanthanides/f-block
+		// row 6, Lanthanides/f-block
 	// dummy spacer
 //	elemental[''] = new Array('',   '','', {}],
   dummy:[8,1],
@@ -263,7 +263,7 @@ var elemental = {
 	Yb: [9, 13, 173.04,     0,172, {168:0.127,170:3.04,171:14.28,172:21.83,173:16.13,174:31.83,176:12.76}],
 	Lu: [9, 14, 174.967,    0,175, {175:97.416,176:2.584}],
 
-	  // row 7, actinides
+		// row 7, actinides
 	Th: [10, 1 ,232.0381,   0,232, {}],
 	Pa: [10, 2 , 231.03588, 0,231, {}],
 	U:  [10, 3 , 238.02891, 0,238, {}],
@@ -324,6 +324,16 @@ var calculator = {
 		current = i;
 
 		return {current:current,html:html}
+	}
+	
+	setHTML:function(id,str){
+		;
+	}
+
+	get_el:function(id){
+		if(document.getElementById){
+			return document.getElementById(id);
+		}
 	}
 }
 </script>
@@ -469,7 +479,7 @@ function calculate_info(formula){
 					tmp_string2+='<div'+classes+'><div class="element">'+elem_split[i]+'</'+'div><div class="num_atoms">'+num_atoms+'</'+'div><div class="atomic_mass">'+atom_mass+'</'+'div><div class="net_mass align_r">'+tmp_mass+'</'+'div><div class="percent_composition align_r">'+parseFloat(tmp_mass/mass*100).toFixed(max_decimal_places)+'%</'+'div><div class=clearfix></'+'div></'+'div>';
 					// update elemental analysis fields
 					if(elem_split[i] == 'C' ||elem_split[i] == 'H' ||elem_split[i] == 'N') {
-					  document.getElementById(elem_split[i].toLowerCase()+'_expected').innerHTML = parseFloat(tmp_mass/mass*100).toFixed(2);
+						document.getElementById(elem_split[i].toLowerCase()+'_expected').innerHTML = parseFloat(tmp_mass/mass*100).toFixed(2);
 					}
 					// the simplified formula
 					formula_simplified += elem_split[i];
@@ -483,7 +493,7 @@ function calculate_info(formula){
 //					 tmp_string+='('+num_isotopes+')*(Math.pow('+tmp_num+','+num_atoms+')) for atom with mass of '+atom_mass+'<br>';
 //					 num_isotopes = (num_isotopes)*(Math.pow(tmp_num,num_atoms)); // num_atoms,tmp_num?
 
-			    for(var x=0;x<num_atoms;x++){
+				  for(var x=0;x<num_atoms;x++){
 //					tmp_string += j+"=&gt;"+elem_split[i]+":"+1+"<br>";
 						ms[j] = Array(elem_split[i],1,elemental[elem_split[i]][5]);
 						j++;
@@ -522,7 +532,7 @@ function calculate_info(formula){
 		// update the div
 		info.innerHTML = tmp_string;
 		info.style.className = 'info';
-  }
+	}
   
 }
 
@@ -542,7 +552,7 @@ function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
 		// increase the total mass by the number we addd in this amount
 		mass += elemental[elem_curr][2]*elem_amt;
 
-		// get the number of decimal places used in the measuremnt.  if less than the initial (or subsequent) value(s), then make the figure shorter
+		// get the number of decimal places used in the measuremnt.	if less than the initial (or subsequent) value(s), then make the figure shorter
 		tmp = String(elemental[elem_curr][2]).split('.');
 		if(tmp[1]){
 			if(String(tmp[1]).length<max_decimal_places){max_decimal_places = String(tmp[1]).length}
@@ -591,35 +601,35 @@ function expand_brackets(formula){
     tmp_match = new Array();tmp_formula = '';
     try{
       // clear the error message on each loop
-      if(document.getElementById){
-    		document.getElementById('error').innerHTML = '';
-     		document.getElementById('error').className = '';
-      }
+			if(document.getElementById){
+				document.getElementById('error').innerHTML = '';
+ 				document.getElementById('error').className = '';
+			}
 
-      if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
+			if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
         // temporarily get the information out
         tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
 // 	tmp_string+="<br>got "+tmp_match.length+" elements: "+tmp_match[0]+","+tmp_match[1]+","+tmp_match[2]+"!";
-      }
+			}
       else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
         tmp_match = formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i);
 
-      }
+			}
       else{
-        if(document.getElementById){
-      		document.getElementById('error').innerHTML = brackets_error;
-      		document.getElementById('error').className = 'error';
-        }
+				if(document.getElementById){
+					document.getElementById('error').innerHTML = brackets_error;
+					document.getElementById('error').className = 'error';
+				}
 //        tmp_string += brackets_error; //"Regular expression problem: "+
         break;
-      }
+			}
 
 
-    }
+		}
     catch(e){tmp_string += "<br>Error message of: "+e;}
-    if(tmp_match.length>0){
+		if(tmp_match.length>0){
       // check for a value of '' after a bracket
-      if(tmp_match[2].length==0){tmp_match[2] = 1;}
+			if(tmp_match[2].length==0){tmp_match[2] = 1;}
       tmp_formula = '';tmp_elements = '';tmp_elements_all = '';
       // match all style of formulae in the brackets
       tmp_elements_all = String(tmp_match[1]).match(/([A-Z][a-z]*[0-9\.]*)/g);
@@ -627,36 +637,36 @@ function expand_brackets(formula){
         // now match individual elements
         tmp_elements = String(tmp_elements_all[a]).match(/([A-Z][a-z]*)([0-9\.]*)/);
 	// check we've not got a n element with an implicit value of '1'
-        if(tmp_elements[1].length>0){
-          if(!tmp_elements[2]){tmp_elements[2] = 1;}
+				if(tmp_elements[1].length>0){
+					if(!tmp_elements[2]){tmp_elements[2] = 1;}
           tmp_elements[2] = tmp_match[2]*tmp_elements[2];
           tmp_formula += tmp_elements[1]+tmp_elements[2];
-        }
-      }
+				}
+			}
 
       // replace in the formula the section we matched and dealt with
 //       tmp_string += "<br>"+i+") Temporary formula becomes: '"+tmp_formula+"' while trying to replace '"+tmp_match[0]+"' with '"+tmp_formula+"'";
       // replace all types of brackets
-      if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);}
+			if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);}
       else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
 //         tmp_string+="using []";
 	formula.replace(/\\\[([a-z0-9]*)\\\]([0-9\.]*)/i,tmp_formula);
 
-      }
+			}
 //       formula = formula.replace(,tmp_formula);
 //       formula.replace(tmp_match[0],tmp_formula);
-    }
+		}
     else{
 //       tmp_string+= "could not match anything in "+formula+" tmp_match has no values in it at all";
-    }
+		}
     // check if we go too far (far, far too many brackets)
     i++;
-    if(i>10){
+		if(i>10){
 //       tmp_string += brackets_error;
       break;
-    }
+		}
 //     else{alert("Countdown to 10:"+(11-i));}
-  }
+	}
   return(formula);
 }
 
@@ -728,14 +738,12 @@ function expand_formula(formula){
 
 // check for an array of an object
 function isArray(obj) {
-   if(obj){
-     if (obj.constructor.toString().indexOf("Array") == -1){
-      
-      return false;
-     } 
-     else
-      {return true;}
-   }else{return false;}
+	if(obj){
+		if (obj.constructor.toString().indexOf("Array") == -1){
+			return false;
+		}
+		else{return true;}
+	}else{return false;}
 }
 
 // show the shorthand supported
@@ -744,24 +752,24 @@ function shorthand(visible){
 	if(document.getElementById){
 		if(document.getElementById('shorthand')){
 			id = document.getElementById('shorthand');
-		  if(calculator.shorthand ===''){
+			if(calculator.shorthand ===''){
 				var shorthand = 'Supported:<br>';
-			  // gather the information
-			  var i;
-			  shorthand +='<table>';
-			  // generate all rows
+				// gather the information
+				var i;
+				shorthand +='<table>';
+				// generate all rows
 				for(i in fragments){shorthand += calculator.tr(Array(i,fragments[i]));}
-			  shorthand += '</table>';
-			  calculator.shorthand = shorthand;
+				shorthand += '</table>';
+				calculator.shorthand = shorthand;
 			}
 			else{
 				shorthand = calculator.shorthand;
 			}
-		  // populate it with the information
-		  id.innerHTML = shorthand;
-		  // set its height to '0', make it visible, and then try to make it visibl
-//		  alert(id.style['visibility']);
-		  show_hide('shorthand');
+			// populate it with the information
+			id.innerHTML = shorthand;
+			// set its height to '0', make it visible, and then try to make it visibl
+//			alert(id.style['visibility']);
+			show_hide('shorthand');
 		}
 	}
 	return false;
@@ -796,7 +804,7 @@ function element_list(visible){
 	
 					data = '';
 					no_isotopes = 'class="no_isotopes_entered"';
-					// check for at least 1 isotope.  If not, we display it as a red flag
+					// check for at least 1 isotope.	if not, we display it as a red flag
 					for(j in elemental[i][5]){
 						if(j>0){
 							no_isotopes = '';
@@ -839,15 +847,15 @@ function element_list(visible){
 				// add in source of data
 				element_list_2 += "<div style=\"float:left;width:100%;margin-top:5px;text-align:center\"><a href=\"http://www.iupac.org/reports/1998/7001rosman/iso.pdf\" style=\"text-decoration:none;\" target=\"_blank\">Isotope data from 1997 Iupac report</"+"a></"+"div>";;
 			
-			  // cache this
-			  calculator.periodic = element_list_2;
+				// cache this
+				calculator.periodic = element_list_2;
 			}
 
 
 			// populate it with the information
 			id.innerHTML = element_list_2;
 			// set its height to '0', make it visible, and then try to make it visibl
-//		  alert(id.style['visibility']);
+//			alert(id.style['visibility']);
 			show_hide('element_list');
 		}
 		return false;
@@ -909,22 +917,22 @@ function update_mmols(mol_mass){;
 	}
 }
 function update_mass(mol_mass){;
-  if(document.getElementById){
+	if(document.getElementById){
 		// update the mass
 		document.getElementById('mass').value = document.getElementById('mmols').value*document.getElementById('mmol_multiplier').value*document.getElementById('equivalents').value*mol_mass/document.getElementById('mass_multiplier').value;
 	// update the volume
 	update_volume(mol_mass);
-  }
+	}
 
 }
 
 function update_mmols_volume(mol_mass){;
-  if(document.getElementById){
+	if(document.getElementById){
 		document.getElementById('mmols').value = document.getElementById('volume').value/document.getElementById('volume_multiplier').value*document.getElementById('density').value/mol_mass/document.getElementById('mmol_multiplier').value;
 		// reset the equivalents
 		document.getElementById('equivalents').value = 1;
 
-  }
+	}
 }
 
 function update_volume(mol_mass){
@@ -978,9 +986,9 @@ function mass_spec(elemental_composition){
 //           console.info("Ion '"+tmp[i][0]+"' -- prev_m_z = '"+prev_m_z+"'");
 		if(j%2 == 1){bg = 'highlighted';}else{bg='';}
 		if((prev_m_z>0) && (tmp[i][0]-prev_m_z)>1){
-//	    console.info("attempting iterations: ");
+//		  console.info("attempting iterations: ");
 			for(k=1;k<(tmp[i][0]-prev_m_z);k++){
-//	      console.info("iteration "+k);
+//		    console.info("iteration "+k);
 				r+='<div class="'+bg+' auto_overflow">';
 				r+='<div class="m_z '+bg+'">'+(prev_m_z+k)+'&nbsp;</'+'div>';
 				r+='<div class="ms_intensity '+bg+'">&nbsp;</'+'div>';
@@ -999,7 +1007,7 @@ function mass_spec(elemental_composition){
 		prev_m_z = parseInt(tmp[i][0]);
 	}
   // check for no information
-  if(r.length == tmp_len){r+="<div class=\"warning\">One (or more) of the elements you've entered does not have isotopic abundance data entered into this system.<br><i>The mass spectrum cannot be calculated</"+"i><br><br>This could be because no data exists, or because the sustance is naturally radioactive and so does not have a stable isotopic composition</"+"div>";}
+	if(r.length == tmp_len){r+="<div class=\"warning\">One (or more) of the elements you've entered does not have isotopic abundance data entered into this system.<br><i>The mass spectrum cannot be calculated</"+"i><br><br>This could be because no data exists, or because the sustance is naturally radioactive and so does not have a stable isotopic composition</"+"div>";}
   r +='</'+'div>';
 	return(r);
 }
@@ -1009,11 +1017,11 @@ function mass_spec(elemental_composition){
 function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 	var curr_mass;var tmp;
 //    console.info("CURR_ELEM "+curr_elem+":: "+ion_info+" vs. "+mass_spec_min_visible+" & remembering:"+mass_spec_max_percentage);
-	// mass spec max percentage can only increase.  If it's a peak that will be noise, we need to kill it off
-    if(((ion_info[1]/mass_spec_max_percentage)<(mass_spec_min_visible/10))){
-//	  console.info("Stopped ion of "+ion_info[1]+"% from being added.  Molecular mass was:"+ion_info[0]+" max_mass_spec: "+mass_spec_max_percentage);
-  		return false;
-    }
+	// mass spec max percentage can only increase.	if it's a peak that will be noise, we need to kill it off
+		if(((ion_info[1]/mass_spec_max_percentage)<(mass_spec_min_visible/10))){
+//		console.info("Stopped ion of "+ion_info[1]+"% from being added.  Molecular mass was:"+ion_info[0]+" max_mass_spec: "+mass_spec_max_percentage);
+			return false;
+		}
 	if(info[curr_elem] && (typeof(info[curr_elem][2]) == 'object')){
 		// tmp vars
 		var tmp;
@@ -1023,111 +1031,107 @@ function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 			curr_mass = parseFloat(ion_info[0])+parseFloat(i);
 // 			console.info(curr_isotope+"	 : "+i+" : "+info[curr_elem][2][i]+" -- Gives: mass number of '"+curr_mass+"' and probability of '"+(parseFloat(ion_info[1])*(info[curr_elem][2][i]/100))+"'");
 
-			        tmp = run_through_isotopes(info,curr_elem+1,i,all_ions,Array(curr_mass,parseFloat(ion_info[1])*(info[curr_elem][2][i]/100)));
+				      tmp = run_through_isotopes(info,curr_elem+1,i,all_ions,Array(curr_mass,parseFloat(ion_info[1])*(info[curr_elem][2][i]/100)));
 		}
 	}
 	else{
 // 		console.info("STOP! got the following ion: '"+ion_info[0]+"' with an 'abundance' listed at: '"+ion_info[1]+"'");
 		// set a new max percentage, if needed
-	    if(ion_info[1]>mass_spec_max_percentage){mass_spec_max_percentage = ion_info[1];}
+			if(ion_info[1]>mass_spec_max_percentage){mass_spec_max_percentage = ion_info[1];}
 		// add percentage value if needed
 		if(mass_spec_info[ion_info[0]]){
-//			   console.info("appending information");
+//				 console.info("appending information");
 			ion_info[1] += mass_spec_info[ion_info[0]];
 		}
 		// for debug only
-//			 else{			  console.info("setting first instance of ion");}
+//			 else{				console.info("setting first instance of ion");}
 		if(ion_info[1]){
-			  mass_spec_info[ion_info[0]] = ion_info[1];
+				mass_spec_info[ion_info[0]] = ion_info[1];
 			}
 	}
 	return(true);
 }
 
 function toggleInputText(field_obj,initial_text,initial_class,highlighted_class){
-        if(!field_obj.value){return;}
-        // reset the text
-        if(field_obj.value.replace(/\s/g,'')==''){
-          field_obj.value=initial_text;
-          // note this will clear any classes set
-          set_class(field_obj,initial_class);
-        }
-        // clear the text
+	if(!field_obj.value){return;}
+	// reset the text
+	if(field_obj.value.replace(/\s/g,'')==''){
+		field_obj.value=initial_text;
+		// note this will clear any classes set
+		set_class(field_obj,initial_class);
+	}
+	// clear the text
 	else if(field_obj.value == initial_text){
-          field_obj.value = '';
-          set_class(field_obj,highlighted_class);
-        }
+		field_obj.value = '';
+		set_class(field_obj,highlighted_class);
+	}
 }
 
 // set the classes for objects
 function set_class(objectID,new_class){
-  if (document.getElementById) {
-//     alert("current classname (if already an object):"+objectID.className);
-    // perhaps already an object passed?
-    if(objectID.style){
-      objectID.className = new_class;
-//       alert(objectID.className);
-    }
-    else if(document.getElementById(objectID)){
-      document.getElementById(objectID).className = new_class;
-    }
-  }
-  else if (document.layers){
-    if(document.layers[object]) {document.layers[objectID][className] = new_class;}
-    // perhaps already an object passed?
-    else if(objectID[style]){objectID[className] = new_class;}
-
-  }
-  else if (document.all) {
-    if(document.all[objectID]){document.all[objectID].className = new_class;}
-    else if(objectID.style){objectID.className = new_class;}
-  }
-  ;
+	if (document.getElementById) {
+		// perhaps already an object passed?
+		if(objectID.style){
+			objectID.className = new_class;
+		}
+		else if(document.getElementById(objectID)){
+			document.getElementById(objectID).className = new_class;
+		}
+	}
+	else if (document.layers){
+		if(document.layers[object]) {document.layers[objectID][className] = new_class;}
+		// perhaps already an object passed?
+		else if(objectID[style]){objectID[className] = new_class;}
+	}
+	else if (document.all) {
+		if(document.all[objectID]){document.all[objectID].className = new_class;}
+		else if(objectID.style){objectID.className = new_class;}
+	}
 }
 
 function calculate_chn(){
-  var c, h, n, multiplier;
+	var c, h, n, multiplier;
 
 	// can we?
-  if(document.getElementById){
+	if(document.getElementById){
 		if(document.getElementById('formula').value.length >0
 			&& document.getElementById('chn_copy_paste').style.visibility == 'hidden'){
 				show_hide('chn_copy_paste');
 		}
 
-    // get the values
-    c = document.getElementById('c').value;
+		// get the values
+		c = document.getElementById('c').value;
 		h = document.getElementById('h').value;
 		n = document.getElementById('n').value;
-    multiplier = document.getElementById('multiplier').value;
+		multiplier = document.getElementById('multiplier').value;
 
-    // default values
-    if(!isNumeric(c)){c = 0;}if(!isNumeric(h)){h = 0;}if(!isNumeric(n)){n = 0;}if(!isNumeric(multiplier)){multiplier = 1;}
+		// default values
+		if(!isNumeric(c)){c = 0;}if(!isNumeric(h)){h = 0;}if(!isNumeric(n)){n = 0;}if(!isNumeric(multiplier)){multiplier = 1;}
 
-    // write into section for copy paste to documents
-    document.getElementById('c_found').innerHTML = c;
-    document.getElementById('h_found').innerHTML = h;
-    document.getElementById('n_found').innerHTML = n;
-    // check we're not doing something stupid with div/0
-    if(c+h+n == 0){return false;}
+		// write into section for copy paste to documents
+		document.getElementById('c_found').innerHTML = c;
+		document.getElementById('h_found').innerHTML = h;
+		document.getElementById('n_found').innerHTML = n;
+		// check we're not doing something stupid with div/0
+		if(c+h+n == 0){return false;}
 		// alert('calculating CHN');
 
-    // convert to initial mol
-    c = c/12.011;
-    h = h/1.0079;
-    n = n/14.007;
-    // sort to figure out which is the smaller
-    var tmp = new Array(c,h,n);
-    tmp.sort(function(a,b){return a - b});
-    min = 0;
-    for(var a in tmp){
-      if(tmp[a] == 0){continue;}
-      else{min = tmp[a];}
-    }
-    // normalise everything & round off.  note, need *100, then /100 to round to 2 decimals
-    c=Math.round(c/min*multiplier*100)/100;
-    h=Math.round(h/min*multiplier*100)/100;
-    n=Math.round(n/min*multiplier*100)/100;
+		// convert to initial mol
+		c = c/12.011;
+		h = h/1.0079;
+		n = n/14.007;
+		// sort to figure out which is the smaller
+		var tmp = new Array(c,h,n);
+		tmp.sort(function(a,b){return a - b});
+		min = 0;
+		for(var a in tmp){
+			if(tmp[a] == 0){continue;}
+			else{min = tmp[a];}
+		}
+		// normalise everything & round off.  note, need *100, then /100 to round to 2 decimals
+		c=Math.round(c/min*multiplier*100)/100;
+		h=Math.round(h/min*multiplier*100)/100;
+		n=Math.round(n/min*multiplier*100)/100;
 
 		// write the values
 		document.getElementById('e_c').innerHTML = c;
@@ -1256,7 +1260,7 @@ and the other saying your brackets are mismatched
     // modern browsers
     var img_src = 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAZCAYAAACVfbYAAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2AMNCyk07tQSUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAABRElEQVRYw92XIRKDMBBFSSa6qqZTWcEBuAOnwFZ1MJgKNKIGw1TVcoregQMgKjs1VRyAVKWTCbsN0JKkWZsJ5GV3/98EgcdBXD1Ymqb803pVVe+z0zzkfdEOWJirUPvTY7B2OW7QfRAgczVTEIgAxiBVQONwNA/hcuvgbAkYdQ37jgxIfRQSAe4lnABE4da7O/9nuL5oCfsnMCEk59VVCwb6nAz2vG2N+aDO11Rvw8RFVktiOmNLXJiAU32O+tRj4PhlEsxkqRPTmRsLJ/cg1mu62ZLauNGxYHVUfjX5MPVWbamlGnVUBkmTTRYWVC3VEl1S2bA4dHEgZy1pMq2vYeJCbTc9ljUI+GezpQ1ACEKAzgF0bnCGRGSKsMil6eWrQPQcs/Vj2ANiPmcvNltSHzPmLBzkbWP8Dp0tXQrs6aMbwaB4AbAJruvzJ6U9AAAAAElFTkSuQmCC';
     // IE does not support this
-    if(navigator.appName == 'Microsoft Internet Explorer'){img_src = 'chemical_formula_toggle.png'}
+		if(navigator.appName == 'Microsoft Internet Explorer'){img_src = 'chemical_formula_toggle.png'}
     // bad style, but it works easily
     document.write('<img src="'+img_src+'" usemap="#arrows" border=0>');
     // -->
