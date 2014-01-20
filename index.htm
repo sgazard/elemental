@@ -119,10 +119,25 @@ td.c_e{width:18px;height:15px;}
 /* End hide from IE-mac */
 
 </style>
+
+<!-- printable stylesheet -->
 <style type="text/css" media="print">
 .help, .shorthand{display:none;}
 
 </style>
+
+<!-- google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-23464216-2', 'gazard.com');
+  ga('send', 'pageview');
+
+</script>
+
 
 <!-- element information -->
 <script type="text/javascript">
@@ -756,6 +771,12 @@ function expand_formula(formula){
 	}
 }
 
+/*
+
+Functions that should remain so (not as part of an object)
+
+*/
+
 // check for an array of an object
 function isArray(obj) {
 	if(obj){
@@ -790,22 +811,20 @@ function shorthand(visible){
 		show_hide('shorthand');
 	}
 	return false;
-	 	
+
 }
 // show the shorthand supported
 function element_list(visible){
 	var id;
-	if(calculator.periodic === ''){
-		;
-	}
+  var element_list_2 = '';
 
-	var element_list_2 = '<table id="periodic">';
 	var data;
 	if(calculator.get_el('element_list')){
 		if(calculator.periodic !==''){
 			element_list_2 = calculator.periodic;
 		}
 		else{
+			var element_list_2 = '<table id="periodic">';
 			var element_list = 'Elements:<br>';
 			// gather the information
 			var i, no_isotopes, j;
@@ -1156,6 +1175,8 @@ function reset_chn(){
 function isNumeric(value) {return typeof value != "boolean" && value !== null && !isNaN(+ value);}
 //-->
 </script>
+
+<meta name="description" value="Predict elemental analysis & mass spectra, speed up COSSH forms, reverse predict formulae from elemental analysis.  All in real time">
 </head>
 
 <!-- template for the HTML -->
