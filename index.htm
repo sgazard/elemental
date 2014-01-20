@@ -5,18 +5,33 @@
 
 <!-- base stylesheet -->
 <style type="text/css" media="screen,print">
-body{font-family:arial;font-size:0.8em}
+
+/* general settings */
+body{font-family:arial;font-size:0.8em;padding:3px;margin:0;}
 table{border-collapse:collapse;}
 td{padding:2px;}
 table#periodic td{padding:0px;}
 table#periodic a{padding:2px;}
+h1,h2,h3,h4{margin:5px 0px 2px;;background-color:#EEE;padding:3px;border-bottom:1px solid #BACEE0;}
 
 thead td{font-weight:bold;font-size:0.9em;}
 h1{margin-top:5px;font-size:1.5em;margin-bottom:0px}
-input{background-color:#EEEEFF;border:1px solid black;margin: 3px 0px 0px 10px;color:black;}
+input{background-color:#EEEEFF;border:1px solid black;margin: 3px 0px 0px 0px;color:black;border-radius: 2px;padding:2px;}
 input #show_mass_spec{border:0px;}
+input[reset]{margin-left:5px;}
 select{background-color:#FFEEFF;margin-top:3px;}
-div{margin:2px 0px 0px 0px;}
+div{margin:0px;}
+
+#calculator{
+	border-radius:5px;
+	background-color:#C7E1F9;
+	padding:5px;
+}
+
+/* Composition */
+.outline{border:1px solid #387DFF;border-radius:3px; overflow:hidden;background-color:#FFF;}
+.header{margin-top:0;}
+
 div.chn div{background-color:#DDDDFF;}
 .align_r{text-align:right;}
 .code{font-family:courier;color:black}
@@ -48,7 +63,7 @@ input.mmols{width:100px;text-align:right}
 .equivalents{width:35px;float:left;text-align:center;}
 input.equivalents{width:35px;text-align:right;margin-left:0px;}
 select.unit{width:50px;}
-.auto_overflow{width:600px}
+/* .auto_overflow{width:600px} */
 
 /* elemental composition output */
 .element{    float:left;width:20%;}
@@ -57,10 +72,10 @@ select.unit{width:50px;}
 .net_mass{   float:left;width:20%;}
 .percent_composition{float:left;width:20%;}
 .ms_header{float:left;width:100%;}
-.m_z{height:12px;padding:0px;float:left;width:10%;font-style:italic;}
-.ms_intensity{height:12px;float:left;width:78%;}
+.m_z{padding:0px;float:left;width:10%;font-style:italic;}
+.ms_intensity{float:left;width:78%;}
 .ms_intensity div.percentage{height:10px;background-color:#000080;margin-bottom:4px;}
-.ms_intensity_num{height:12px;float:left;width:12%; text-align:right;}
+.ms_intensity_num{float:left;width:12%; text-align:right;}
 .header div{font-weight:bold;background-color:#DDDD88;border:0px}
 
 .info{width:600px;clear:both;}
@@ -972,7 +987,7 @@ function update_volume(mol_mass){
 }
 
 function mass_spec(elemental_composition){
-	var r = '<div class=outline><div class=header><div class="ms_header">Predicted Mass Spectrum for the molecular ion [M<sup>+</'+'sup>].</'+'div></'+'div>';
+	var r = ' <h3>[M+] prediction</h3><div class=outline><div class=header><div class="ms_header">Predicted Mass Spectrum for the molecular ion [M<sup>+</'+'sup>].</'+'div></'+'div>';
 	// clear the global variable of information
 	mass_spec_info = new Array();
 	mass_spec_max_percentage = 0.0000001;
@@ -1198,48 +1213,48 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 <body onload="document.chemicals.formula.focus();calculate_info(document.chemicals.formula.value);calculate_chn();">
 
 <div class="help">
-<div id="help"><b>How to use</b>:
-<ol><li>Place your cursor in the field at the top-left (it should be automatically there).</li>
-
-<li>Type a Chemical Formula, using only normal brackets (meaning '(' and ')'
- ).*</li>
-<li>Chemical composition and elemental analysis will be shown <i>as you type</i></li>
-</ol>
-* For some reason I can't get other types of brackets to work, but
- given the tool tells you of a mistyped formula,  you should not have
- a problem.<br>
- 
-<br><b>optional</b>:<br>
-for each conversion, please alter the type of units as needed before converting
-<ul>
-<li>Converting mass to mmol
- <ul>
-  <li>Enter a mass in the mass field, and click the arrow with the yellow box on it to get the mmol</li>
- </ul>
-</li>
-<li>Converting volume to mmol (no mass needed)
- <ul>
-  <li>Enter a volume in the volume field, and a density, and click the arrow with the blue droplet on it to get the mmol</li>
- </ul>
-</li>
-<li>Converting mmol to volume/mass
- <ul>
-  <li>Fill in the density field (if needed), and enter the value of mol/mmol.  conversion is automatic
-  </li>
- </ul>
-</li>
-</ul>
-
-<b>Error Messages</b>:
-They appear in a box like below, and describe the error. Two exist; one
-saying that the element is unknown (a mistype or use of shorthand),
-and the other saying your brackets are mismatched
-<div class="error" style="width:288px">Sample Error Message</div>
+	<div id="help"><b>How to use</b>:
+	<ol><li>Place your cursor in the field at the top-left (it should be automatically there).</li>
+	
+	<li>Type a Chemical Formula, using only normal brackets (meaning '(' and ')'
+	 ).*</li>
+	<li>Chemical composition and elemental analysis will be shown <i>as you type</i></li>
+	</ol>
+	* For some reason I can't get other types of brackets to work, but
+	 given the tool tells you of a mistyped formula,  you should not have
+	 a problem.<br>
+	 
+	<br><b>optional</b>:<br>
+	for each conversion, please alter the type of units as needed before converting
+	<ul>
+	<li>Converting mass to mmol
+	 <ul>
+	  <li>Enter a mass in the mass field, and click the arrow with the yellow box on it to get the mmol</li>
+	 </ul>
+	</li>
+	<li>Converting volume to mmol (no mass needed)
+	 <ul>
+	  <li>Enter a volume in the volume field, and a density, and click the arrow with the blue droplet on it to get the mmol</li>
+	 </ul>
+	</li>
+	<li>Converting mmol to volume/mass
+	 <ul>
+	  <li>Fill in the density field (if needed), and enter the value of mol/mmol.  conversion is automatic
+	  </li>
+	 </ul>
+	</li>
+	</ul>
+	
+	<b>Error Messages</b>:
+	They appear in a box like below, and describe the error. Two exist; one
+	saying that the element is unknown (a mistype or use of shorthand),
+	and the other saying your brackets are mismatched
+	<div class="error" style="width:288px">Sample Error Message</div>
+	</div>
 </div>
-</div>
 
+<div id="calculator">
 <h1>Chemical composition calculations</h1>
-<p>Please use only standard brackets: '(' and ')'.  Formulae entered with square brackets <span class="highlighted">[ ]</span>) will not always give expected results</p>
 <div class="shorthand">
 	<div class="help_toggles">
 		<h2>Help</h2>
@@ -1258,8 +1273,10 @@ and the other saying your brackets are mismatched
 	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text">
 	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict molecular ion peak</label><input value="clear form" onclick="molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');calculator.reset_chn();" type="reset">
 </p>
+<p>Please use only standard brackets: '(' and ')'.  Formulae entered with square brackets <span class="highlighted">[ ]</span>) will not always give expected results</p>
 
 <div class="auto_overflow">
+<h3>COSSH forms</h3>
  <div class="conversion_section auto_overflow">
   <div class="mass">
    <div class="mass">Mass used</div>
@@ -1322,7 +1339,7 @@ and the other saying your brackets are mismatched
  <div class="clearfix"></div>
 </div>
 <div id="elemental_analysis">
-<b>Elemental analysis workup</b><br>
+<h3>Elemental analysis workup</h3>
 <div class="e_c"><input name="c" id="c" value="%C" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%C','','field_enter_text');calculate_chn();" onblur="toggleInputText(this,'%C','','field_enter_text');calculate_chn();"></div>
 <div class="e_h"><input name="h" id="h" value="%H" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%H','','field_enter_text');calculate_chn();" onblur="toggleInputText(this,'%H','','field_enter_text');calculate_chn();"></div>
 <div class="e_n"><input name="n" id="n" value="%N" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%N','','field_enter_text','');calculate_chn();" onblur="toggleInputText(this,'%N','','field_enter_text','');calculate_chn();"></div>
@@ -1347,9 +1364,12 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
  <div class="clearfix"></div>
 </div>
 <div class="auto_overflow">
+ <h3>Composition</h3>
  <div id="info" class="info">&nbsp;</div>
  <div class="clearfix"></div>
 </div>
+</div>
+
 <div class="bottom" style="left: 10px;">Version 1.2.2 (15-Jan-2014)</div>
 <div class="bottom" style="right: 10px;">
  If you like this tool or want to send on comments, please contact <a href="http://www.gazard.com/index.php?m=6&amp;subject=3">Stephen</a>
