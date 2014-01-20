@@ -314,11 +314,19 @@ var calculator = {
 	/* place to store the shorthand and periocid table; don't regenerate the HTML unnecessarily */
 	shorthand:'',
 	periodic:'',
+	/* store values already iterated over, so don't have to re-predict values of formula is same */
+	cache:[],
 
+	/* iniversal message generator */
 	message:function(message, type){
 		return '<div class="'+type+'">'+message+'</div>';
 	},
 
+	/* 
+	
+	details for tables 
+	
+	*/
 	td:function(msg,cls){
 		cls = (cls.length && cls.length>0)?' class="'+cls+'"':'';
 		return '<td'+cls+'>'+msg+'</td>';
@@ -342,11 +350,10 @@ var calculator = {
 			html += this.td('','blank');
 		}
 
-		current = i;
-
-		return {current:current,html:html}
+		return {current:i,html:html}
 	},
 
+	// set the innerHTML of an element.  Code written using this becomes shorter
 	setHTML:function(id,str){
 		var el = this.get_el(id);
 		if(el !== false){
@@ -355,12 +362,19 @@ var calculator = {
 		return el;
 	},
 
+	// handles all checks neatly
 	get_el:function(id){
 		if(document.getElementById){
 			return document.getElementById(id);
 		}
 	},
 
+	/*
+
+	Forms
+
+	*/
+	// get a form element value
 	get_value:function(id){
 		var el = this.get_el(id);
 		if(el !== false){
@@ -374,14 +388,29 @@ var calculator = {
 		if(el !== false){
 			el.value = val;
 		}
+	},
+
+	/* reset functions */
+	reset_chn:function(){
+		calculator.set_value('c','%C');
+		calculator.set_value('h','%H');
+		calculator.set_value('n','%N');
+		calculator.set_value('multiplier','mult');
+		
+		set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
+		calculator.setHTML('e_c','');calculator.setHTML('e_h','');calculator.setHTML('e_n','');
+		calculator.setHTML('c_found',0);calculator.setHTML('h_found',0);calculator.setHTML('n_found',0)
+		calculator.setHTML('c_expected','');calculator.setHTML('h_expected','');calculator.setHTML('n_expected','');
+		calculator.get_el('chn_copy_paste').style.visibility = 'hidden';
 	}
+	
 }
 </script>
 
+<!-- original code, slowly being refactored -->
 <script type="text/javascript">
 <!--
 var elements_used = '';
-var chem_element = new Array();
 var chem_isotopes;
 var mass=0;
 var molecular_mass = 0;
@@ -404,8 +433,6 @@ var show_mass_spec;
 // format of array is Array(PRECISE_MASS,NUM_ELEMENTS_IN_FORMULA,MOST_COMMON_ISOTOPE,array(OTHER_ISOTOPES=>percentages_as_numbers_not_decimals);
 // MOST_COMMON_ISOTOPE is used for creating the monoisotopic mass
 
-var chem_row = 1;
-var chem_col = 1;
 
 // -->
 </script>
@@ -465,7 +492,7 @@ function calculate_info(formula){
 	else{prev_formula = formula;}
 
   // reset first as we don't always have a clean slate
-  reset_chn();
+  calculator.reset_chn();
 
 	// update the show mass spec field if we gt this far
 	show_mass_spec = calculator.get_el('show_mass_spec').checked? 1:0;
@@ -771,21 +798,6 @@ function expand_formula(formula){
 	}
 }
 
-/*
-
-Functions that should remain so (not as part of an object)
-
-*/
-
-// check for an array of an object
-function isArray(obj) {
-	if(obj){
-		if (obj.constructor.toString().indexOf("Array") == -1){
-			return false;
-		}
-		else{return true;}
-	}else{return false;}
-}
 
 // show the shorthand supported
 function shorthand(visible){
@@ -1159,18 +1171,21 @@ function calculate_chn(){
 	}
 }
 
-function reset_chn(){
-	calculator.set_value('c','%C');
-	calculator.set_value('h','%H');
-	calculator.set_value('n','%N');
-	calculator.set_value('multiplier','mult');
-	
-	set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
-	calculator.setHTML('e_c','');calculator.setHTML('e_h','');calculator.setHTML('e_n','');
-	calculator.setHTML('c_found',0);calculator.setHTML('h_found',0);calculator.setHTML('n_found',0)
-	calculator.setHTML('c_expected','');calculator.setHTML('h_expected','');calculator.setHTML('n_expected','');
-	calculator.get_el('chn_copy_paste').style.visibility = 'hidden';
+
+/*
+
+Functions that should remain so (not as part of an object)
+
+*/
+
+// check for an array of an object
+function isArray(obj) {
+	if(obj){
+		if (obj.constructor.toString().indexOf("Array") == -1){return false;}
+		else{return true;}
+	}else{return false;}
 }
+
 
 function isNumeric(value) {return typeof value != "boolean" && value !== null && !isNaN(+ value);}
 //-->
@@ -1241,7 +1256,7 @@ and the other saying your brackets are mismatched
 <form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
 <p>
 	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text">
-	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict molecular ion peak</label><input value="clear form" onclick="molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');reset_chn();" type="reset">
+	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict molecular ion peak</label><input value="clear form" onclick="molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');calculator.reset_chn();" type="reset">
 </p>
 
 <div class="auto_overflow">
