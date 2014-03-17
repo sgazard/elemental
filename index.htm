@@ -35,19 +35,30 @@ div{margin:0px;}
 div.chn div{background-color:#DDDDFF;}
 .align_r{text-align:right;}
 .code{font-family:courier;color:black}
-.error{color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;}
+.error{color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;border-radius:2px;}
 .warning{text-align:center;float:left;width:594px;clear:both;border:1px solid orange;padding:2px;background-color:#FFEECC;}
 .formula{color:green;font-weight:bold;}
 .highlighted{background-color:#EEEEFF;}
-.help {Position:absolute;right:0px;width:430px;text-align:left;background-color:#FFEEDD;padding:3px;border:1px solid #BBAA99;padding-top:48px;}
+
+/*
+Help and shorthand links
+*/
+.help {Position:absolute;right:0px;width:430px;text-align:left;background-color:#FFEEDD;padding:3px;border:1px solid #BBAA99;padding-top:25px;border-radius:4px;}
 .shorthand_toggles{text-align:right;}
 .help_toggles{float:left;}
-.help_toggles h2{margin:0px 2px;}
+.shorthand h2,.help_toggles h2{margin:0px 2px;border-bottom:0px;font-size:14px;display:inline-block;}
 .help h2{margin:0px;}
-.shorthand{Position:absolute;right:5px;top:15px;width:426px;border:1px solid red;overflow:auto;}
+.shorthand{
+	position:absolute;
+	right:5px;top:4px;width:426px;
+	overflow:auto;
+	background-color:#EEEEEE;border-bottom:1px solid #BACEE0;
+}
+.shorthand a{text-decoration:none;}
 .information{width:220px;text-align:right;float:left;}
 .data{width:375px;float:left;padding-left:3px}
 .chn{}
+
 /* units */
 .mass{width: 70px;float:left;text-align:center;}
 input.mass{width:60px;text-align:right;}
@@ -58,8 +69,8 @@ input.mass{width:60px;text-align:right;}
 input.density{margin-left:10px;width:45px;text-align:right;}
 
 .update{float:left;width:70px;text-align:center;}
-.mmols{width:110px;float:left;text-align:center;}
-input.mmols{width:100px;text-align:right}
+.mmols{width:90px;float:left;text-align:center;}
+input.mmols{width:80px;text-align:right;margin-left:10px;}
 .equivalents{width:35px;float:left;text-align:center;}
 input.equivalents{width:35px;text-align:right;margin-left:0px;}
 select.unit{width:50px;}
@@ -114,10 +125,10 @@ td.c_e{width:18px;height:15px;}
 	background-color:#FFFFDF;
 	clear:both;
 }
-.e_c, .e_h, .e_n, .multiplier, #yields{width:50px;float:left;text-align:center;color:#888888;}
+.e_c, .e_h, .e_n, .multiplier, #yields{width:50px;margin-right:5px;float:left;text-align:center;color:#888888;}
 #e_c, #e_h, #e_n{color:black;}
 .e_c input, .e_h input, .e_n input, .multiplier input{margin:0px;width:45px;color:#AAAAAA;}
-.e_c input.field_enter_text, .e_h input.field_enter_text, .e_n input.field_enter_text, .multiplier input.field_enter_text{color:black;}
+.e_c input.field_enter_text, .e_h input.field_enter_text, .e_n input.field_enter_text, .multiplier input.field_enter_text{color:black;margin-right:5px;}
 #chn_copy_paste{clear:both;padding-top:3px;padding-left:3px;}
 /* 'footer' */
 .bottom{
@@ -1259,8 +1270,14 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 	<div class="help_toggles">
 		<h2><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
 	</div>
-	<div class="shorthand_toggles"><a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;">supported shorthand &#x25BC;</a>
-	<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a></div>
+	<div class="shorthand_toggles">
+		<h2>
+			<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;">supported shorthand &#x25BC;</a>
+		</h2>
+		<h2>
+			<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
+		</h2>
+	</div>
 	<div id="shorthand" style="visibility:hidden;display:none;"></div>
 	<div id="element_list" style="visibility:hidden;display:none;"></div>
 </div>
@@ -1371,7 +1388,7 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
 
 <div class="bottom" style="left: 10px;">Version 1.2.2 (15-Jan-2014)</div>
 <div class="bottom" style="right: 10px;">
- If you like this tool or want to send on comments, please contact <a href="http://www.gazard.com/index.php?m=6&amp;subject=3">Stephen</a>
+ If you like this tool or want to send on comments, please contact <a href="https://github.com/sgazard/elemental">me on GitHub</a>
 </div>
 </body>
 </html>
