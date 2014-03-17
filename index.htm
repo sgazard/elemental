@@ -131,6 +131,9 @@ td.c_e{width:18px;height:15px;}
 .info{width:600px;clear:both;}
 #conversion_section{width:550px;float:left;}
 
+/* hide until needed */
+#composition_title{display:none;}
+
 /* quick elemental analysis */
 #element_analysis{
 	background-color:#FFFFDF;
@@ -433,12 +436,14 @@ var calculator = {
 		calculator.set_value('h','%H');
 		calculator.set_value('n','%N');
 		calculator.set_value('multiplier','mult');
-		
+
 		set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
 		calculator.setHTML('e_c','');calculator.setHTML('e_h','');calculator.setHTML('e_n','');
 		calculator.setHTML('c_found',0);calculator.setHTML('h_found',0);calculator.setHTML('n_found',0)
 		calculator.setHTML('c_expected','');calculator.setHTML('h_expected','');calculator.setHTML('n_expected','');
-		calculator.get_el('chn_copy_paste').style.visibility = 'hidden';
+		hide(calculator.get_el('chn_copy_paste'));
+		hide(calculator.get_el('composition_title'));
+
 	}
 	
 }
@@ -530,6 +535,9 @@ function calculate_info(formula){
 
   // reset first as we don't always have a clean slate
   calculator.reset_chn();
+  if(formula.replace(/ */,'')==''){
+		return;
+	}
 
 	// update the show mass spec field if we gt this far
 	show_mass_spec = calculator.get_el('show_mass_spec').checked? 1:0;
@@ -633,6 +641,8 @@ function calculate_info(formula){
 		else{tmp_string += '&nbsp;';}
 		// update the div
 		// get a reference to the DIV we're going to populate
+		
+		show(calculator.get_el('composition_title'));
 		info = calculator.setHTML('info',tmp_string);
 		info.style.className = 'info';
 	}
@@ -969,17 +979,28 @@ function show_element_info(id){
 	}
 }
 
+/* pass an object */
+function show(o){
+	
+	o.style.visibility = 'visible';
+	o.style.display = 'block';
+}
+
+/* pass an object */
+function hide(o){
+	o.style.visibility = "hidden";
+	o.style.display = 'none';
+}
+
 function show_hide(element){
 	if(calculator.get_el(element)){
 		var o = calculator.get_el(element);
 // 			alert(element+'--> style.visibility = '+o.style.visibility+"\n"+'style.display = '+o.style.display);
 		if((o.style.visibility =='hidden')){
-			o.style.visibility = 'visible';
-			o.style.display = 'block';
+			show(o);
 		}
 		else{
-			o.style.visibility = "hidden";
-			o.style.display = 'none';
+			hide(o);
 		}
 	}
 }
@@ -1391,7 +1412,7 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
  <div class="clearfix"></div>
 </div>
 <div class="auto_overflow">
- <h3>Composition</h3>
+ <h3 id="composition_title">Composition</h3>
  <div id="info" class="info">&nbsp;</div>
  <div class="clearfix"></div>
 </div>
