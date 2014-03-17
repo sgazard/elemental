@@ -1257,11 +1257,10 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 <h1>Chemical composition calculations</h1>
 <div class="shorthand">
 	<div class="help_toggles">
-		<h2>Help</h2>
-		<a href="#" onclick="show_hide('help');return false;">(show/hide)</a>
+		<h2><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
 	</div>
-	<div class="shorthand_toggles"><a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;">toggle supported shorthand</a></div>
-	<div class="shorthand_toggles"><a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">toggle elements &amp; isotopes list</a></div>
+	<div class="shorthand_toggles"><a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;">supported shorthand &#x25BC;</a>
+	<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a></div>
 	<div id="shorthand" style="visibility:hidden;display:none;"></div>
 	<div id="element_list" style="visibility:hidden;display:none;"></div>
 </div>

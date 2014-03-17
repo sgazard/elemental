@@ -20,4 +20,10 @@ Simply point your browser at the file here on git.  Or, save it to your computer
 
 Why it was built
 ================
-Simply, I needed it in 2008 during my PHD.  It's been available online, but I wanted to improve the code (certain parts are horrible), make it cleaner, and improve performance where possible
+Simply, I needed it in 2008 during my PHD.  It's been available online, but I wanted to improve the code (certain parts are horrible), make it cleaner, and improve performance where possible, as a few bottlenecks exist.
+
+What you Won't see here
+=======================
+Angular, backbone, or any other framework.
+
+Why?  Well, when it was built, the intention was that you could take it as a web app with you to any computer, anywhere, meaning you might not have an internet connection.  Despite the advances in connectivity, many parts of the world are without ubiquitous, cheap internet connections.  At a university with a very high speed connection (think multiple 10Gbps fibre connections) not all computers connected to instruments had an internet connection, so offline access to this is very useful.  While writing my thesis, I was in countries where power was only around for 4 hours/day (if I were lucky), so it's intentional to have this version working without frameworks and run on a very simple subset of Javascript
