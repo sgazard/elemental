@@ -50,7 +50,7 @@ Help and shorthand links
 .help h2{margin:0px;}
 .shorthand{
 	position:absolute;
-	right:5px;top:4px;width:426px;
+	right:2px;top:4px;width:433px;
 	overflow:auto;
 	background-color:#EEEEEE;border-bottom:1px solid #BACEE0;
 }
@@ -76,21 +76,12 @@ input.equivalents{width:35px;text-align:right;margin-left:0px;}
 select.unit{width:50px;}
 /* .auto_overflow{width:600px} */
 
-/* elemental composition output */
-.element{    float:left;width:20%;}
-.num_atoms{  float:left;width:20%;}
-.atomic_mass{float:left;width:20%;}
-.net_mass{   float:left;width:20%;}
-.percent_composition{float:left;width:20%;}
-.ms_header{float:left;width:100%;}
-.m_z{padding:0px;float:left;width:10%;font-style:italic;}
-.ms_intensity{float:left;width:78%;}
-.ms_intensity div.percentage{height:10px;background-color:#000080;margin-bottom:4px;}
-.ms_intensity_num{float:left;width:12%; text-align:right;}
-.header div{font-weight:bold;background-color:#DDDD88;border:0px}
 
-.info{width:600px;clear:both;}
-#conversion_section{width:550px;float:left;}
+/*
+
+Shorthand and isotope output
+
+*/
 
 #shorthand{
 	visibility:hidden;
@@ -107,18 +98,38 @@ select.unit{width:50px;}
 	clear:both;
 }
 #element_info{
-	right:435px;position:absolute;top:8px;
+	right:440px;position:absolute;top:8px;
 	visibility:hidden;
 	display:none;
 	width:150px;
-	border:1px solid #BBDDFF;
+	border:1px solid #4499FF;
 	background-color:#DDEEFF;
+	border-radius:2px;
+}
+#element_info h6{
+	margin:6px 0px 3px;padding:0px;
+	font-size:12px;
 }
 div.c_e{float:left;width:20%;text-align:center;margin-top:0px;}
 td.c_e{width:18px;height:15px;}
 .c_e a{display:block;}
 .c_e a:hover{background-color:#CCCCDD;}
 .no_isotopes_entered{background-color:#FFDDBB;}
+
+/* elemental composition output */
+.element{    float:left;width:20%;}
+.num_atoms{  float:left;width:20%;}
+.atomic_mass{float:left;width:20%;}
+.net_mass{   float:left;width:20%;}
+.percent_composition{float:left;width:20%;}
+.ms_header{float:left;width:100%;}
+.m_z{padding:0px;float:left;width:10%;font-style:italic;}
+.ms_intensity{float:left;width:78%;}
+.ms_intensity div.percentage{height:10px;background-color:#000080;margin-bottom:4px;}
+.ms_intensity_num{float:left;width:12%; text-align:right;}
+.header div{font-weight:bold;background-color:#DDDD88;border:0px}
+.info{width:600px;clear:both;}
+#conversion_section{width:550px;float:left;}
 
 /* quick elemental analysis */
 #element_analysis{
@@ -910,7 +921,7 @@ function element_list(visible){
 				else{col++;}
 
 				// data
-				data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+elemental[i][0]+'\',  Monoisotopic mass:\''+elemental[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
+				data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+elemental[i][4]+'\',  Monoisotopic mass:\''+elemental[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
 				element_list_2 +='<td '+data+'td>';
 				element_list+='<div '+data+'div>'+"\n";
 			}
@@ -940,7 +951,7 @@ function show_element_info(id){
 			var str = "<b>"+id+"</"+"b><br>Mass:"+elemental[id][2]+"";
 			var i;
 			if(typeof(elemental[id][5]) == 'object'){
-				str+="<br>Monoisotopic mass: "+elemental[id][4]+"<br><br><i>Isotopes & abundances</"+"i>:<br>";
+				str+="<br>Monoisotopic mass: "+elemental[id][4]+"<h6>Isotopes & abundances</"+"h6>";
 				var tmp_str= '';
 				var summing = 0;
 				for(i in elemental[id][5]){
