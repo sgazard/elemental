@@ -75,6 +75,8 @@ Help and shorthand links
 .chn{}
 
 /* units */
+  /* unit heading */
+.u_h{font-style:italic;}
 .mass{width: 70px;float:left;text-align:center;}
 input.mass{width:60px;text-align:right;}
 .unit{margin-left:5px;width: 60px;float:left;text-align:center;}
@@ -145,6 +147,7 @@ td.c_e{width:18px;height:15px;}
 .ms_intensity_num{float:left;width:12%; text-align:right;}
 .info{width:100%;clear:both;}
 #conversion_section{width:550px;float:left;}
+.cossh_form{margin-bottom:0.5em;}
 
 /* hide until needed */
 #composition_title{display:none;}
@@ -210,6 +213,9 @@ format changes from tall box to wide rectangle to place in space of the periodic
 
 </style>
 
+<style type="text/css" media="screen and (max-width: 400px)">
+.cossh_form{clear:both;}
+</style>
 <!-- google analytics -->
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -1353,18 +1359,18 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 	<ul>
 	<li>Converting mass to mmol
 	 <ul>
-	  <li>Enter a mass in the mass field, and click the arrow with the yellow box on it to get the mmol</li>
+		<li>Enter a mass in the mass field, and click the arrow with the yellow box on it to get the mmol</li>
 	 </ul>
 	</li>
 	<li>Converting volume to mmol (no mass needed)
 	 <ul>
-	  <li>Enter a volume in the volume field, and a density, and click the arrow with the blue droplet on it to get the mmol</li>
+		<li>Enter a volume in the volume field, and a density, and click the arrow with the blue droplet on it to get the mmol</li>
 	 </ul>
 	</li>
 	<li>Converting mmol to volume/mass
 	 <ul>
-	  <li>Fill in the density field (if needed), and enter the value of mol/mmol.  conversion is automatic
-	  </li>
+		<li>Fill in the density field (if needed), and enter the value of mol/mmol.  conversion is automatic
+		</li>
 	 </ul>
 	</li>
 	</ul>
@@ -1407,63 +1413,67 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 <div class="auto_overflow">
 <h3>COSSH forms</h3>
  <div class="conversion_section auto_overflow">
-  <div class="mass">
-   <div class="mass">Mass used</div>
-   <div class="mass"><input id="mass" name="amt_added" onkeyup="update_mmols(molecular_mass)" class="mass" type="text"><!-- onkeyup="calculate_info(document.chemicals.formula.value)" --></div>
-  </div>
-  <div class="unit">
-   <div class="unit">unit</div>
-   <div class="unit"><select name="mass_multiplier" id="mass_multiplier"><option selected="selected" value="1">g</option><option value="0.001">mg</option><option value="1000">kg</option></select></div>
-  </div>
-  <!-- volume and units -->
-  <div class="volume">
-   <div class="volume">volume</div>
-   <div class="volume"><input name="volume" id="volume" value="1" type="text"></div>
-  </div>		
-  <div class="unit">
-   <div class="unit">unit</div>
-   <div class="unit"><select name="volume_multiplier" id="volume_multiplier" onchange="update_volume(molecular_mass)"><option value="1000">µL</option><option value="1" selected="selected">ml</option><option value="0.001">L</option></select></div>
-  </div>
+	<div class="cossh_form">
+		<div class="mass">
+		<div class="u_h mass">Mass used</div>
+		<div class="mass"><input id="mass" name="amt_added" onkeyup="update_mmols(molecular_mass)" class="mass" type="text"><!-- onkeyup="calculate_info(document.chemicals.formula.value)" --></div>
+		</div>
+		<div class="unit">
+		<div class="u_h unit">unit</div>
+		<div class="unit"><select name="mass_multiplier" id="mass_multiplier"><option selected="selected" value="1">g</option><option value="0.001">mg</option><option value="1000">kg</option></select></div>
+		</div>
+		<!-- volume and units -->
+		<div class="volume">
+		<div class="u_h volume">volume</div>
+		<div class="volume"><input name="volume" id="volume" value="1" type="text"></div>
+		</div>
+		<div class="unit">
+		<div class="u_h unit">unit</div>
+		<div class="unit"><select name="volume_multiplier" id="volume_multiplier" onchange="update_volume(molecular_mass)"><option value="1000">µL</option><option value="1" selected="selected">ml</option><option value="0.001">L</option></select></div>
+		</div>
 
-  <div class="density">
-   <div class="density">density</div>
-   <div class="density"><input name="density" id="density" value="1" style="width:20px;" type="text"></div>
-  </div>		
+		<div class="density">
+		<div class="u_h density">density</div>
+		<div class="density"><input name="density" id="density" value="1" style="width:20px;" type="text"></div>
+		</div>
+	</div>
 
-  <div class="update">
-   <div class="update">update</div>
-   <div class="update">
-		<map id="arrows" name="arrows">
-		<area shape="rect" coords="0,0,27,25" href="#" onclick="update_mass(molecular_mass)" alt="update the mass based on the mmol">
-		<area shape="rect" coords="28,0,55,12" href="#" onclick="update_mmols(molecular_mass)" alt="update the mmol based on the mass">
-		<area shape="rect" coords="28,13,55,25" href="#" onclick="update_mmols_volume(molecular_mass)" alt="update the mmol based on the volume">
-		</map>
-		<script type="text/javascript">
-		<!--
-		// modern browsers
-		var img_src = 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAZCAYAAACVfbYAAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2AMNCyk07tQSUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAABRElEQVRYw92XIRKDMBBFSSa6qqZTWcEBuAOnwFZ1MJgKNKIGw1TVcoregQMgKjs1VRyAVKWTCbsN0JKkWZsJ5GV3/98EgcdBXD1Ymqb803pVVe+z0zzkfdEOWJirUPvTY7B2OW7QfRAgczVTEIgAxiBVQONwNA/hcuvgbAkYdQ37jgxIfRQSAe4lnABE4da7O/9nuL5oCfsnMCEk59VVCwb6nAz2vG2N+aDO11Rvw8RFVktiOmNLXJiAU32O+tRj4PhlEsxkqRPTmRsLJ/cg1mu62ZLauNGxYHVUfjX5MPVWbamlGnVUBkmTTRYWVC3VEl1S2bA4dHEgZy1pMq2vYeJCbTc9ljUI+GezpQ1ACEKAzgF0bnCGRGSKsMil6eWrQPQcs/Vj2ANiPmcvNltSHzPmLBzkbWP8Dp0tXQrs6aMbwaB4AbAJruvzJ6U9AAAAAElFTkSuQmCC';
-		// IE does not support this
-		if(navigator.appName == 'Microsoft Internet Explorer'){img_src = 'chemical_formula_toggle.png'}
-		// bad style, but it works easily
-		document.write('<img src="'+img_src+'" usemap="#arrows" border=0>');
-		// -->
-		</script>
-   </div>
-  </div>
-  <div class="equivalents">
-   <div class="equivalents"><acronym title="works only when updating the mass/volume">equiv</acronym></div>
-   <div class="equivalents"><input name="equivalents" id="equivalents" class="equivalents" value="1" type="text"></div>
-  </div>
-  <div class="mmols">
-   <div class="mmols">mmols</div>
-   <div class="mmols"><input name="mmols" id="mmols" class="mmols" onkeyup="update_mass(molecular_mass)" type="text"></div>
-  </div>
+	<div class="cossh_form">
+		<div class="update">
+		<div class="u_h update">update</div>
+		<div class="update">
+			<map id="arrows" name="arrows">
+			<area shape="rect" coords="0,0,27,25" href="#" onclick="update_mass(molecular_mass)" alt="update the mass based on the mmol">
+			<area shape="rect" coords="28,0,55,12" href="#" onclick="update_mmols(molecular_mass)" alt="update the mmol based on the mass">
+			<area shape="rect" coords="28,13,55,25" href="#" onclick="update_mmols_volume(molecular_mass)" alt="update the mmol based on the volume">
+			</map>
+			<script type="text/javascript">
+			<!--
+			// modern browsers
+			var img_src = 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAZCAYAAACVfbYAAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2AMNCyk07tQSUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAABRElEQVRYw92XIRKDMBBFSSa6qqZTWcEBuAOnwFZ1MJgKNKIGw1TVcoregQMgKjs1VRyAVKWTCbsN0JKkWZsJ5GV3/98EgcdBXD1Ymqb803pVVe+z0zzkfdEOWJirUPvTY7B2OW7QfRAgczVTEIgAxiBVQONwNA/hcuvgbAkYdQ37jgxIfRQSAe4lnABE4da7O/9nuL5oCfsnMCEk59VVCwb6nAz2vG2N+aDO11Rvw8RFVktiOmNLXJiAU32O+tRj4PhlEsxkqRPTmRsLJ/cg1mu62ZLauNGxYHVUfjX5MPVWbamlGnVUBkmTTRYWVC3VEl1S2bA4dHEgZy1pMq2vYeJCbTc9ljUI+GezpQ1ACEKAzgF0bnCGRGSKsMil6eWrQPQcs/Vj2ANiPmcvNltSHzPmLBzkbWP8Dp0tXQrs6aMbwaB4AbAJruvzJ6U9AAAAAElFTkSuQmCC';
+			// IE does not support this
+			if(navigator.appName == 'Microsoft Internet Explorer'){img_src = 'chemical_formula_toggle.png'}
+			// bad style, but it works easily
+			document.write('<img src="'+img_src+'" usemap="#arrows" border=0>');
+			// -->
+			</script>
+		</div>
+		</div>
+		<div class="equivalents">
+		<div class="u_h equivalents"><acronym title="works only when updating the mass/volume">equiv</acronym></div>
+		<div class="equivalents"><input name="equivalents" id="equivalents" class="equivalents" value="1" type="text"></div>
+		</div>
+		<div class="mmols">
+		<div class="u_h mmols">mmols</div>
+		<div class="mmols"><input name="mmols" id="mmols" class="mmols" onkeyup="update_mass(molecular_mass)" type="text"></div>
+		</div>
 
-  <div class="unit">
-   <div class="unit">unit</div>
-   <div class="unit"><select id="mmol_multiplier" name="mmol_multiplier"><option selected="selected" value="0.001">mmol</option><option value="1">mol</option></select></div>
-  </div>
-  <div class="clearfix"></div>
+		<div class="unit">
+		<div class="u_h unit">unit</div>
+		<div class="unit"><select id="mmol_multiplier" name="mmol_multiplier"><option selected="selected" value="0.001">mmol</option><option value="1">mol</option></select></div>
+		</div>
+		<div class="clearfix"></div>
+	 </div>
  </div>
  <div class="clearfix"></div>
 </div>
