@@ -399,10 +399,26 @@ var CCalc = {
 	periodic:'',
 	/* store values already iterated over, so don't have to re-predict values of formula is same */
 	cache:[],
+	logging:true,
+	logging_enabled:false,
 
 	/* iniversal message generator */
 	message:function(message, type){
 		return '<div class="'+type+'">'+message+'</div>';
+	},
+
+	log:function(msg){
+		if(this.logging){
+			this.check_logging();
+			if(this.logging_enabled == true){
+				window.console.log(msg)
+			}
+		}
+	},
+
+	/* is a console.log enabled? */
+	check_logging:function(){
+		this.logging_enabled = (window.console && window.console.log);
 	},
 
 	/* reset functions */
@@ -699,6 +715,7 @@ function calculate_info(formula){
 		info.style.className = 'info';
 		
 		hide(CCalc.html.get_el('working'));
+
 	}
 
 }
@@ -1043,6 +1060,7 @@ function show(o){
 
 /* pass an object */
 function hide(o){
+	
 	o.style.visibility = "hidden";
 	o.style.display = 'none';
 }
@@ -1377,7 +1395,7 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict molecular ion peak</label><input value="clear form" onclick="molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');CCalc.reset_chn();" type="reset">
 </p>
 <p>Please use only standard brackets: '(' and ')'.  Formulae entered with square brackets <span class="highlighted">[ ]</span>) will not always give expected results</p>
-<div id="working">calculation in progres ... </div>
+<div id="working">calculation in progress ... </div>
 <div class="auto_overflow">
 <h3>COSSH forms</h3>
  <div class="conversion_section auto_overflow">
