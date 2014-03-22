@@ -8,13 +8,18 @@
 
 /* general settings */
 body{font-family:arial;font-size:0.8em;padding:3px;margin:0;}
-table{border-collapse:collapse;}
+table{border-collapse:collapse;margin:3px 0px;border:1px solid #387DFF;}
 td{padding:2px;}
 table#periodic td{padding:0px;}
 table#periodic a{padding:2px;}
-h1,h2,h3,h4{margin:5px 0px 2px;;background-color:#EEE;padding:3px;border-bottom:1px solid #BACEE0;}
+thead td, .header div,.header{font-weight:bold;background-color:#DDDD88;border:0px}
+table tr{background-color:white;}
+h1,h2,h3,h4{margin:5px 0px 2px;background-color:#EEE;padding:3px;border-bottom:1px solid #BACEE0;}
 
-thead td{font-weight:bold;font-size:0.9em;}
+thead td{
+	font-weight:bold;
+	font-size:0.9em;
+}
 h1{margin-top:5px;font-size:1.5em;margin-bottom:0px}
 input,select{background-color:#EEEEFF;border:1px solid black;margin: 3px 0px 0px 0px;color:black;border-radius: 2px;padding:2px;}
 input #show_mass_spec{border:0px;}
@@ -138,8 +143,7 @@ td.c_e{width:18px;height:15px;}
 .ms_intensity{float:left;width:78%;}
 .ms_intensity div.percentage{height:10px;background-color:#000080;margin-bottom:4px;}
 .ms_intensity_num{float:left;width:12%; text-align:right;}
-.header div{font-weight:bold;background-color:#DDDD88;border:0px}
-.info{width:600px;clear:both;}
+.info{width:100%;clear:both;}
 #conversion_section{width:550px;float:left;}
 
 /* hide until needed */
@@ -188,6 +192,7 @@ td.c_e{width:18px;height:15px;}
 
 /* on small screens, having the help auto-load is not useful*/
 #help{display:none;}
+.help{right:auto;}
 
 
 /* in this case it looks better at the bottom-right */
@@ -548,7 +553,10 @@ var show_mass_spec;
 <script type="text/javascript">
 <!--
 
-var fragments = {
+/* 
+The fragments which get expanded, but are also used to build the table.
+*/
+CCalc.fragments = {
 	Me:   'CH3',
 	Et:   'CH2CH3',
 	Pro:  '(CH2)2CH3',
@@ -691,7 +699,7 @@ function calculate_info(formula){
 			var msds_link = "http://www.sigmaaldrich.com/catalog/search/SearchResultsPage?Query="+formula_no_html+"&Scope=MolecularFormulaSearch";
 			msds_link = "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>";
 // 			tmp_string += "<div>Information for <span class=formula>"+formula_formatted+"</"+"span>=&gt; <span class=formula></"+"span><br>";
-			tmp_string+= "<table width=\"100%\" style=\"margin:10px 5px;\"><thead><tr><td>Condensed formula</"+"td><td>Composed of</"+"td><td>Mass</"+"td><td>Monoisotopic mass</"+"td><td></"+"td><td><acronym title=\"MSDS from Sigma Aldrich\">MSDS</"+"acronym></"+"td></"+"tr></"+"thead>";
+			tmp_string+= "<table width=\"100%\"><thead><tr><td>Condensed formula</"+"td><td>Composed of</"+"td><td>Mass</"+"td><td>Monoisotopic mass</"+"td><td><acronym title=\"MSDS from Sigma Aldrich\">MSDS</"+"acronym></"+"td></"+"tr></"+"thead>";
 			tmp_string+= "<tr>"+
 				CCalc.html.td(formula_simplified,'formula')+
 				CCalc.html.td(elem_added.replace(/,/g,", "),'formula')+
@@ -893,17 +901,17 @@ function expand_formula(formula){
 					// Make sure that the matched value is a number
 					else{tmp_match[2] = parseFloat(tmp_match[2]);}
 
-					if(!elemental[tmp_match[1]] && !fragments[tmp_match[1]]){
+					if(!elemental[tmp_match[1]] && !CCalc.fragments[tmp_match[1]]){
 						tmp_string += CCalc.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
 					}
-					else if(fragments[tmp_match[1]]){
+					else if(CCalc.fragments[tmp_match[1]]){
 						// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
-						tmp_formula = "("+fragments[tmp_match[1]]+")"+tmp_match[2];
+						tmp_formula = "("+CCalc.fragments[tmp_match[1]]+")"+tmp_match[2];
 
 						// check for needed expansion of brackets
 						expand_formula(tmp_formula);
 //					tmp_string+="expand_formula: Before conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
-//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
+//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+CCalc.fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
 //					tmp_string+="expand_formula: After conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
 					}
 					else{
@@ -927,7 +935,7 @@ function shorthand(visible){
 			var i;
 			shorthand +='<table>';
 			// generate all rows
-			for(i in fragments){shorthand += CCalc.html.tr(Array(i,fragments[i]));}
+			for(i in fragments){shorthand += CCalc.html.tr(Array(i,CCalc.fragments[i]));}
 			shorthand += '</table>';
 			CCalc.shorthand = shorthand;
 		}
