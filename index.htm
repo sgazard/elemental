@@ -27,6 +27,7 @@ div{margin:0px;}
 	background-color:#C7E1F9;
 	padding:5px;
 	max-width:600px;
+	margin-bottom:20px;
 }
 
 /* Composition */
@@ -107,6 +108,7 @@ Shorthand and isotope output
 	background-color:#DDEEFF;
 	border-radius:2px;
 }
+#element_info b{display:none;}
 #element_info h6{
 	margin:6px 0px 3px;padding:0px;
 	font-size:12px;
@@ -170,13 +172,28 @@ td.c_e{width:18px;height:15px;}
 
 <!-- small screens -->
 <style type="text/css" media="screen and (max-width: 640px)">
-#calculator{margin-top:33px;}
-.shorthand,.help{width:98%;}
-/* in tihs case it looks better at the bottom-right */
-#bottom_right{padding-bottom:1.5em;}
-#bottom_left{right:10px;}
 /* some things only show on a larger screen */
 .large-screen{display:none;}
+
+#calculator{margin-top:33px;}
+.shorthand,.help{width:98%;}
+
+/* on small screens, having the help auto-load is not useful*/
+#help{display:none;}
+
+
+/* in this case it looks better at the bottom-right */
+#bottom_right{padding-bottom:1.5em;}
+#bottom_left{right:10px;}
+
+/* elemental information on a small screen.
+Remember we don't have a :hover state accessible, and we have a smaller screen
+
+format changes from tall box to wide rectangle to place in space of the periodic table
+*/
+#element_info{top:15px;right:auto;left:45px;width:190px;}
+#element_info b,#element_info h6,#element_info div{font-weight:normal;display:inline;}
+#element_info div.iso{display:inline-block;width:48%;}
 
 </style>
 
@@ -972,14 +989,15 @@ function element_list(visible){
 function show_element_info(id){
 	if(calculator.get_el('element_info')){
 		if(elemental[id]){
-			var str = "<b>"+id+"</"+"b><br>Mass:"+elemental[id][2]+"";
+			var str = "<i>"+id+" </"+"i><div><span class='large-screen'>Mass:</span><b>(</b>"+elemental[id][2]+"<b>)</b></div>";
 			var i;
 			if(typeof(elemental[id][5]) == 'object'){
-				str+="<br>Monoisotopic mass: "+elemental[id][4]+"<h6>Isotopes & abundances</"+"h6>";
+				str+="<div><b> - </b><span class='large-screen'>Monoisotopic mass:</span> "+elemental[id][4]+" </div>"
+				str+="<h6><span class='large-screen'> Isotopes &amp; abundances</span>:</"+"h6><b><br/></b>";
 				var tmp_str= '';
 				var summing = 0;
 				for(i in elemental[id][5]){
-					tmp_str+="<div>"+i+" - "+elemental[id][5][i]+"%</"+"div>";
+					tmp_str+="<div class='iso'>"+i+" <span class='large-screen'>- </span><b>: </b>"+elemental[id][5][i]+"%<b>, </b></"+"div>";
 					summing = summing + elemental[id][5][i];
 				}
 				if(tmp_str.length==0){tmp_str = "<div class=\"no_isotopes_entered\">No isotopes known/entered for this element</"+"div>";}
