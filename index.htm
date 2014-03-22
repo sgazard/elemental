@@ -26,6 +26,7 @@ div{margin:0px;}
 	border-radius:5px;
 	background-color:#C7E1F9;
 	padding:5px;
+	max-width:600px;
 }
 
 /* Composition */
@@ -149,6 +150,8 @@ td.c_e{width:18px;height:15px;}
 	position: fixed;bottom: 10px;
 	margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right
 }
+#bottom_left{left:10px;}
+#bottom_right{right:10px;}
 
 /* generic */
 .clearfix {display:inline-block;}
@@ -163,6 +166,17 @@ td.c_e{width:18px;height:15px;}
 <!-- printable stylesheet -->
 <style type="text/css" media="print">
 .help, .shorthand{display:none;}
+</style>
+
+<!-- small screens -->
+<style type="text/css" media="screen and (max-width: 640px)">
+#calculator{margin-top:33px;}
+.shorthand,.help{width:98%;}
+/* in tihs case it looks better at the bottom-right */
+#bottom_right{padding-bottom:1.5em;}
+#bottom_left{right:10px;}
+/* some things only show on a larger screen */
+.large-screen{display:none;}
 
 </style>
 
@@ -1292,7 +1306,7 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 	They appear in a box like below, and describe the error. Two exist; one
 	saying that the element is unknown (a mistype or use of shorthand),
 	and the other saying your brackets are mismatched
-	<div class="error" style="width:288px">Sample Error Message</div>
+	<div class="error" style="width:98%">Sample Error Message</div>
 	</div>
 </div>
 
@@ -1304,7 +1318,7 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 	</div>
 	<div class="shorthand_toggles">
 		<h2>
-			<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;">supported shorthand &#x25BC;</a>
+			<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;"><span class="large-screen">supported </span>shorthand &#x25BC;</a>
 		</h2>
 		<h2>
 			<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
@@ -1418,8 +1432,8 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
 </div>
 </div>
 
-<div class="bottom" style="left: 10px;">Version 1.2.2 (15-Jan-2014)</div>
-<div class="bottom" style="right: 10px;">
+<div id="bottom_left" class="bottom">Version 1.2.2 (15-Jan-2014)</div>
+<div id="bottom_right" class="bottom">
  If you like this tool or want to send on comments, please contact <a href="https://github.com/sgazard/elemental">me on GitHub</a>
 </div>
 </body>
