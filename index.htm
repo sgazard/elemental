@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>Chemical composition calculations (as you type)</title>
+<meta name="viewport" content="width=device-width">
 <meta name="description" content="Chemical Composition Calculator that calculates elemental analysis, monoisotopic mass, molecular ion pattern, and reaction equivalents all in your browser, meaning you can more quickly determine what your products are">
 
 <!-- base stylesheet -->
@@ -230,7 +231,16 @@ format changes from tall box to wide rectangle to place in space of the periodic
 <style type="text/css" media="screen and (max-width: 400px)">
 .cossh_form{clear:both;}
 </style>
-<!-- google analytics -->
+
+<!-- 
+Google analytics.  
+
+This is used for visitor numbers, and possibly
+determining what is actually most used so that things can be improved.
+
+I might use it to log events which take a long time.  If I do (currently do not), only
+the event and formula will be logged, as that will be all I need to replicate/fix the issue.
+-->
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -250,6 +260,7 @@ var CCalc = {
 	/* place to store the shorthand and periocid table; don't regenerate the HTML unnecessarily */
 	shorthand:'',
 	periodic:'',
+
 	/* store values already iterated over, so don't have to re-predict values of formula is same */
 	cache_initial:{
 		formula:'',
@@ -261,8 +272,13 @@ var CCalc = {
 		m_z:''
 	},
 	cache:[],
+	
+	/* browser console logging? */
 	logging:true,
 	logging_enabled:false,
+	
+	/* iteration information */
+	expand_it:0,
 
 	/* iniversal message generator */
 	message:function(message, type){
@@ -299,12 +315,166 @@ var CCalc = {
 		hide(CCalc.html.get_el('composition_title'));
 		hide(CCalc.html.get_el('working'));
 
+	},
+
+	/*
+	takes a string, expands it fully out to show how many of a certain element are therein
+	does not do the expanding of shorthand, but this is done separately
+	*/
+	expand:function(formula){
+		this.expand_it++;
+		this.log(expand_formula_iteration+") Given the formula '"+formula+"'");
+		
+		var curr_elem_num = 0;var tmp_formula;
+	
+		var formula_mod = this.expand_brackets(formula);
+	// 	tmp_string +="<br>expand_formula(): &nbsp;'expand_brackets' gave formula: "+formula_mod+'<br>';
+		// match the elements.
+		var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
+	
+		// check we've matched something entered
+		if((formula_mod.length) && (isArray(elements_match)) ){
+			// check we've got something resembling a formula
+			if(formula_mod.length>0 && elements_match.length>0){
+
+				//might need to multiply items if inside brackets
+				for(var i=0;i<elements_match.length;i++){
+					// got a match of [a-z][0-9].  will need to split those apart, and form a
+					// NEW array containing element and amount.  Note, we need to check if an element has already
+					// been added so that formulas such as NiNO3.6H20 work well
+					if(elements_match[i]){
+	
+						var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
+	//					tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
+						// for the elements already added, we can use to check if already in 'elem_added'/not
+						var pattern= new RegExp(tmp_match[1]+',');
+						// force it to definitely be a string, and with no whitespace at the ends
+						tmp_match[1] = new String(tmp_match[1].replace(/^\s+|\s+$/g, ''));
+						// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
+						// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
+						if(!pattern.test(elem_added) && CCalc.elemental[tmp_match[1]]){
+							CCalc.elemental[tmp_match[1]][3] = 0;
+	//						tmp_string += "<br>setting CCalc.elemental[tmp_match[2]][1] AND CCalc.elemental[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
+						}
+						// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
+						if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
+							tmp_match[2]=1;
+	// 								tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
+						}
+						// Make sure that the matched value is a number
+						else{tmp_match[2] = parseFloat(tmp_match[2]);}
+	
+						if(!CCalc.elemental[tmp_match[1]] && !CCalc.fragments[tmp_match[1]]){
+							tmp_string += CCalc.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
+						}
+						else if(CCalc.fragments[tmp_match[1]]){
+							// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
+							tmp_formula = "("+CCalc.fragments[tmp_match[1]]+")"+tmp_match[2];
+	
+							// check for needed expansion of brackets
+							expand_formula(tmp_formula);
+	//					tmp_string+="expand_formula: Before conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
+	//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+CCalc.fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
+	//					tmp_string+="expand_formula: After conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
+						}
+						else{
+	//					tmp_string+= "Added "+tmp_match[1]+"<sub>"+tmp_match[2]+"</"+"sub> ("+formula_mod+")<br>";
+							tmp_string = add_element(pattern,tmp_string,tmp_match[1],tmp_match[2],curr_elem_num);
+						}
+					}
+				}
+			}
+		}
+			;
+	},
+	
+	expand_brackets:function(formula){
+		var tmp_match;var key;
+		var pattern_elements = '/([A-Z][a-z]*)([0-9\.]*)/g';
+		var reg_brackets = '/\(([^\[\(]*)\)([0-9\.]*)/';
+		var reg_square_brackets = '/(\([^\[\(]*\)[0-9\.]*)/';
+		var tmp_formula;var tmp_elements;var tmp_elements_all;
+		var brackets_error = "You appear to have a mismatched or empty set of brackets <br>Such as <span class=code>C6<b class=highlighted>()</"+"b></"+"span> or <span class=code>C6H3<b class=highlighted>(</"+"b>CH2Cl</"+"span>";
+		// misc variables
+		var i=0;var a;var tmp;
+	// ignore any empty brackets
+	//  tmp_string+= "<br>expand_brackets(): working with "+formula;
+		formula = formula.replace(/\(\)/,'');
+		formula = formula.replace(/\[\]/,'');
+	
+		while(formula.match(/[\[\(]/)){
+			tmp_match = new Array();tmp_formula = '';
+			try{
+				// clear the error message on each loop
+				CCalc.html.set('error','');
+				CCalc.html.get_el('error').className = '';
+	
+				if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
+					// temporarily get the information out
+					tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
+	// 	tmp_string+="<br>got "+tmp_match.length+" elements: "+tmp_match[0]+","+tmp_match[1]+","+tmp_match[2]+"!";
+				}
+				else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
+					tmp_match = formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i);
+	
+				}
+				else{
+					CCalc.html.set('error',brackets_error);
+					CCalc.html.get_el('error').className = 'error';
+	//				tmp_string += brackets_error; //"Regular expression problem: "+
+					break;
+				}
+	
+	
+			}
+			catch(e){tmp_string += "<br>Error message of: "+e;}
+			if(tmp_match.length>0){
+				// check for a value of '' after a bracket
+				if(tmp_match[2].length==0){tmp_match[2] = 1;}
+				tmp_formula = '';tmp_elements = '';tmp_elements_all = '';
+				// match all style of formulae in the brackets
+				tmp_elements_all = String(tmp_match[1]).match(/([A-Z][a-z]*[0-9\.]*)/g);
+				for(a=0;a<tmp_elements_all.length;a++){
+					// now match individual elements
+					tmp_elements = String(tmp_elements_all[a]).match(/([A-Z][a-z]*)([0-9\.]*)/);
+		// check we've not got a n element with an implicit value of '1'
+					if(tmp_elements[1].length>0){
+						if(!tmp_elements[2]){tmp_elements[2] = 1;}
+						tmp_elements[2] = tmp_match[2]*tmp_elements[2];
+						tmp_formula += tmp_elements[1]+tmp_elements[2];
+					}
+				}
+	
+				// replace in the formula the section we matched and dealt with
+	//			 tmp_string += "<br>"+i+") Temporary formula becomes: '"+tmp_formula+"' while trying to replace '"+tmp_match[0]+"' with '"+tmp_formula+"'";
+				// replace all types of brackets
+				if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);}
+				else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
+	//				 tmp_string+="using []";
+					formula.replace(/\\\[([a-z0-9]*)\\\]([0-9\.]*)/i,tmp_formula);
+	
+				}
+	//			 formula = formula.replace(,tmp_formula);
+	//			 formula.replace(tmp_match[0],tmp_formula);
+			}
+			else{
+	//			 tmp_string+= "could not match anything in "+formula+" tmp_match has no values in it at all";
+			}
+			// check if we go too far (far, far too many brackets)
+			i++;
+			if(i>10){
+	//			 tmp_string += brackets_error;
+				break;
+			}
+	//		 else{alert("Countdown to 10:"+(11-i));}
+		}
+		return(formula);
 	}
 
 }
 
 
-/* 
+/*
 extend the CCalc object and use it to allow HTML transformations
 This extension makes things testable :)
 
@@ -507,10 +677,9 @@ CCalc.elemental = {
 	Uuq: [7, 1, 289,        0,289, {}],
 
 	// Lactinides and actinides as a new set ofrows, as per 'normal'
-		// row 6, Lanthanides/f-block
+	// row 6, Lanthanides/f-block
 	// dummy spacer
-//	CCalc.elemental[''] = new Array('',   '','', {}],
-  dummy:[8,1],
+	dummy:[8,1],
 
 	Ce: [9, 1 ,140.116,     0,140, {136:0.186,138:0.251,140:88.449,142:11.114}],
 	Pr: [9, 2 , 140.90765,  0,141, {141:100}],
@@ -588,7 +757,7 @@ CCalc.fragments = {
 <script type="text/javascript">
 <!--
 
-/* 
+/*
 These global elements will be removed to make the working clearer and object scope clearer.
 
 DO NOT RELY on these
@@ -640,7 +809,7 @@ function calculate_info(formula){
 	elem_added = '';formula_simplified = '';var formula_mod = '';
 	mass=0;
 	var mono_mass = 0;
-	expand_formula_iteration = 0;
+	CCalc.expand_it = 0;
 
 	// check that the checked field is even valid before performing checks
 	if(show_mass_spec == null){
@@ -665,7 +834,9 @@ function calculate_info(formula){
 
 	// use the DOM method
 	if(document.getElementById){
-		expand_formula(formula);
+		// to replace the other function
+		CCalc.expand(formula);
+		//expand_formula(formula);
 
 	
 		// output
@@ -822,152 +993,10 @@ function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
 }
 
 function expand_brackets(formula){
-	var tmp_match;var key;
-	var pattern_elements = '/([A-Z][a-z]*)([0-9\.]*)/g';
-	var reg_brackets = '/\(([^\[\(]*)\)([0-9\.]*)/';
-	var reg_square_brackets = '/(\([^\[\(]*\)[0-9\.]*)/';
-	var tmp_formula;var tmp_elements;var tmp_elements_all;
-	var brackets_error = "You appear to have a mismatched or empty set of brackets <br>Such as <span class=code>C6<b class=highlighted>()</"+"b></"+"span> or <span class=code>C6H3<b class=highlighted>(</"+"b>CH2Cl</"+"span>";
-	// misc variables
-	var i=0;var a;var tmp;
-// ignore any empty brackets
-//  tmp_string+= "<br>expand_brackets(): working with "+formula;
-	formula = formula.replace(/\(\)/,'');
-	formula = formula.replace(/\[\]/,'');
-
-	while(formula.match(/[\[\(]/)){
-		tmp_match = new Array();tmp_formula = '';
-		try{
-			// clear the error message on each loop
-			CCalc.html.set('error','');
-			CCalc.html.get_el('error').className = '';
-
-			if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
-				// temporarily get the information out
-				tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
-// 	tmp_string+="<br>got "+tmp_match.length+" elements: "+tmp_match[0]+","+tmp_match[1]+","+tmp_match[2]+"!";
-			}
-			else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
-				tmp_match = formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i);
-
-			}
-			else{
-				CCalc.html.set('error',brackets_error);
-				CCalc.html.get_el('error').className = 'error';
-//				tmp_string += brackets_error; //"Regular expression problem: "+
-				break;
-			}
-
-
-		}
-		catch(e){tmp_string += "<br>Error message of: "+e;}
-		if(tmp_match.length>0){
-			// check for a value of '' after a bracket
-			if(tmp_match[2].length==0){tmp_match[2] = 1;}
-			tmp_formula = '';tmp_elements = '';tmp_elements_all = '';
-			// match all style of formulae in the brackets
-			tmp_elements_all = String(tmp_match[1]).match(/([A-Z][a-z]*[0-9\.]*)/g);
-			for(a=0;a<tmp_elements_all.length;a++){
-				// now match individual elements
-				tmp_elements = String(tmp_elements_all[a]).match(/([A-Z][a-z]*)([0-9\.]*)/);
-	// check we've not got a n element with an implicit value of '1'
-				if(tmp_elements[1].length>0){
-					if(!tmp_elements[2]){tmp_elements[2] = 1;}
-					tmp_elements[2] = tmp_match[2]*tmp_elements[2];
-					tmp_formula += tmp_elements[1]+tmp_elements[2];
-				}
-			}
-
-			// replace in the formula the section we matched and dealt with
-//			 tmp_string += "<br>"+i+") Temporary formula becomes: '"+tmp_formula+"' while trying to replace '"+tmp_match[0]+"' with '"+tmp_formula+"'";
-			// replace all types of brackets
-			if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);}
-			else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
-//				 tmp_string+="using []";
-				formula.replace(/\\\[([a-z0-9]*)\\\]([0-9\.]*)/i,tmp_formula);
-
-			}
-//			 formula = formula.replace(,tmp_formula);
-//			 formula.replace(tmp_match[0],tmp_formula);
-		}
-		else{
-//			 tmp_string+= "could not match anything in "+formula+" tmp_match has no values in it at all";
-		}
-		// check if we go too far (far, far too many brackets)
-		i++;
-		if(i>10){
-//			 tmp_string += brackets_error;
-			break;
-		}
-//		 else{alert("Countdown to 10:"+(11-i));}
-	}
-	return(formula);
 }
 
 // function to add a run through a string; made into a function simply because expanding the shorthand made it simpler
 function expand_formula(formula){
-	expand_formula_iteration++;
-//	tmp_string+= expand_formula_iteration+") Given the formula '"+formula+"'";
-	var curr_elem_num = 0;var tmp_formula;
-
-	var formula_mod = expand_brackets(formula);
-// 	tmp_string +="<br>expand_formula(): &nbsp;'expand_brackets' gave formula: "+formula_mod+'<br>';
-	// match the elements.
-	var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
-
-	// check we've matched something entered
-	if((formula_mod.length) && (isArray(elements_match)) ){
-		// check we've got something resembling a formula
-		if(formula_mod.length>0 && elements_match.length>0){
-
-			//might need to multiply items if inside brackets
-			for(var i=0;i<elements_match.length;i++){
-				// got a match of [a-z][0-9].  will need to split those apart, and form a
-				// NEW array containing element and amount.  Note, we need to check if an element has already
-				// been added so that formulas such as NiNO3.6H20 work well
-				if(elements_match[i]){
-
-					var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
-//					tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
-					// for the elements already added, we can use to check if already in 'elem_added'/not
-					var pattern= new RegExp(tmp_match[1]+',');
-					// force it to definitely be a string, and with no whitespace at the ends
-					tmp_match[1] = new String(tmp_match[1].replace(/^\s+|\s+$/g, ''));
-					// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
-					// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
-					if(!pattern.test(elem_added) && CCalc.elemental[tmp_match[1]]){
-						CCalc.elemental[tmp_match[1]][3] = 0;
-//						tmp_string += "<br>setting CCalc.elemental[tmp_match[2]][1] AND CCalc.elemental[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
-					}
-					// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
-					if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
-						tmp_match[2]=1;
-// 								tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
-					}
-					// Make sure that the matched value is a number
-					else{tmp_match[2] = parseFloat(tmp_match[2]);}
-
-					if(!CCalc.elemental[tmp_match[1]] && !CCalc.fragments[tmp_match[1]]){
-						tmp_string += CCalc.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
-					}
-					else if(CCalc.fragments[tmp_match[1]]){
-						// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
-						tmp_formula = "("+CCalc.fragments[tmp_match[1]]+")"+tmp_match[2];
-
-						// check for needed expansion of brackets
-						expand_formula(tmp_formula);
-//					tmp_string+="expand_formula: Before conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
-//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+CCalc.fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
-//					tmp_string+="expand_formula: After conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
-					}
-					else{
-//					tmp_string+= "Added "+tmp_match[1]+"<sub>"+tmp_match[2]+"</"+"sub> ("+formula_mod+")<br>";
-						tmp_string = add_element(pattern,tmp_string,tmp_match[1],tmp_match[2],curr_elem_num);
-					}
-				}
-			}
-		}
-	}
 }
 
 
