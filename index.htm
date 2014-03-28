@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>Chemical composition calculations (as you type)</title>
-<meta name="viewport" content="width=device-width;initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Chemical Composition Calculator that calculates elemental analysis, monoisotopic mass, molecular ion pattern, and reaction equivalents all in your browser, meaning you can more quickly determine what your products are">
 
 <!-- base stylesheet -->
@@ -209,7 +209,7 @@ td.c_e{width:18px;height:15px;}
 .error{width:97.5%;}
 
 #calculator{margin-top:33px;}
-.shorthand,.help{width:98%;}
+.shorthand,.help{width:97%;}
 
 /* on small screens, having the help auto-load is not useful*/
 #help{display:none;}
@@ -290,7 +290,6 @@ var CCalc = {
 
 	log:function(msg){
 		if(this.logging){
-			console.log('logging permitted');
 			this.check_logging();
 			if(this.logging_enabled == true){
 				window.console.log(msg)
@@ -332,7 +331,7 @@ var CCalc = {
 		var curr_elem_num = 0;var tmp_formula;
 	
 		var formula_mod = this.expand_brackets(formula);
-	// 	tmp_string +="<br>expand_formula(): &nbsp;'expand_brackets' gave formula: "+formula_mod+'<br>';
+
 		// match the elements.
 		var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
 	
@@ -392,86 +391,90 @@ var CCalc = {
 			;
 	},
 	
+	/* we don't worry about bracket types */
 	expand_brackets:function(formula){
 		var tmp_match;var key;
 		var pattern_elements = '/([A-Z][a-z]*)([0-9\.]*)/g';
 		var reg_brackets = '/\(([^\[\(]*)\)([0-9\.]*)/';
-		var reg_square_brackets = '/(\([^\[\(]*\)[0-9\.]*)/';
+
 		var tmp_formula;var tmp_elements;var tmp_elements_all;
 		var brackets_error = "You appear to have a <em>mismatched</em> or <em>empty set</em> of brackets <br>e.g. <span class=code>C6H3<b class=highlighted>(</"+"b>CH2Cl</"+"span> or <span class=code>C6<b class=highlighted>()</"+"b></"+"span>";
 		// misc variables
 		var i=0;var a;var tmp;
-	// ignore any empty brackets
-	//  tmp_string+= "<br>expand_brackets(): working with "+formula;
+		// ignore any empty brackets
+		//  tmp_string+= "<br>expand_brackets(): working with "+formula;
+
+		// we don't care which type we use internally
+		formula = formula.replace(/[\[\{]/,'(');
+		formula = formula.replace(/[\]\}]/,')');
+
 		formula = formula.replace(/\(\)/,'');
-		formula = formula.replace(/\[\]/,'');
-	
+
+
+
+		var i_max = 10;
+
+		/* currently loops 'i_max times, if square brackets used */
 		while(formula.match(/[\[\(]/)){
 			tmp_match = new Array();tmp_formula = '';
 			try{
 				// clear the error message on each loop
 				CCalc.html.set('error','');
 				CCalc.html.get_el('error').className = '';
-	
+
+				/* match curved brackets */
 				if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
 					// temporarily get the information out
 					tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
-	// 	tmp_string+="<br>got "+tmp_match.length+" elements: "+tmp_match[0]+","+tmp_match[1]+","+tmp_match[2]+"!";
+					this.log(tmp_match);
 				}
-				else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
-					tmp_match = formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i);
-	
-				}
+				/* something's gone really wrong here, and we'll stop */
 				else{
 					CCalc.html.set('error',brackets_error);
 					CCalc.html.get_el('error').className = 'error';
-	//				tmp_string += brackets_error; //"Regular expression problem: "+
 					break;
 				}
-	
-	
 			}
 			catch(e){tmp_string += "<br>Error message of: "+e;}
+
+			// matched something
 			if(tmp_match.length>0){
 				// check for a value of '' after a bracket
 				if(tmp_match[2].length==0){tmp_match[2] = 1;}
+				
+				/* reset some values*/
 				tmp_formula = '';tmp_elements = '';tmp_elements_all = '';
+
 				// match all style of formulae in the brackets
 				tmp_elements_all = String(tmp_match[1]).match(/([A-Z][a-z]*[0-9\.]*)/g);
+				
+				// and now we go through again
 				for(a=0;a<tmp_elements_all.length;a++){
 					// now match individual elements
 					tmp_elements = String(tmp_elements_all[a]).match(/([A-Z][a-z]*)([0-9\.]*)/);
-		// check we've not got a n element with an implicit value of '1'
+					// check we've not got a n element with an implicit value of '1'
 					if(tmp_elements[1].length>0){
 						if(!tmp_elements[2]){tmp_elements[2] = 1;}
 						tmp_elements[2] = tmp_match[2]*tmp_elements[2];
 						tmp_formula += tmp_elements[1]+tmp_elements[2];
 					}
 				}
-	
+
 				// replace in the formula the section we matched and dealt with
 	//			 tmp_string += "<br>"+i+") Temporary formula becomes: '"+tmp_formula+"' while trying to replace '"+tmp_match[0]+"' with '"+tmp_formula+"'";
 				// replace all types of brackets
-				if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);}
-				else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
-	//				 tmp_string+="using []";
-					formula.replace(/\\\[([a-z0-9]*)\\\]([0-9\.]*)/i,tmp_formula);
-	
-				}
-	//			 formula = formula.replace(,tmp_formula);
-	//			 formula.replace(tmp_match[0],tmp_formula);
+				formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);
 			}
 			else{
 	//			 tmp_string+= "could not match anything in "+formula+" tmp_match has no values in it at all";
 			}
 			// check if we go too far (far, far too many brackets)
 			i++;
-			if(i>10){
-	//			 tmp_string += brackets_error;
+			if(i>i_max){
 				break;
 			}
-	//		 else{alert("Countdown to 10:"+(11-i));}
 		}
+
 		return(formula);
 	}
 
@@ -1502,7 +1505,6 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
  <div id="error"></div>
  <div class="clearfix"></div>
 </div>
-<p>Please use only standard brackets: '(' and ')'.  Formulae entered with square brackets <span class="highlighted">[ ]</span>) will not always give expected results</p>
 <div id="working">calculation in progress ... </div>
 <div class="auto_overflow">
 <h3>COSSH forms</h3>
