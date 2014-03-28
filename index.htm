@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>Chemical composition calculations (as you type)</title>
-<meta name="viewport" content="width=device-width">
+<meta name="viewport" content="width=device-width;initial-scale=1">
 <meta name="description" content="Chemical Composition Calculator that calculates elemental analysis, monoisotopic mass, molecular ion pattern, and reaction equivalents all in your browser, meaning you can more quickly determine what your products are">
 
 <!-- base stylesheet -->
@@ -57,7 +57,10 @@ noscript{
 div.chn div{background-color:#DDDDFF;}
 .align_r{text-align:right;}
 .code{font-family:courier;color:black}
-.error{color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;border-radius:2px;}
+.error{
+	color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;border-radius:2px;
+	background-color:#FFF;
+}
 .warning{text-align:center;float:left;width:594px;clear:both;border:1px solid orange;padding:2px;background-color:#FFEECC;}
 .formula{color:green;font-weight:bold;}
 .highlighted{background-color:#EEEEFF;}
@@ -203,7 +206,7 @@ td.c_e{width:18px;height:15px;}
 /* some things only show on a larger screen */
 .large-screen{display:none;}
 
-
+.error{width:97.5%;}
 
 #calculator{margin-top:33px;}
 .shorthand,.help{width:98%;}
@@ -287,6 +290,7 @@ var CCalc = {
 
 	log:function(msg){
 		if(this.logging){
+			console.log('logging permitted');
 			this.check_logging();
 			if(this.logging_enabled == true){
 				window.console.log(msg)
@@ -296,7 +300,7 @@ var CCalc = {
 
 	/* is a console.log enabled? */
 	check_logging:function(){
-		this.logging_enabled = (window.console && window.console.log);
+		this.logging_enabled = (window.console && window.console.log)?true:false;
 	},
 
 	/* reset functions */
@@ -394,7 +398,7 @@ var CCalc = {
 		var reg_brackets = '/\(([^\[\(]*)\)([0-9\.]*)/';
 		var reg_square_brackets = '/(\([^\[\(]*\)[0-9\.]*)/';
 		var tmp_formula;var tmp_elements;var tmp_elements_all;
-		var brackets_error = "You appear to have a mismatched or empty set of brackets <br>Such as <span class=code>C6<b class=highlighted>()</"+"b></"+"span> or <span class=code>C6H3<b class=highlighted>(</"+"b>CH2Cl</"+"span>";
+		var brackets_error = "You appear to have a <em>mismatched</em> or <em>empty set</em> of brackets <br>e.g. <span class=code>C6H3<b class=highlighted>(</"+"b>CH2Cl</"+"span> or <span class=code>C6<b class=highlighted>()</"+"b></"+"span>";
 		// misc variables
 		var i=0;var a;var tmp;
 	// ignore any empty brackets
@@ -1045,7 +1049,7 @@ function element_list(visible){
 			row=col=1;
 
 			// loop through the data
-			for(i in elemental){
+			for(i in CCalc.elemental){
 	// 				console.log(i+"\t"+row+'::'+col+' vs. '+CCalc.elemental[i][0]+'::'+CCalc.elemental[i][1]);
 				if(i=='end_el'){break;}
 
@@ -1078,7 +1082,7 @@ function element_list(visible){
 				if(CCalc.elemental[i][1]-col>1){
 					// fixes an odd bug I've not time to fix, yet
 					if(row>1){col++;}
-					tmp = CCalc.spacing_columns(col,CCalc.elemental[i][1],col);
+					tmp = CCalc.html.spacing_columns(col,CCalc.elemental[i][1],col);
 					element_list_2 += tmp.html;
 					col = tmp;
 				}
@@ -1410,6 +1414,12 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 */
 window.onload=function(){
   document.chemicals.formula.focus();calculate_info(document.chemicals.formula.value);calculate_chn();
+	/* add event listeners */
+	document.getElementById('reset_form').addEventListener('click',reset_button_click);
+}
+
+function reset_button_click(){
+	 molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');CCalc.reset_all();
 }
 //-->
 </script>
@@ -1486,8 +1496,12 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 <form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
 <p>
 	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text">
-	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict molecular ion peak</label><input id="reset_form" value="clear form" onclick="molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');CCalc.reset_all();" type="reset">
+	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict [M<sup>+</sup>] peak </label><input id="reset_form" value="clear" type="reset">
 </p>
+<div class="auto_overflow">
+ <div id="error"></div>
+ <div class="clearfix"></div>
+</div>
 <p>Please use only standard brackets: '(' and ')'.  Formulae entered with square brackets <span class="highlighted">[ ]</span>) will not always give expected results</p>
 <div id="working">calculation in progress ... </div>
 <div class="auto_overflow">
@@ -1567,7 +1581,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 </div>
 <div class="cossh_form">
 	<div id="yields">&#8594; </div>
-	
+
 	<div class="e_c">C: <span id="e_c"></span></div>
 	<div class="e_h">H: <span id="e_h"></span></div>
 	<div class="e_n">N: <span id="e_n"></span></div>
@@ -1581,10 +1595,6 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
 </form>
  <div class="clearfix"></div>
 
-</div>
-<div class="auto_overflow">
- <div id="error"></div>
- <div class="clearfix"></div>
 </div>
 <div class="auto_overflow">
  <h3 id="composition_title">Composition</h3>
