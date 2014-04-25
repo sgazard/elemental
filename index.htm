@@ -304,10 +304,10 @@ var CCalc = {
 
 	/* reset functions */
 	reset_all:function(){
-		CCalc.html.set_value('c','%C');
-		CCalc.html.set_value('h','%H');
-		CCalc.html.set_value('n','%N');
-		CCalc.html.set_value('multiplier','mult');
+		CCalc.html.setVal('c','%C');
+		CCalc.html.setVal('h','%H');
+		CCalc.html.setVal('n','%N');
+		CCalc.html.setVal('multiplier','mult');
 
 		set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
 		CCalc.html.set('e_c','');CCalc.html.set('e_h','');CCalc.html.set('e_n','');
@@ -327,7 +327,7 @@ var CCalc = {
 	expand:function(formula){
 		this.expand_it++;
 		this.log(expand_formula_iteration+") Given the formula '"+formula+"'");
-		
+
 		var curr_elem_num = 0;var tmp_formula;
 	
 		var formula_mod = this.expand_brackets(formula);
@@ -541,7 +541,7 @@ CCalc.html = {
 
 	*/
 	// get a form element value
-	get_value:function(id){
+	getVal:function(id){
 		var el = this.get_el(id);
 		if(el !== false){
 			return el.value;
@@ -549,7 +549,7 @@ CCalc.html = {
 		else{return '';}
 	},
 
-	set_value:function(id, val){
+	setVal:function(id, val){
 		var el = this.get_el(id);
 		if(el !== false){
 			el.value = val;
@@ -1169,27 +1169,27 @@ function show_hide(element){
 }
 
 function update_mmols(mol_mass){;
-	CCalc.html.set_value('mmols', CCalc.html.get_value('mass')*CCalc.html.get_value('mass_multiplier')/mol_mass/CCalc.html.get_value('mmol_multiplier').value);
+	CCalc.html.setVal('mmols', CCalc.html.getVal('mass')*CCalc.html.getVal('mass_multiplier')/mol_mass/CCalc.html.getVal('mmol_multiplier'));
 	// reset the equivalents
-	CCalc.html.set_value('equivalents',1);
+	CCalc.html.setVal('equivalents',1);
 }
 function update_mass(mol_mass){;
 	// update the mass
-	CCalc.html.set_value('mass', CCalc.html.get_value('mmols')*CCalc.html.get_value('mmol_multiplier')*CCalc.html.get_value('equivalents')*mol_mass/CCalc.html.get_value('mass_multiplier'));
+	CCalc.html.setVal('mass', CCalc.html.getVal('mmols')*CCalc.html.getVal('mmol_multiplier')*CCalc.html.getVal('equivalents')*mol_mass/CCalc.html.getVal('mass_multiplier'));
 	// update the volume
 	update_volume(mol_mass);
 
 }
 
 function update_mmols_volume(mol_mass){;
-	CCalc.html.set_value('mmols', CCalc.html.get_value('volume')/CCalc.html.get_value('volume_multiplier')*CCalc.html.get_value('density')/mol_mass/CCalc.html.get_value('mmol_multiplier'));
+	CCalc.html.setVal('mmols', CCalc.html.getVal('volume')/CCalc.html.getVal('volume_multiplier')*CCalc.html.getVal('density')/mol_mass/CCalc.html.getVal('mmol_multiplier'));
 	// reset the equivalents
-	CCalc.html.set_value('equivalents', 1);
+	CCalc.html.setVal('equivalents', 1);
 }
 
 function update_volume(mol_mass){
 	// update the volume based on the density
-		CCalc.html.set_value('volume', CCalc.html.get_value('mmols')*CCalc.html.get_value('mmol_multiplier')*mol_mass/CCalc.html.get_value('density')*CCalc.html.get_value('volume_multiplier'));
+		CCalc.html.setVal('volume', CCalc.html.getVal('mmols')*CCalc.html.getVal('mmol_multiplier')*mol_mass/CCalc.html.getVal('density')*CCalc.html.getVal('volume_multiplier'));
 }
 
 function mass_spec(elemental_composition){
@@ -1346,16 +1346,16 @@ function calculate_chn(){
 
 	// can we?
 	if(document.getElementById){
-		if(CCalc.html.get_value('formula').length >0
+		if(CCalc.html.getVal('formula').length >0
 			&& CCalc.html.get_el('chn_copy_paste').style.visibility == 'hidden'){
 				show_hide('chn_copy_paste');
 		}
 
 		// get the values
-		c = CCalc.html.get_value('c');
-		h = CCalc.html.get_value('h');
-		n = CCalc.html.get_value('n');
-		multiplier = CCalc.html.get_value('multiplier');
+		c = CCalc.html.getVal('c');
+		h = CCalc.html.getVal('h');
+		n = CCalc.html.getVal('n');
+		multiplier = CCalc.html.getVal('multiplier');
 
 		// default values
 		if(!isNumeric(c)){c = 0;}if(!isNumeric(h)){h = 0;}if(!isNumeric(n)){n = 0;}if(!isNumeric(multiplier)){multiplier = 1;}
