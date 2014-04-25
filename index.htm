@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>Chemical composition calculations (as you type)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Chemical Composition Calculator that calculates elemental analysis, monoisotopic mass, molecular ion pattern, and reaction equivalents all in your browser, meaning you can more quickly determine what your products are">
 
 <!-- base stylesheet -->
@@ -27,6 +28,18 @@ input[reset]{margin-left:5px;}
 select{background-color:#FFEEFF;margin-right:3px;height:22px;}
 div{margin:0px;}
 
+/* for those without JavasScript (likely to be a minority) */
+noscript{
+	color:red;
+	border:2px solid red;
+	background-color:white;
+	font-weight:bold;
+	padding:5px;
+	border-radius:5px;
+	margin:5px;
+	font-size:2em;
+	display:block;
+}
 
 /* the outer wrapper */
 #calculator{
@@ -44,7 +57,10 @@ div{margin:0px;}
 div.chn div{background-color:#DDDDFF;}
 .align_r{text-align:right;}
 .code{font-family:courier;color:black}
-.error{color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;border-radius:2px;}
+.error{
+	color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;border-radius:2px;
+	background-color:#FFF;
+}
 .warning{text-align:center;float:left;width:594px;clear:both;border:1px solid orange;padding:2px;background-color:#FFEECC;}
 .formula{color:green;font-weight:bold;}
 .highlighted{background-color:#EEEEFF;}
@@ -190,10 +206,10 @@ td.c_e{width:18px;height:15px;}
 /* some things only show on a larger screen */
 .large-screen{display:none;}
 
-
+.error{width:97.5%;}
 
 #calculator{margin-top:33px;}
-.shorthand,.help{width:98%;}
+.shorthand,.help{width:97%;}
 
 /* on small screens, having the help auto-load is not useful*/
 #help{display:none;}
@@ -218,7 +234,16 @@ format changes from tall box to wide rectangle to place in space of the periodic
 <style type="text/css" media="screen and (max-width: 400px)">
 .cossh_form{clear:both;}
 </style>
-<!-- google analytics -->
+
+<!-- 
+Google analytics.  
+
+This is used for visitor numbers, and possibly
+determining what is actually most used so that things can be improved.
+
+I might use it to log events which take a long time.  If I do (currently do not), only
+the event and formula will be logged, as that will be all I need to replicate/fix the issue.
+-->
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -231,10 +256,313 @@ format changes from tall box to wide rectangle to place in space of the periodic
 </script>
 
 
+<!-- the CCalc object that is to do all work, once refactored -->
+<script type="text/javascript">
+
+var CCalc = {
+	/* place to store the shorthand and periocid table; don't regenerate the HTML unnecessarily */
+	shorthand:'',
+	periodic:'',
+
+	/* store values already iterated over, so don't have to re-predict values of formula is same */
+	cache_initial:{
+		formula:'',
+		formula_expanded:'',
+		formula_condensed:'',
+		c:'',
+		h:'',
+		n:'',
+		m_z:''
+	},
+	cache:[],
+	
+	/* browser console logging? */
+	logging:true,
+	logging_enabled:false,
+	
+	/* iteration information */
+	expand_it:0,
+
+	/* iniversal message generator */
+	message:function(message, type){
+		return '<div class="'+type+'">'+message+'</div>';
+	},
+
+	log:function(msg){
+		if(this.logging){
+			this.check_logging();
+			if(this.logging_enabled == true){
+				window.console.log(msg)
+			}
+		}
+	},
+
+	/* is a console.log enabled? */
+	check_logging:function(){
+		this.logging_enabled = (window.console && window.console.log)?true:false;
+	},
+
+	/* reset functions */
+	reset_all:function(){
+		CCalc.html.setVal('c','%C');
+		CCalc.html.setVal('h','%H');
+		CCalc.html.setVal('n','%N');
+		CCalc.html.setVal('multiplier','mult');
+
+		set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
+		CCalc.html.set('e_c','');CCalc.html.set('e_h','');CCalc.html.set('e_n','');
+		CCalc.html.set('c_found',0);CCalc.html.set('h_found',0);CCalc.html.set('n_found',0)
+		CCalc.html.set('c_expected','');CCalc.html.set('h_expected','');CCalc.html.set('n_expected','');
+		hide(CCalc.html.get_el('chn_copy_paste'));
+		hide(CCalc.html.get_el('info'));
+		hide(CCalc.html.get_el('composition_title'));
+		hide(CCalc.html.get_el('working'));
+
+	},
+
+	/*
+	takes a string, expands it fully out to show how many of a certain element are therein
+	does not do the expanding of shorthand, but this is done separately
+	*/
+	expand:function(formula){
+		this.expand_it++;
+		this.log(expand_formula_iteration+") Given the formula '"+formula+"'");
+
+		var curr_elem_num = 0;var tmp_formula;
+	
+		var formula_mod = this.expand_brackets(formula);
+
+		// match the elements.
+		var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
+	
+		// check we've matched something entered
+		if((formula_mod.length) && (isArray(elements_match)) ){
+			// check we've got something resembling a formula
+			if(formula_mod.length>0 && elements_match.length>0){
+
+				//might need to multiply items if inside brackets
+				for(var i=0;i<elements_match.length;i++){
+					// got a match of [a-z][0-9].  will need to split those apart, and form a
+					// NEW array containing element and amount.  Note, we need to check if an element has already
+					// been added so that formulas such as NiNO3.6H20 work well
+					if(elements_match[i]){
+	
+						var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
+	//					tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
+						// for the elements already added, we can use to check if already in 'elem_added'/not
+						var pattern= new RegExp(tmp_match[1]+',');
+						// force it to definitely be a string, and with no whitespace at the ends
+						tmp_match[1] = new String(tmp_match[1].replace(/^\s+|\s+$/g, ''));
+						// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
+						// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
+						if(!pattern.test(elem_added) && CCalc.elemental[tmp_match[1]]){
+							CCalc.elemental[tmp_match[1]][3] = 0;
+	//						tmp_string += "<br>setting CCalc.elemental[tmp_match[2]][1] AND CCalc.elemental[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
+						}
+						// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
+						if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
+							tmp_match[2]=1;
+	// 								tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
+						}
+						// Make sure that the matched value is a number
+						else{tmp_match[2] = parseFloat(tmp_match[2]);}
+	
+						if(!CCalc.elemental[tmp_match[1]] && !CCalc.fragments[tmp_match[1]]){
+							tmp_string += CCalc.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
+						}
+						else if(CCalc.fragments[tmp_match[1]]){
+							// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
+							tmp_formula = "("+CCalc.fragments[tmp_match[1]]+")"+tmp_match[2];
+	
+							// check for needed expansion of brackets
+							expand_formula(tmp_formula);
+	//					tmp_string+="expand_formula: Before conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
+	//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+CCalc.fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
+	//					tmp_string+="expand_formula: After conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
+						}
+						else{
+	//					tmp_string+= "Added "+tmp_match[1]+"<sub>"+tmp_match[2]+"</"+"sub> ("+formula_mod+")<br>";
+							tmp_string = add_element(pattern,tmp_string,tmp_match[1],tmp_match[2],curr_elem_num);
+						}
+					}
+				}
+			}
+		}
+			;
+	},
+	
+	/* we don't worry about bracket types */
+	expand_brackets:function(formula){
+		var tmp_match;var key;
+		var pattern_elements = '/([A-Z][a-z]*)([0-9\.]*)/g';
+		var reg_brackets = '/\(([^\[\(]*)\)([0-9\.]*)/';
+
+		var tmp_formula;var tmp_elements;var tmp_elements_all;
+		var brackets_error = "You appear to have a <em>mismatched</em> or <em>empty set</em> of brackets <br>e.g. <span class=code>C6H3<b class=highlighted>(</"+"b>CH2Cl</"+"span> or <span class=code>C6<b class=highlighted>()</"+"b></"+"span>";
+		// misc variables
+		var i=0;var a;var tmp;
+		// ignore any empty brackets
+		//  tmp_string+= "<br>expand_brackets(): working with "+formula;
+
+		// we don't care which type we use internally
+		formula = formula.replace(/[\[\{]/,'(');
+		formula = formula.replace(/[\]\}]/,')');
+
+		formula = formula.replace(/\(\)/,'');
+
+
+
+		var i_max = 10;
+
+		/* currently loops 'i_max times, if square brackets used */
+		while(formula.match(/[\[\(]/)){
+			tmp_match = new Array();tmp_formula = '';
+			try{
+				// clear the error message on each loop
+				CCalc.html.set('error','');
+				CCalc.html.get_el('error').className = '';
+
+				/* match curved brackets */
+				if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
+					// temporarily get the information out
+					tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
+					this.log(tmp_match);
+				}
+				/* something's gone really wrong here, and we'll stop */
+				else{
+					CCalc.html.set('error',brackets_error);
+					CCalc.html.get_el('error').className = 'error';
+					break;
+				}
+			}
+			catch(e){tmp_string += "<br>Error message of: "+e;}
+
+			// matched something
+			if(tmp_match.length>0){
+				// check for a value of '' after a bracket
+				if(tmp_match[2].length==0){tmp_match[2] = 1;}
+				
+				/* reset some values*/
+				tmp_formula = '';tmp_elements = '';tmp_elements_all = '';
+
+				// match all style of formulae in the brackets
+				tmp_elements_all = String(tmp_match[1]).match(/([A-Z][a-z]*[0-9\.]*)/g);
+				
+				// and now we go through again
+				for(a=0;a<tmp_elements_all.length;a++){
+					// now match individual elements
+					tmp_elements = String(tmp_elements_all[a]).match(/([A-Z][a-z]*)([0-9\.]*)/);
+					// check we've not got a n element with an implicit value of '1'
+					if(tmp_elements[1].length>0){
+						if(!tmp_elements[2]){tmp_elements[2] = 1;}
+						tmp_elements[2] = tmp_match[2]*tmp_elements[2];
+						tmp_formula += tmp_elements[1]+tmp_elements[2];
+					}
+				}
+
+				// replace in the formula the section we matched and dealt with
+	//			 tmp_string += "<br>"+i+") Temporary formula becomes: '"+tmp_formula+"' while trying to replace '"+tmp_match[0]+"' with '"+tmp_formula+"'";
+				// replace all types of brackets
+				formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);
+			}
+			else{
+	//			 tmp_string+= "could not match anything in "+formula+" tmp_match has no values in it at all";
+			}
+			// check if we go too far (far, far too many brackets)
+			i++;
+			if(i>i_max){
+				break;
+			}
+		}
+
+		return(formula);
+	}
+
+}
+
+
+/*
+extend the CCalc object and use it to allow HTML transformations
+This extension makes things testable :)
+
+*/
+CCalc.html = {
+	/*
+
+	details for tables
+
+	*/
+	td:function(msg,cls){
+		cls = (cls.length && cls.length>0)?' class="'+cls+'"':'';
+		return '<td'+cls+'>'+msg+'</td>';
+	},
+	tr:function(arr){
+		var html=  '';
+		var i;
+		// build the row?
+		if(arr.length>0){
+			html += '<tr>';
+			for (i in arr){html += this.td(arr[i],'');}
+			html += '</tr>';
+		}
+		return html;
+	},
+
+	/* a few blank columns?  */
+	spacing_columns:function(from,to,current){
+		html = '';
+
+		for(i=from;i<to;i++){
+			html += this.td('','blank');
+		}
+
+		return {current:i,html:html}
+	},
+
+	// set the innerHTML of an element.  Code written using this becomes shorter
+	set:function(id,str){
+		var el = this.get_el(id);
+		if(el !== false){
+			el.innerHTML = str;
+		}
+		return el;
+	},
+
+	// handles all checks neatly
+	get_el:function(id){
+		if(document.getElementById){
+			return document.getElementById(id);
+		}
+	},
+
+	/*
+
+	Forms
+
+	*/
+	// get a form element value
+	getVal:function(id){
+		var el = this.get_el(id);
+		if(el !== false){
+			return el.value;
+		}
+		else{return '';}
+	},
+
+	setVal:function(id, val){
+		var el = this.get_el(id);
+		if(el !== false){
+			el.value = val;
+		}
+	},
+
+ }
+</script>
+
 <!-- element information -->
 <script type="text/javascript">
 /* elemental information */
-var elemental = {
+CCalc.elemental = {
 	// ordering based on periodic table so can update/add easily.
 	// not alphabetical, though would be possible
 	// takes information on row and column information so that can easily build periodic table from information
@@ -356,10 +684,9 @@ var elemental = {
 	Uuq: [7, 1, 289,        0,289, {}],
 
 	// Lactinides and actinides as a new set ofrows, as per 'normal'
-		// row 6, Lanthanides/f-block
+	// row 6, Lanthanides/f-block
 	// dummy spacer
-//	elemental[''] = new Array('',   '','', {}],
-  dummy:[8,1],
+	dummy:[8,1],
 
 	Ce: [9, 1 ,140.116,     0,140, {136:0.186,138:0.251,140:88.449,142:11.114}],
 	Pr: [9, 2 , 140.90765,  0,141, {141:100}],
@@ -404,141 +731,44 @@ var elemental = {
 
 </script>
 
+<!-- common fragment information -->
 <script type="text/javascript">
+<!--
 
-var CCalc = {
-	/* place to store the shorthand and periocid table; don't regenerate the HTML unnecessarily */
-	shorthand:'',
-	periodic:'',
-	/* store values already iterated over, so don't have to re-predict values of formula is same */
-	cache_initial:{
-		formula:'',
-		formula_expanded:'',
-		formula_condensed:'',
-		c:'',
-		h:'',
-		n:'',
-		m_z:''
-	},
-	cache:[],
-	logging:true,
-	logging_enabled:false,
-
-	/* iniversal message generator */
-	message:function(message, type){
-		return '<div class="'+type+'">'+message+'</div>';
-	},
-
-	log:function(msg){
-		if(this.logging){
-			this.check_logging();
-			if(this.logging_enabled == true){
-				window.console.log(msg)
-			}
-		}
-	},
-
-	/* is a console.log enabled? */
-	check_logging:function(){
-		this.logging_enabled = (window.console && window.console.log);
-	},
-
-	/* reset functions */
-	reset_chn:function(){
-		CCalc.html.set_value('c','%C');
-		CCalc.html.set_value('h','%H');
-		CCalc.html.set_value('n','%N');
-		CCalc.html.set_value('multiplier','mult');
-
-		set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
-		CCalc.html.set('e_c','');CCalc.html.set('e_h','');CCalc.html.set('e_n','');
-		CCalc.html.set('c_found',0);CCalc.html.set('h_found',0);CCalc.html.set('n_found',0)
-		CCalc.html.set('c_expected','');CCalc.html.set('h_expected','');CCalc.html.set('n_expected','');
-		hide(CCalc.html.get_el('chn_copy_paste'));
-		hide(CCalc.html.get_el('info'));
-		hide(CCalc.html.get_el('composition_title'));
-		hide(CCalc.html.get_el('working'));
-
-	}
-
+/*
+The fragments which get expanded, but are also used to build the table.
+*/
+CCalc.fragments = {
+	Me:   'CH3',
+	Et:   'CH2CH3',
+	Pro:  '(CH2)2CH3',
+	Bu:   '(CH2)3CH3',
+	Vi:   'HCCH2',
+	Ph:   'C6H5',
+	Ac:   'COCH3',
+	Cy:   '(CH2)5CH',
+	Cp:   '(CH)5',
+	Dmf:  '(CH3)2NCOH',
+	Def:  '(CH3)2(CH2)2NCOH',
+	Thf:  'C4H8O',
+	Dmso: '(CH3)2SO',
+	Dcm:  'CH2Cl2'
 }
 
-
-CCalc.html = {
-		/*
-
-	details for tables
-
-	*/
-	td:function(msg,cls){
-		cls = (cls.length && cls.length>0)?' class="'+cls+'"':'';
-		return '<td'+cls+'>'+msg+'</td>';
-	},
-	tr:function(arr){
-		var html=  '';
-		var i;
-		// build the row?
-		if(arr.length>0){
-			html += '<tr>';
-			for (i in arr){html += this.td(arr[i],'');}
-			html += '</tr>';
-		}
-		return html;;
-	},
-
-	spacing_columns:function(from,to,current){
-		html = '';
-
-		for(i=from;i<to;i++){
-			html += this.td('','blank');
-		}
-
-		return {current:i,html:html}
-	},
-
-	// set the innerHTML of an element.  Code written using this becomes shorter
-	set:function(id,str){
-		var el = this.get_el(id);
-		if(el !== false){
-			el.innerHTML = str;
-		}
-		return el;
-	},
-
-	// handles all checks neatly
-	get_el:function(id){
-		if(document.getElementById){
-			return document.getElementById(id);
-		}
-	},
-
-	/*
-
-	Forms
-
-	*/
-	// get a form element value
-	get_value:function(id){
-		var el = this.get_el(id);
-		if(el !== false){
-			return el.value;
-		}
-		else{return '';}
-	},
-
-	set_value:function(id, val){
-		var el = this.get_el(id);
-		if(el !== false){
-			el.value = val;
-		}
-	},
-
- }
+// -->
 </script>
+
+
 
 <!-- original code, slowly being refactored -->
 <script type="text/javascript">
 <!--
+
+/*
+These global elements will be removed to make the working clearer and object scope clearer.
+
+DO NOT RELY on these
+*/
 var elements_used = '';
 var chem_isotopes;
 var mass=0;
@@ -566,32 +796,7 @@ var show_mass_spec;
 // -->
 </script>
 
-<!-- common fragment information -->
-<script type="text/javascript">
-<!--
 
-/* 
-The fragments which get expanded, but are also used to build the table.
-*/
-CCalc.fragments = {
-	Me:   'CH3',
-	Et:   'CH2CH3',
-	Pro:  '(CH2)2CH3',
-	Bu:   '(CH2)3CH3',
-	Vi:   'HCCH2',
-	Ph:   'C6H5',
-	Ac:   'COCH3',
-	Cy:   '(CH2)5CH',
-	Cp:   '(CH)5',
-	Dmf:  '(CH3)2NCOH',
-	Def:  '(CH3)2(CH2)2NCOH',
-	Thf:  'C4H8O',
-	Dmso: '(CH3)2SO',
-	Dcm:  'CH2Cl2'
-}
-
-// -->
-</script>
 
 <!-- the heavy lifting -->
 <script type="text/javascript">
@@ -611,7 +816,7 @@ function calculate_info(formula){
 	elem_added = '';formula_simplified = '';var formula_mod = '';
 	mass=0;
 	var mono_mass = 0;
-	expand_formula_iteration = 0;
+	CCalc.expand_it = 0;
 
 	// check that the checked field is even valid before performing checks
 	if(show_mass_spec == null){
@@ -624,7 +829,7 @@ function calculate_info(formula){
 	else{prev_formula = formula;}
 
   // reset first as we don't always have a clean slate
-  CCalc.reset_chn();
+  CCalc.reset_all();
   if(formula.replace(/ */,'')==''){
 		return;
 	}
@@ -636,7 +841,9 @@ function calculate_info(formula){
 
 	// use the DOM method
 	if(document.getElementById){
-		expand_formula(formula);
+		// to replace the other function
+		CCalc.expand(formula);
+		//expand_formula(formula);
 
 	
 		// output
@@ -663,19 +870,19 @@ function calculate_info(formula){
 			for(i=0;i<len;i++){
 				classes = '';
 				// got to exist
-				if(elem_split[i].length>0 && (elemental[elem_split[i]][3]>0)){
+				if(elem_split[i].length>0 && (CCalc.elemental[elem_split[i]][3]>0)){
 
 					// CHN get highlighted
 					classes += ((elem_split[i] == 'C')||(elem_split[i] == 'H')||(elem_split[i] == 'N'))?'chn ':'';
 					// colour
 					bg_num++;if((bg_num % 2)>0){classes += ' highlighted';}
 					// number of atoms
-					num_atoms = elemental[elem_split[i]][3];
+					num_atoms = CCalc.elemental[elem_split[i]][3];
 					if(Math.ceil(num_atoms) !=num_atoms && isNumeric(parseFloat(num_atoms))){num_atoms =parseFloat(num_atoms).toFixed(3);}
 					// an atom's mass
-					atom_mass = elemental[elem_split[i]][2];
-					tmp_mass = parseFloat(elemental[elem_split[i]][2]*num_atoms).toFixed(max_decimal_places);
-					mono_mass += num_atoms*elemental[elem_split[i]][4];
+					atom_mass = CCalc.elemental[elem_split[i]][2];
+					tmp_mass = parseFloat(CCalc.elemental[elem_split[i]][2]*num_atoms).toFixed(max_decimal_places);
+					mono_mass += num_atoms*CCalc.elemental[elem_split[i]][4];
 					// html/not for class names
 					classes = (classes.length>0)?' class="'+classes+'"':'';
 					tmp_string2+='<div'+classes+'><div class="element">'+elem_split[i]+'</'+'div><div class="num_atoms">'+num_atoms+'</'+'div><div class="atomic_mass">'+atom_mass+'</'+'div><div class="net_mass align_r">'+tmp_mass+'</'+'div><div class="percent_composition align_r">'+parseFloat(tmp_mass/mass*100).toFixed(max_decimal_places)+'%</'+'div><div class=clearfix></'+'div></'+'div>';
@@ -686,18 +893,18 @@ function calculate_info(formula){
 					// the simplified formula
 					formula_simplified += elem_split[i];
 					// check for non-integer value
-					if(Math.ceil(elemental[elem_split[i]][3]) ==elemental[elem_split[i]][3]){formula_simplified +=elemental[elem_split[i]][3];}
-					else{formula_simplified += elemental[elem_split[i]][3].toFixed(2);}
+					if(Math.ceil(CCalc.elemental[elem_split[i]][3]) ==CCalc.elemental[elem_split[i]][3]){formula_simplified +=CCalc.elemental[elem_split[i]][3];}
+					else{formula_simplified += CCalc.elemental[elem_split[i]][3].toFixed(2);}
 				// mass spec information; number of isotopes too
 // 				tmp_num = 0;
-// 				for(var abc in elemental[elem_split[i]][3]){tmp_num++;}
+// 				for(var abc in CCalc.elemental[elem_split[i]][3]){tmp_num++;}
 //					 if(tmp_num == 0){tmp_num = 1;}
 //					 tmp_string+='('+num_isotopes+')*(Math.pow('+tmp_num+','+num_atoms+')) for atom with mass of '+atom_mass+'<br>';
 //					 num_isotopes = (num_isotopes)*(Math.pow(tmp_num,num_atoms)); // num_atoms,tmp_num?
 
 					for(var x=0;x<num_atoms;x++){
 //					tmp_string += j+"=&gt;"+elem_split[i]+":"+1+"<br>";
-						ms[j] = Array(elem_split[i],1,elemental[elem_split[i]][5]);
+						ms[j] = Array(elem_split[i],1,CCalc.elemental[elem_split[i]][5]);
 						j++;
 					}
 				}
@@ -749,20 +956,20 @@ function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
 	var tmp = '';
 	if(elem_amt == 0){return('');}
 	// make sure we've not already encountered the symbol
-	if(elemental[elem_curr][3] >0){
+	if(CCalc.elemental[elem_curr][3] >0){
 		// if so, increase the current element count by the amount already entered
-			curr_elem_num += (parseFloat(elemental[elem_curr][3])+elem_amt);
-//			tmp_string += "<br>found "+elem_curr+" before ("+elemental[elem_curr][1]+")";
+			curr_elem_num += (parseFloat(CCalc.elemental[elem_curr][3])+elem_amt);
+//			tmp_string += "<br>found "+elem_curr+" before ("+CCalc.elemental[elem_curr][1]+")";
 		}
 		else{
 			curr_elem_num = elem_amt;
-//			tmp_string += "<br><i>never</"+"i> found "+elem_curr+" before ("+elemental[elem_curr][1]+")..";
+//			tmp_string += "<br><i>never</"+"i> found "+elem_curr+" before ("+CCalc.elemental[elem_curr][1]+")..";
 		}
 		// increase the total mass by the number we addd in this amount
-		mass += elemental[elem_curr][2]*elem_amt;
+		mass += CCalc.elemental[elem_curr][2]*elem_amt;
 
 		// get the number of decimal places used in the measuremnt.	if less than the initial (or subsequent) value(s), then make the figure shorter
-		tmp = String(elemental[elem_curr][2]).split('.');
+		tmp = String(CCalc.elemental[elem_curr][2]).split('.');
 		if(tmp[1]){
 			if(String(tmp[1]).length<max_decimal_places){max_decimal_places = String(tmp[1]).length}
 		}
@@ -772,10 +979,10 @@ function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
 	// add the information
 		try{
 			// number
-			elemental[elem_curr][3] = curr_elem_num;
+			CCalc.elemental[elem_curr][3] = curr_elem_num;
 			// add to list of added elements so we don't trawl through all 118 off them in the end
 			if(!elem_added.match(pattern)){
-//				tmp_string+= "<br>added "+elem_curr+" ==&gt; number of atoms: "+elemental[elem_curr][1]+" ("+curr_elem_num+"); &nbsp; mass of that number of atoms: "+elemental[elem_curr][3]+"::";
+//				tmp_string+= "<br>added "+elem_curr+" ==&gt; number of atoms: "+CCalc.elemental[elem_curr][1]+" ("+curr_elem_num+"); &nbsp; mass of that number of atoms: "+CCalc.elemental[elem_curr][3]+"::";
 				elem_added +=elem_curr+',';
 			}
 			else{
@@ -787,158 +994,16 @@ function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
 			tmp_string += 'Error message for "'+elem_curr+'" while adding to array: "'+e+'"';
 		}
 //		if(!(smg['a'+elem_curr])){tmp_string += 'adding '+elem_curr+'failed<br>';}
-//		else{tmp_string+= '=&gt;Added '+elem_curr+', elemental[a'+elem_curr+'] = '+multiplier+'*'+elem_amt+'.  We now have '+smg.length+' chemical elements added<br>';}
+//		else{tmp_string+= '=&gt;Added '+elem_curr+', CCalc.elemental[a'+elem_curr+'] = '+multiplier+'*'+elem_amt+'.  We now have '+smg.length+' chemical elements added<br>';}
 	;
 	return tmp_string;
 }
 
 function expand_brackets(formula){
-	var tmp_match;var key;
-	var pattern_elements = '/([A-Z][a-z]*)([0-9\.]*)/g';
-	var reg_brackets = '/\(([^\[\(]*)\)([0-9\.]*)/';
-	var reg_square_brackets = '/(\([^\[\(]*\)[0-9\.]*)/';
-	var tmp_formula;var tmp_elements;var tmp_elements_all;
-	var brackets_error = "You appear to have a mismatched or empty set of brackets <br>Such as <span class=code>C6<b class=highlighted>()</"+"b></"+"span> or <span class=code>C6H3<b class=highlighted>(</"+"b>CH2Cl</"+"span>";
-	// misc variables
-	var i=0;var a;var tmp;
-// ignore any empty brackets
-//  tmp_string+= "<br>expand_brackets(): working with "+formula;
-	formula = formula.replace(/\(\)/,'');
-	formula = formula.replace(/\[\]/,'');
-
-	while(formula.match(/[\[\(]/)){
-		tmp_match = new Array();tmp_formula = '';
-		try{
-			// clear the error message on each loop
-			CCalc.html.set('error','');
-			CCalc.html.get_el('error').className = '';
-
-			if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
-				// temporarily get the information out
-				tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
-// 	tmp_string+="<br>got "+tmp_match.length+" elements: "+tmp_match[0]+","+tmp_match[1]+","+tmp_match[2]+"!";
-			}
-			else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
-				tmp_match = formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i);
-
-			}
-			else{
-				CCalc.html.set('error',brackets_error);
-				CCalc.html.get_el('error').className = 'error';
-//				tmp_string += brackets_error; //"Regular expression problem: "+
-				break;
-			}
-
-
-		}
-		catch(e){tmp_string += "<br>Error message of: "+e;}
-		if(tmp_match.length>0){
-			// check for a value of '' after a bracket
-			if(tmp_match[2].length==0){tmp_match[2] = 1;}
-			tmp_formula = '';tmp_elements = '';tmp_elements_all = '';
-			// match all style of formulae in the brackets
-			tmp_elements_all = String(tmp_match[1]).match(/([A-Z][a-z]*[0-9\.]*)/g);
-			for(a=0;a<tmp_elements_all.length;a++){
-				// now match individual elements
-				tmp_elements = String(tmp_elements_all[a]).match(/([A-Z][a-z]*)([0-9\.]*)/);
-	// check we've not got a n element with an implicit value of '1'
-				if(tmp_elements[1].length>0){
-					if(!tmp_elements[2]){tmp_elements[2] = 1;}
-					tmp_elements[2] = tmp_match[2]*tmp_elements[2];
-					tmp_formula += tmp_elements[1]+tmp_elements[2];
-				}
-			}
-
-			// replace in the formula the section we matched and dealt with
-//			 tmp_string += "<br>"+i+") Temporary formula becomes: '"+tmp_formula+"' while trying to replace '"+tmp_match[0]+"' with '"+tmp_formula+"'";
-			// replace all types of brackets
-			if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){formula = formula.replace(/\(([a-z0-9]*)\)([0-9\.]*)/i,tmp_formula);}
-			else if(formula.match(/\[([a-z0-9]*)\]([0-9\.]*)/i)){
-//				 tmp_string+="using []";
-				formula.replace(/\\\[([a-z0-9]*)\\\]([0-9\.]*)/i,tmp_formula);
-
-			}
-//			 formula = formula.replace(,tmp_formula);
-//			 formula.replace(tmp_match[0],tmp_formula);
-		}
-		else{
-//			 tmp_string+= "could not match anything in "+formula+" tmp_match has no values in it at all";
-		}
-		// check if we go too far (far, far too many brackets)
-		i++;
-		if(i>10){
-//			 tmp_string += brackets_error;
-			break;
-		}
-//		 else{alert("Countdown to 10:"+(11-i));}
-	}
-	return(formula);
 }
 
 // function to add a run through a string; made into a function simply because expanding the shorthand made it simpler
 function expand_formula(formula){
-	expand_formula_iteration++;
-//	tmp_string+= expand_formula_iteration+") Given the formula '"+formula+"'";
-	var curr_elem_num = 0;var tmp_formula;
-
-	var formula_mod = expand_brackets(formula);
-// 	tmp_string +="<br>expand_formula(): &nbsp;'expand_brackets' gave formula: "+formula_mod+'<br>';
-	// match the elements.
-	var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
-
-	// check we've matched something entered
-	if((formula_mod.length) && (isArray(elements_match)) ){
-		// check we've got something resembling a formula
-		if(formula_mod.length>0 && elements_match.length>0){
-
-			//might need to multiply items if inside brackets
-			for(var i=0;i<elements_match.length;i++){
-				// got a match of [a-z][0-9].  will need to split those apart, and form a
-				// NEW array containing element and amount.  Note, we need to check if an element has already
-				// been added so that formulas such as NiNO3.6H20 work well
-				if(elements_match[i]){
-
-					var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
-//					tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
-					// for the elements already added, we can use to check if already in 'elem_added'/not
-					var pattern= new RegExp(tmp_match[1]+',');
-					// force it to definitely be a string, and with no whitespace at the ends
-					tmp_match[1] = new String(tmp_match[1].replace(/^\s+|\s+$/g, ''));
-					// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
-					// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
-					if(!pattern.test(elem_added) && elemental[tmp_match[1]]){
-						elemental[tmp_match[1]][3] = 0;
-//						tmp_string += "<br>setting elemental[tmp_match[2]][1] AND elemental[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
-					}
-					// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
-					if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
-						tmp_match[2]=1;
-// 								tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
-					}
-					// Make sure that the matched value is a number
-					else{tmp_match[2] = parseFloat(tmp_match[2]);}
-
-					if(!elemental[tmp_match[1]] && !CCalc.fragments[tmp_match[1]]){
-						tmp_string += CCalc.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
-					}
-					else if(CCalc.fragments[tmp_match[1]]){
-						// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
-						tmp_formula = "("+CCalc.fragments[tmp_match[1]]+")"+tmp_match[2];
-
-						// check for needed expansion of brackets
-						expand_formula(tmp_formula);
-//					tmp_string+="expand_formula: Before conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
-//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+CCalc.fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
-//					tmp_string+="expand_formula: After conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
-					}
-					else{
-//					tmp_string+= "Added "+tmp_match[1]+"<sub>"+tmp_match[2]+"</"+"sub> ("+formula_mod+")<br>";
-						tmp_string = add_element(pattern,tmp_string,tmp_match[1],tmp_match[2],curr_elem_num);
-					}
-				}
-			}
-		}
-	}
 }
 
 
@@ -987,14 +1052,14 @@ function element_list(visible){
 			row=col=1;
 
 			// loop through the data
-			for(i in elemental){
-	// 				console.log(i+"\t"+row+'::'+col+' vs. '+elemental[i][0]+'::'+elemental[i][1]);
+			for(i in CCalc.elemental){
+	// 				console.log(i+"\t"+row+'::'+col+' vs. '+CCalc.elemental[i][0]+'::'+CCalc.elemental[i][1]);
 				if(i=='end_el'){break;}
 
 				data = '';
 				no_isotopes = 'class="no_isotopes_entered"';
 				// check for at least 1 isotope.	if not, we display it as a red flag
-				for(j in elemental[i][5]){
+				for(j in CCalc.elemental[i][5]){
 					if(j>0){
 						no_isotopes = '';
 						break;
@@ -1002,7 +1067,7 @@ function element_list(visible){
 				}
 
 				// rows
-				if(parseInt(elemental[i][0]) != row){
+				if(parseInt(CCalc.elemental[i][0]) != row){
 					if(row!=1){element_list_2 += '</'+'tr>';}
 					element_list_2 +='<tr>';
 					row++;
@@ -1017,24 +1082,24 @@ function element_list(visible){
 				}
 
 				// spacing columns
-				if(elemental[i][1]-col>1){
+				if(CCalc.elemental[i][1]-col>1){
 					// fixes an odd bug I've not time to fix, yet
 					if(row>1){col++;}
-					tmp = CCalc.spacing_columns(col,elemental[i][1],col);
+					tmp = CCalc.html.spacing_columns(col,CCalc.elemental[i][1],col);
 					element_list_2 += tmp.html;
 					col = tmp;
 				}
 				else{col++;}
 
 				// data
-				data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+elemental[i][4]+'\',  Monoisotopic mass:\''+elemental[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
+				data = 'class="c_e"><a href="#" onmouseover="show_element_info(\''+i+'\')" onmouseout="show_element_info(\''+i+'\')" onclick="show_element_info(\''+i+'\');return false;" title="Mass: \''+CCalc.elemental[i][4]+'\',  Monoisotopic mass:\''+CCalc.elemental[i][2]+'\'" '+no_isotopes+'">'+i+'</'+'a></';
 				element_list_2 +='<td '+data+'td>';
 				element_list+='<div '+data+'div>'+"\n";
 			}
 			element_list_2 += '</'+'tr></'+'table>';
 
 			// add in source of data
-			element_list_2 += "<div style=\"float:left;width:100%;margin-top:5px;text-align:center\"><a href=\"http://www.iupac.org/reports/1998/7001rosman/iso.pdf\" style=\"text-decoration:none;\" target=\"_blank\">Isotope data from 1997 Iupac report</"+"a></"+"div>";;
+			element_list_2 += "<div style=\"float:left;width:100%;margin-top:5px;text-align:center\"><a href=\"http://www.iupac.org/reports/1998/7001rosman/iso.pdf\" style=\"text-decoration:none;\" target=\"_blank\">Isotope data from 1997 Iupac report</"+"a></"+"div>";
 
 			// cache this
 			CCalc.periodic = element_list_2;
@@ -1053,17 +1118,17 @@ function element_list(visible){
 
 function show_element_info(id){
 	if(CCalc.html.get_el('element_info')){
-		if(elemental[id]){
-			var str = "<i>"+id+" </"+"i><div><span class='large-screen'>Mass:</span><b>(</b>"+elemental[id][2]+"<b>)</b></div>";
+		if(CCalc.elemental[id]){
+			var str = "<i>"+id+" </"+"i><div><span class='large-screen'>Mass:</span><b>(</b>"+CCalc.elemental[id][2]+"<b>)</b></div>";
 			var i;
-			if(typeof(elemental[id][5]) == 'object'){
-				str+="<div><b> - </b><span class='large-screen'>Monoisotopic mass:</span> "+elemental[id][4]+" </div>"
+			if(typeof(CCalc.elemental[id][5]) == 'object'){
+				str+="<div><b> - </b><span class='large-screen'>Monoisotopic mass:</span> "+CCalc.elemental[id][4]+" </div>"
 				str+="<h6><span class='large-screen'> Isotopes &amp; abundances</span>:</"+"h6><b><br/></b>";
 				var tmp_str= '';
 				var summing = 0;
-				for(i in elemental[id][5]){
-					tmp_str+="<div class='iso'>"+i+" <span class='large-screen'>- </span><b>: </b>"+elemental[id][5][i]+"%<b>, </b></"+"div>";
-					summing = summing + elemental[id][5][i];
+				for(i in CCalc.elemental[id][5]){
+					tmp_str+="<div class='iso'>"+i+" <span class='large-screen'>- </span><b>: </b>"+CCalc.elemental[id][5][i]+"%<b>, </b></"+"div>";
+					summing = summing + CCalc.elemental[id][5][i];
 				}
 				if(tmp_str.length==0){tmp_str = "<div class=\"no_isotopes_entered\">No isotopes known/entered for this element</"+"div>";}
 				str+=tmp_str;
@@ -1104,27 +1169,27 @@ function show_hide(element){
 }
 
 function update_mmols(mol_mass){;
-	CCalc.html.set_value('mmols', CCalc.html.get_value('mass')*CCalc.html.get_value('mass_multiplier')/mol_mass/CCalc.html.get_value('mmol_multiplier').value);
+	CCalc.html.setVal('mmols', CCalc.html.getVal('mass')*CCalc.html.getVal('mass_multiplier')/mol_mass/CCalc.html.getVal('mmol_multiplier'));
 	// reset the equivalents
-	CCalc.html.set_value('equivalents',1);
+	CCalc.html.setVal('equivalents',1);
 }
 function update_mass(mol_mass){;
 	// update the mass
-	CCalc.html.set_value('mass', CCalc.html.get_value('mmols')*CCalc.html.get_value('mmol_multiplier')*CCalc.html.get_value('equivalents')*mol_mass/CCalc.html.get_value('mass_multiplier'));
+	CCalc.html.setVal('mass', CCalc.html.getVal('mmols')*CCalc.html.getVal('mmol_multiplier')*CCalc.html.getVal('equivalents')*mol_mass/CCalc.html.getVal('mass_multiplier'));
 	// update the volume
 	update_volume(mol_mass);
 
 }
 
 function update_mmols_volume(mol_mass){;
-	CCalc.html.set_value('mmols', CCalc.html.get_value('volume')/CCalc.html.get_value('volume_multiplier')*CCalc.html.get_value('density')/mol_mass/CCalc.html.get_value('mmol_multiplier'));
+	CCalc.html.setVal('mmols', CCalc.html.getVal('volume')/CCalc.html.getVal('volume_multiplier')*CCalc.html.getVal('density')/mol_mass/CCalc.html.getVal('mmol_multiplier'));
 	// reset the equivalents
-	CCalc.html.set_value('equivalents', 1);
+	CCalc.html.setVal('equivalents', 1);
 }
 
 function update_volume(mol_mass){
 	// update the volume based on the density
-		CCalc.html.set_value('volume', CCalc.html.get_value('mmols')*CCalc.html.get_value('mmol_multiplier')*mol_mass/CCalc.html.get_value('density')*CCalc.html.get_value('volume_multiplier'));
+		CCalc.html.setVal('volume', CCalc.html.getVal('mmols')*CCalc.html.getVal('mmol_multiplier')*mol_mass/CCalc.html.getVal('density')*CCalc.html.getVal('volume_multiplier'));
 }
 
 function mass_spec(elemental_composition){
@@ -1281,16 +1346,16 @@ function calculate_chn(){
 
 	// can we?
 	if(document.getElementById){
-		if(CCalc.html.get_value('formula').length >0
+		if(CCalc.html.getVal('formula').length >0
 			&& CCalc.html.get_el('chn_copy_paste').style.visibility == 'hidden'){
 				show_hide('chn_copy_paste');
 		}
 
 		// get the values
-		c = CCalc.html.get_value('c');
-		h = CCalc.html.get_value('h');
-		n = CCalc.html.get_value('n');
-		multiplier = CCalc.html.get_value('multiplier');
+		c = CCalc.html.getVal('c');
+		h = CCalc.html.getVal('h');
+		n = CCalc.html.getVal('n');
+		multiplier = CCalc.html.getVal('multiplier');
 
 		// default values
 		if(!isNumeric(c)){c = 0;}if(!isNumeric(h)){h = 0;}if(!isNumeric(n)){n = 0;}if(!isNumeric(multiplier)){multiplier = 1;}
@@ -1344,6 +1409,21 @@ function isArray(obj) {
 
 
 function isNumeric(value) {return typeof value != "boolean" && value !== null && !isNaN(+ value);}
+
+
+/*
+ onload event to set up all the handlers
+
+*/
+window.onload=function(){
+  document.chemicals.formula.focus();calculate_info(document.chemicals.formula.value);calculate_chn();
+	/* add event listeners */
+	document.getElementById('reset_form').addEventListener('click',reset_button_click);
+}
+
+function reset_button_click(){
+	 molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');CCalc.reset_all();
+}
 //-->
 </script>
 
@@ -1351,8 +1431,10 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 </head>
 
 <!-- template for the HTML -->
-<body onload="document.chemicals.formula.focus();calculate_info(document.chemicals.formula.value);calculate_chn();">
-
+<body>
+<noscript>
+Hello.  You appear to have Javascript disabled.  Unfortunately for you, this tool requires javascript tuned on.  Please enable it, and refresh the page
+</noscript>
 <div class="help">
 	<div id="help"><b>How to use</b>:
 	<ol><li>Place your cursor in the field at the top-left (it should be automatically there).</li>
@@ -1417,9 +1499,12 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 <form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
 <p>
 	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text">
-	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict molecular ion peak</label><input value="clear form" onclick="molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');CCalc.reset_chn();" type="reset">
+	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict [M<sup>+</sup>] peak </label><input id="reset_form" value="clear" type="reset">
 </p>
-<p>Please use only standard brackets: '(' and ')'.  Formulae entered with square brackets <span class="highlighted">[ ]</span>) will not always give expected results</p>
+<div class="auto_overflow">
+ <div id="error"></div>
+ <div class="clearfix"></div>
+</div>
 <div id="working">calculation in progress ... </div>
 <div class="auto_overflow">
 <h3>COSSH forms</h3>
@@ -1498,7 +1583,7 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 </div>
 <div class="cossh_form">
 	<div id="yields">&#8594; </div>
-	
+
 	<div class="e_c">C: <span id="e_c"></span></div>
 	<div class="e_h">H: <span id="e_h"></span></div>
 	<div class="e_n">N: <span id="e_n"></span></div>
@@ -1512,10 +1597,6 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
 </form>
  <div class="clearfix"></div>
 
-</div>
-<div class="auto_overflow">
- <div id="error"></div>
- <div class="clearfix"></div>
 </div>
 <div class="auto_overflow">
  <h3 id="composition_title">Composition</h3>
