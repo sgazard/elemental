@@ -275,7 +275,7 @@ var CCalc = {
 	shorthand:'',
 	periodic:'',
 
-	/* store values already iterated over, so don't have to re-predict values of formula is same */
+	/* store values already iterated over, so don't have to re-predict values of formula if same */
 	cache_initial:{
 		formula:'',
 		formula_expanded:'',
@@ -286,6 +286,15 @@ var CCalc = {
 		m_z:''
 	},
 	cache:[],
+
+	cache_check:function(f){
+		return (typeof(CCalc.cache[f]) != 'undefined')?true:false;
+	},
+
+	/* this initialises the cache only*/
+	cache_add:function(f){
+		CCalc.cache[f] = CCalc.cache_initial;
+	},
 	
 	/* browser console logging? */
 	logging:true,
@@ -331,13 +340,24 @@ var CCalc = {
 
 	},
 
+	is_viable:function(item){
+		return this.is_element(item) || this.is_shorthand(item);
+	},
+
+	is_shorthand:function(item){
+		return (CCalc.fragments[item])?true:false;
+	},
+	is_element:function(item){
+		return (CCalc.elemental[item])?true:false;
+	},
+
 	/*
 	takes a string, expands it fully out to show how many of a certain element are therein
 	does not do the expanding of shorthand, but this is done separately
 	*/
 	expand:function(formula){
 		this.expand_it++;
-		this.log(expand_formula_iteration+") Given the formula '"+formula+"'");
+		// this.log(expand_formula_iteration+") Given the formula '"+formula+"'");
 
 		var curr_elem_num = 0;var tmp_formula;
 	
@@ -359,7 +379,6 @@ var CCalc = {
 					if(elements_match[i]){
 	
 						var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
-	//					tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
 						// for the elements already added, we can use to check if already in 'elem_added'/not
 						var pattern= new RegExp(tmp_match[1]+',');
 						// force it to definitely be a string, and with no whitespace at the ends
@@ -368,7 +387,6 @@ var CCalc = {
 						// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
 						if(!pattern.test(elem_added) && CCalc.elemental[tmp_match[1]]){
 							CCalc.elemental[tmp_match[1]][3] = 0;
-	//						tmp_string += "<br>setting CCalc.elemental[tmp_match[2]][1] AND CCalc.elemental[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
 						}
 						// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
 						if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
@@ -437,7 +455,7 @@ var CCalc = {
 				if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
 					// temporarily get the information out
 					tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
-					this.log(tmp_match);
+					// this.log(tmp_match);
 				}
 				/* something's gone really wrong here, and we'll stop */
 				else{
@@ -487,6 +505,64 @@ var CCalc = {
 		}
 
 		return(formula);
+	},
+
+	simplify:function(formula){
+		// formula needs expanding
+		formula = this.expand_brackets(formula);
+
+		// to store the elements found
+		var condensed = [];
+		var regex = /([A-Z][a-z]*)([0-9]*)/g;
+		while(matches = regex.exec(formula)){
+			// elements with an implicit number of 1
+			if(matches[2] == ''){matches[2] = 1;}
+
+			// not found already?
+			if(!condensed[matches[1]]){
+				condensed[matches[1]] = 0;
+			}
+
+			// add in the current number of matches
+			condensed[matches[1]] += parseInt(matches[2]);
+		}
+
+
+
+		// stupid as this looks, we're going to rebuild the formula with expanded
+		var tmp = '';
+		var redo = false;
+		for (i in condensed){
+			if(CCalc.is_shorthand(i)){
+				tmp +='('+CCalc.fragments[i]+')'+condensed[i];
+				redo=true;
+			}
+			else{
+				tmp += i+condensed[i];
+			}
+		}
+
+		// get a consistent method of the condensed formula
+		var ret = '';
+
+		// no shorthand present
+		if(redo == false){
+			condensed.sort();	
+			// loop the data to add in
+			for(i in condensed){
+				// implicit '1' being snuffed
+				if(condensed[i] ==1){
+					condensed[i] = '';
+				}
+				ret += i+condensed[i];
+			}
+		}
+		else{
+			ret = this.simplify(tmp);
+		}
+
+
+		return ret;
 	}
 
 }
@@ -871,7 +947,12 @@ function calculate_info(formula){
 	if(document.getElementById){
 		// to replace the other function
 		CCalc.expand(formula);
+		formula_simplified = CCalc.simplify(formula);
 		//expand_formula(formula);
+
+		if(CCalc.cache_check(formula_simplified) == false){
+			CCalc.cache_add(formula_simplified);
+		}
 
 	
 		// output
@@ -1035,6 +1116,8 @@ function expand_formula(formula){
 }
 
 
+
+
 // show the shorthand supported
 function shorthand(visible){
 	var id;
@@ -1045,7 +1128,10 @@ function shorthand(visible){
 			var i;
 			shorthand +='<table>';
 			// generate all rows
-			for(i in fragments){shorthand += CCalc.html.tr(Array(i,CCalc.fragments[i]));}
+			for(i in CCalc.fragments){
+				shorthand += CCalc.html.tr(Array(i,CCalc.fragments[i]));
+			}
+
 			shorthand += '</table>';
 			CCalc.shorthand = shorthand;
 		}
