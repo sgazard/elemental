@@ -563,6 +563,17 @@ var CCalc = {
 
 
 		return ret;
+	},
+
+	checkShared: function(){
+		el = CCalc.html.get_el('formula');
+		// get the window.location.hash and see if we need take information from this
+		// note a browser might prefill this on a restore, or on a reload
+		if(el.value=='' && window.location.hash.length>0){
+			this.log('got an hash to deal with');
+			// perhaps a bit too trusting?
+			el.value = window.location.hash.replace(/#/,'');
+		}
 	}
 
 }
@@ -931,6 +942,9 @@ function calculate_info(formula){
 	// do we have to run through?   Keys back and forth don't count
 	if((formula == prev_formula) && (show_mass_spec == (CCalc.html.get_el('show_mass_spec').checked? 1:0))){return false;}
 	else{prev_formula = formula;}
+
+	// as we've changed teh forumula, we'll update the hash in the url so that we can share the url with others
+	window.location.hash = formula;
 
   // reset first as we don't always have a clean slate
   CCalc.reset_all();
@@ -1540,7 +1554,13 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 
 */
 window.onload=function(){
-  document.chemicals.formula.focus();calculate_info(document.chemicals.formula.value);calculate_chn();
+  // so we can start typing
+  document.chemicals.formula.focus();
+
+  // do we have an shared url?
+  CCalc.checkShared();
+
+  calculate_info(document.chemicals.formula.value);calculate_chn();
 	/* add event listeners */
 	document.getElementById('reset_form').addEventListener('click',reset_button_click);
 }
