@@ -85,14 +85,13 @@ input.error{
 /*
 Help and shorthand links
 */
-.help {Position:absolute;right:0px;width:430px;text-align:left;background-color:#FFEEDD;padding:3px;border:1px solid #BBAA99;padding-top:25px;border-radius:4px;}
+.help {position:absolute;right:0px;width:30%;text-align:left;background-color:#FFEEDD;padding:3px;border:1px solid #BBAA99;border-radius:4px;}
 .shorthand_toggles{text-align:right;}
 .help_toggles{float:left;}
 .shorthand h2,.help_toggles h2{margin:0px 2px;border-bottom:0px;font-size:14px;display:inline-block;}
 .help h2{margin:0px;}
 .shorthand{
-	position:absolute;
-	right:2px;top:4px;width:433px;
+
 	overflow:auto;
 	background-color:#EEEEEE;border-bottom:1px solid #BACEE0;
 }
@@ -669,6 +668,11 @@ CCalc.html = {
 		var cn = el.className.replace(reg,'');
 		el.className = cn;
 		;
+	},
+
+	/* adds in the subscripts as needed */
+	make_pretty: function(f){
+		return f.replace(/(\d+)/g,"<sub>$1</sub>");
 	}
 
  }
@@ -971,7 +975,8 @@ function calculate_info(formula){
 	
 		// output
  	// make the formula look pretty
-		formula_formatted = formula.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+		// formula_formatted = formula.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+		formula_formatted = CCalc.html.make_pretty(formula);
 		// add to the string
 
 		if(elem_added.length>0){
@@ -1039,9 +1044,10 @@ function calculate_info(formula){
 			var formula_no_html = formula_simplified;
 
 			// format the simplified formula
-			formula_simplified = formula_simplified.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+			// formula_simplified = formula_simplified.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+			formula_simplified = CCalc.html.make_pretty(formula_simplified);
 			// remove 'C<sub>1</'+'sub>'
-			formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
+			// formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
 
 			var msds_link = "http://www.sigmaaldrich.com/catalog/search/SearchResultsPage?Query="+formula_no_html+"&Scope=MolecularFormulaSearch";
 			msds_link = "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>";
@@ -1139,11 +1145,14 @@ function shorthand(visible){
 		if(CCalc.shorthand ===''){
 			var shorthand = 'Supported:<br>';
 			// gather the information
-			var i;
+			var i,f;
 			shorthand +='<table>';
 			// generate all rows
 			for(i in CCalc.fragments){
-				shorthand += CCalc.html.tr(Array(i,CCalc.fragments[i]));
+				// it's nicer pretty
+				f = CCalc.html.make_pretty(CCalc.fragments[i]);
+				// HTML building
+				shorthand += CCalc.html.tr(Array(i,'=&gt;',f));
 			}
 
 			shorthand += '</table>';
@@ -1580,6 +1589,23 @@ function reset_button_click(){
 Hello.  You appear to have Javascript disabled.  Unfortunately for you, this tool requires javascript tuned on.  Please enable it, and refresh the page
 </noscript>
 <div class="help">
+	<div class="shorthand">
+		<div class="help_toggles">
+			<h2><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
+		</div>
+		<div class="shorthand_toggles">
+			<h2>
+				<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;"><span class="large-screen">supported </span>shorthand &#x25BC;</a>
+			</h2>
+			<h2>
+				<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
+			</h2>
+		</div>
+		<div id="shorthand" style="visibility:hidden;display:none;"></div>
+		<div id="element_list" style="visibility:hidden;display:none;"></div>
+	</div>
+	<div id="element_info" style="visibility:hidden;display:none;"></div>
+
 	<div id="help"><b>How to use</b>:
 	<ol><li>Place your cursor in the field at the top-left (it should be automatically there).</li>
 	
@@ -1622,22 +1648,6 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 
 <div id="calculator">
 <h1>Chemical composition calculations</h1>
-<div class="shorthand">
-	<div class="help_toggles">
-		<h2><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
-	</div>
-	<div class="shorthand_toggles">
-		<h2>
-			<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;"><span class="large-screen">supported </span>shorthand &#x25BC;</a>
-		</h2>
-		<h2>
-			<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
-		</h2>
-	</div>
-	<div id="shorthand" style="visibility:hidden;display:none;"></div>
-	<div id="element_list" style="visibility:hidden;display:none;"></div>
-</div>
-<div id="element_info" style="visibility:hidden;display:none;"></div>
 
 <div class="auto_overflow">
 <form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
