@@ -14,7 +14,7 @@ td{padding:2px;}
 table#periodic td{padding:0px;}
 table#periodic a{padding:2px;}
 thead td, .header div,.header{font-weight:bold;background-color:#DDDD88;border:0px}
-table tr{background-color:white;}
+table tr{}
 h1,h2,h3,h4{margin:5px 0px 2px;background-color:#EEE;padding:3px;border-bottom:1px solid #BACEE0;}
 
 thead td{
@@ -86,7 +86,8 @@ input.error{
 Help and shorthand links
 */
 .help {position:absolute;right:0px;width:30%;text-align:left;background-color:#FFEEDD;padding:3px;border:1px solid #BBAA99;border-radius:4px;}
-.shorthand_toggles{text-align:right;}
+h2.toggles{display:inline-block;}
+.toggles{text-align:right;}
 .help_toggles{float:left;}
 .shorthand h2,.help_toggles h2{margin:0px 2px;border-bottom:0px;font-size:14px;display:inline-block;}
 .help h2{margin:0px;}
@@ -135,11 +136,17 @@ Shorthand and isotope output
 #element_list{
 	visibility:hidden;
 	display:none;
-	background-color:#DDEEFF;
+	background-color:#EEE;
+	border:1px solid #AAA;
+	border-radius: 2px;
 	padding:2px;
 	overflow:auto;
 	clear:both;
+	position: absolute;
+	right:2px;
 }
+
+.blank{opacity:0;}
 #element_info{
 	right:440px;position:absolute;top:8px;
 	visibility:hidden;
@@ -155,8 +162,8 @@ Shorthand and isotope output
 	font-size:12px;
 }
 div.c_e{float:left;width:20%;text-align:center;margin-top:0px;}
-td.c_e{width:18px;height:15px;}
-.c_e a{display:block;}
+td.c_e{width:18px;height:15px;background-color:#fff;}
+.c_e a{display:block;;}
 .c_e a:hover{background-color:#CCCCDD;}
 .no_isotopes_entered{background-color:#FFDDBB;}
 
@@ -1590,17 +1597,13 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 </noscript>
 <div class="help">
 	<div class="shorthand">
-		<div class="help_toggles">
-			<h2><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
-		</div>
-		<div class="shorthand_toggles">
-			<h2>
-				<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;"><span class="large-screen">supported </span>shorthand &#x25BC;</a>
-			</h2>
-			<h2>
-				<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
-			</h2>
-		</div>
+		<h2 class="toggles"><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
+		<h2>
+			<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;">shorthand &#x25BC;</a>
+		</h2>
+		<h2>
+			<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
+		</h2>
 		<div id="shorthand" style="visibility:hidden;display:none;"></div>
 		<div id="element_list" style="visibility:hidden;display:none;"></div>
 	</div>
