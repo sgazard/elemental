@@ -322,7 +322,7 @@ var CCalc = {
 	},
 
 	finished_calculating:function(){
-		this.calculating = true;
+		this.calculating = false;
 	},
 
 
@@ -367,16 +367,17 @@ var CCalc = {
 		CCalc.html.setVal('h','%H');
 		CCalc.html.setVal('n','%N');
 		CCalc.html.setVal('multiplier','mult');
-		CCalc.clearHash();
 
 		set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
 		CCalc.html.set('e_c','');CCalc.html.set('e_h','');CCalc.html.set('e_n','');
 		CCalc.html.set('c_found',0);CCalc.html.set('h_found',0);CCalc.html.set('n_found',0)
 		CCalc.html.set('c_expected','');CCalc.html.set('h_expected','');CCalc.html.set('n_expected','');
-		hide(CCalc.html.get_el('chn_copy_paste'));
+		CCalc.html.set('molecular_formula','');
+		if(CCalc.html.get_el('formula').value == ''){
+			hide(CCalc.html.get_el('chn_copy_paste'));
+		}
 		hide(CCalc.html.get_el('composition'));
 		hide(CCalc.html.get_el('working'));
-
 	},
 
 	is_viable:function(item){
@@ -619,7 +620,14 @@ var CCalc = {
 		return window.location.hash.replace(/#/,'');
 	},
 
+	// we want the value without the '#'
+	setHash:function(h){
+		// this.log('setting the hash to '+h);
+		window.location.hash = h
+	},
+
 	clearHash:function(){
+		// this.log('clearing the hash');
 		window.location.hash = '';
 	}
 
@@ -1006,8 +1014,8 @@ function calculate_info(formula){
 
 	CCalc.set_calculating();
 
-	// as we've changed teh forumula, we'll update the hash in the url so that we can share the url with others
-	window.location.hash = formula;
+	// as we've changed the forumula, we'll update the hash in the url so that we can share the url with others
+	CCalc.setHash(formula);
 
   // reset first as we don't always have a clean slate
   CCalc.reset_all();
@@ -1644,22 +1652,25 @@ window.onload=function(){
 /* */
 window.onhashchange = function(){
 	// check if calculating
+	CCalc.log('onhashchange');
 	if(!CCalc.is_calculating()){
 		h = CCalc.getHash();
 		if(h.length>0){
-			CCalc.log('we have a hash')
-			var f = CCalc.html.getEl('formula');
+			// CCalc.log('we have a hash:'+h);
+			var f = CCalc.html.get_el('formula');
 			// update the field
 			f.value = h;
 
 			calculate_info(f.value);calculate_chn();
 		}
 	}
+	else{}
 }
 
 
 function reset_button_click(){
-	 molecular_mass='';var a123 = CCalc.html.get_el('error');a123.innerHTML = '';a123.className='';calculate_info('');CCalc.reset_all();
+	 molecular_mass='';var a123 = CCalc.html.get_el('error');a123.innerHTML = '';a123.className='';calculate_info('');
+	 CCalc.clearHash();CCalc.reset_all();
 }
 //-->
 </script>
@@ -1837,8 +1848,8 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
 	 	<h3>[M<sup>+</sup>] prediction</h3>
 	 	<div class=outline>
 	 		<div class=header><div class="ms_header">Predicted Mass Spectrum for the molecular ion [M<sup>+</sup>].</div></div>
+		 	<div id="mass_spec_graph"></div>
 	 	</div>
-	 	<div id="mass_spec_graph"></div>
 	 </div>	
 
 	 <div class="clearfix"></div>
