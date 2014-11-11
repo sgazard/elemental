@@ -9,13 +9,13 @@
 
 /* general settings */
 body{font-family:arial;font-size:0.8em;padding:3px;margin:0;}
-table{border-collapse:collapse;margin:3px 0px;border:1px solid #387DFF;}
+table{border-collapse:collapse;margin:3px 0px;border:1px solid #EFDE8B;}
 td{padding:2px;}
 table#periodic td{padding:0px;}
 table#periodic a{padding:2px;}
-thead td, .header div,.header{font-weight:bold;background-color:#DDDD88;border:0px}
-table tr{background-color:white;}
-h1,h2,h3,h4{margin:5px 0px 2px;background-color:#EEE;padding:3px;border-bottom:1px solid #BACEE0;}
+thead td, .header div,.header{font-weight:bold;background-color:#9D8929;border:0px;color:#FFF9DB;}
+table tr{}
+h1,h3,h4{margin:5px 0px 2px;background-color:#243969;padding:3px;border-bottom:1px solid #BACEE0;color:#FFF;}
 
 thead td{
 	font-weight:bold;
@@ -41,25 +41,36 @@ noscript{
 	display:block;
 }
 
+/* loader icon
+  - Dark blue spinner on transparent background
+  - will be hidden initially
+ */
+
+.loading{background: none url(data:image/png;base64,R0lGODlhIAAgAPMAAP///wkHnMfH6IiHzri34p2c1z07sFtavdnZ7+Tk87695CUkpwwKnQAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAIAAgAAAE5xDISWlhperN52JLhSSdRgwVo1ICQZRUsiwHpTJT4iowNS8vyW2icCF6k8HMMBkCEDskxTBDAZwuAkkqIfxIQyhBQBFvAQSDITM5VDW6XNE4KagNh6Bgwe60smQUB3d4Rz1ZBApnFASDd0hihh12BkE9kjAJVlycXIg7CQIFA6SlnJ87paqbSKiKoqusnbMdmDC2tXQlkUhziYtyWTxIfy6BE8WJt5YJvpJivxNaGmLHT0VnOgSYf0dZXS7APdpB309RnHOG5gDqXGLDaC457D1zZ/V/nmOM82XiHRLYKhKP1oZmADdEAAAh+QQJCgAAACwAAAAAIAAgAAAE6hDISWlZpOrNp1lGNRSdRpDUolIGw5RUYhhHukqFu8DsrEyqnWThGvAmhVlteBvojpTDDBUEIFwMFBRAmBkSgOrBFZogCASwBDEY/CZSg7GSE0gSCjQBMVG023xWBhklAnoEdhQEfyNqMIcKjhRsjEdnezB+A4k8gTwJhFuiW4dokXiloUepBAp5qaKpp6+Ho7aWW54wl7obvEe0kRuoplCGepwSx2jJvqHEmGt6whJpGpfJCHmOoNHKaHx61WiSR92E4lbFoq+B6QDtuetcaBPnW6+O7wDHpIiK9SaVK5GgV543tzjgGcghAgAh+QQJCgAAACwAAAAAIAAgAAAE7hDISSkxpOrN5zFHNWRdhSiVoVLHspRUMoyUakyEe8PTPCATW9A14E0UvuAKMNAZKYUZCiBMuBakSQKG8G2FzUWox2AUtAQFcBKlVQoLgQReZhQlCIJesQXI5B0CBnUMOxMCenoCfTCEWBsJColTMANldx15BGs8B5wlCZ9Po6OJkwmRpnqkqnuSrayqfKmqpLajoiW5HJq7FL1Gr2mMMcKUMIiJgIemy7xZtJsTmsM4xHiKv5KMCXqfyUCJEonXPN2rAOIAmsfB3uPoAK++G+w48edZPK+M6hLJpQg484enXIdQFSS1u6UhksENEQAAIfkECQoAAAAsAAAAACAAIAAABOcQyEmpGKLqzWcZRVUQnZYg1aBSh2GUVEIQ2aQOE+G+cD4ntpWkZQj1JIiZIogDFFyHI0UxQwFugMSOFIPJftfVAEoZLBbcLEFhlQiqGp1Vd140AUklUN3eCA51C1EWMzMCezCBBmkxVIVHBWd3HHl9JQOIJSdSnJ0TDKChCwUJjoWMPaGqDKannasMo6WnM562R5YluZRwur0wpgqZE7NKUm+FNRPIhjBJxKZteWuIBMN4zRMIVIhffcgojwCF117i4nlLnY5ztRLsnOk+aV+oJY7V7m76PdkS4trKcdg0Zc0tTcKkRAAAIfkECQoAAAAsAAAAACAAIAAABO4QyEkpKqjqzScpRaVkXZWQEximw1BSCUEIlDohrft6cpKCk5xid5MNJTaAIkekKGQkWyKHkvhKsR7ARmitkAYDYRIbUQRQjWBwJRzChi9CRlBcY1UN4g0/VNB0AlcvcAYHRyZPdEQFYV8ccwR5HWxEJ02YmRMLnJ1xCYp0Y5idpQuhopmmC2KgojKasUQDk5BNAwwMOh2RtRq5uQuPZKGIJQIGwAwGf6I0JXMpC8C7kXWDBINFMxS4DKMAWVWAGYsAdNqW5uaRxkSKJOZKaU3tPOBZ4DuK2LATgJhkPJMgTwKCdFjyPHEnKxFCDhEAACH5BAkKAAAALAAAAAAgACAAAATzEMhJaVKp6s2nIkolIJ2WkBShpkVRWqqQrhLSEu9MZJKK9y1ZrqYK9WiClmvoUaF8gIQSNeF1Er4MNFn4SRSDARWroAIETg1iVwuHjYB1kYc1mwruwXKC9gmsJXliGxc+XiUCby9ydh1sOSdMkpMTBpaXBzsfhoc5l58Gm5yToAaZhaOUqjkDgCWNHAULCwOLaTmzswadEqggQwgHuQsHIoZCHQMMQgQGubVEcxOPFAcMDAYUA85eWARmfSRQCdcMe0zeP1AAygwLlJtPNAAL19DARdPzBOWSm1brJBi45soRAWQAAkrQIykShQ9wVhHCwCQCACH5BAkKAAAALAAAAAAgACAAAATrEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq+E71SRQeyqUToLA7VxF0JDyIQh/MVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiRMDjI0Fd30/iI2UA5GSS5UDj2l6NoqgOgN4gksEBgYFf0FDqKgHnyZ9OX8HrgYHdHpcHQULXAS2qKpENRg7eAMLC7kTBaixUYFkKAzWAAnLC7FLVxLWDBLKCwaKTULgEwbLA4hJtOkSBNqITT3xEgfLpBtzE/jiuL04RGEBgwWhShRgQExHBAAh+QQJCgAAACwAAAAAIAAgAAAE7xDISWlSqerNpyJKhWRdlSAVoVLCWk6JKlAqAavhO9UkUHsqlE6CwO1cRdCQ8iEIfzFVTzLdRAmZX3I2SfZiCqGk5dTESJeaOAlClzsJsqwiJwiqnFrb2nS9kmIcgEsjQydLiIlHehhpejaIjzh9eomSjZR+ipslWIRLAgMDOR2DOqKogTB9pCUJBagDBXR6XB0EBkIIsaRsGGMMAxoDBgYHTKJiUYEGDAzHC9EACcUGkIgFzgwZ0QsSBcXHiQvOwgDdEwfFs0sDzt4S6BK4xYjkDOzn0unFeBzOBijIm1Dgmg5YFQwsCMjp1oJ8LyIAACH5BAkKAAAALAAAAAAgACAAAATwEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq+E71SRQeyqUToLA7VxF0JDyIQh/MVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiUd6GGl6NoiPOH16iZKNlH6KmyWFOggHhEEvAwwMA0N9GBsEC6amhnVcEwavDAazGwIDaH1ipaYLBUTCGgQDA8NdHz0FpqgTBwsLqAbWAAnIA4FWKdMLGdYGEgraigbT0OITBcg5QwPT4xLrROZL6AuQAPUS7bxLpoWidY0JtxLHKhwwMJBTHgPKdEQAACH5BAkKAAAALAAAAAAgACAAAATrEMhJaVKp6s2nIkqFZF2VIBWhUsJaTokqUCoBq+E71SRQeyqUToLA7VxF0JDyIQh/MVVPMt1ECZlfcjZJ9mIKoaTl1MRIl5o4CUKXOwmyrCInCKqcWtvadL2SYhyASyNDJ0uIiUd6GAULDJCRiXo1CpGXDJOUjY+Yip9DhToJA4RBLwMLCwVDfRgbBAaqqoZ1XBMHswsHtxtFaH1iqaoGNgAIxRpbFAgfPQSqpbgGBqUD1wBXeCYp1AYZ19JJOYgH1KwA4UBvQwXUBxPqVD9L3sbp2BNk2xvvFPJd+MFCN6HAAIKgNggY0KtEBAAh+QQJCgAAACwAAAAAIAAgAAAE6BDISWlSqerNpyJKhWRdlSAVoVLCWk6JKlAqAavhO9UkUHsqlE6CwO1cRdCQ8iEIfzFVTzLdRAmZX3I2SfYIDMaAFdTESJeaEDAIMxYFqrOUaNW4E4ObYcCXaiBVEgULe0NJaxxtYksjh2NLkZISgDgJhHthkpU4mW6blRiYmZOlh4JWkDqILwUGBnE6TYEbCgevr0N1gH4At7gHiRpFaLNrrq8HNgAJA70AWxQIH1+vsYMDAzZQPC9VCNkDWUhGkuE5PxJNwiUK4UfLzOlD4WvzAHaoG9nxPi5d+jYUqfAhhykOFwJWiAAAIfkECQoAAAAsAAAAACAAIAAABPAQyElpUqnqzaciSoVkXVUMFaFSwlpOCcMYlErAavhOMnNLNo8KsZsMZItJEIDIFSkLGQoQTNhIsFehRww2CQLKF0tYGKYSg+ygsZIuNqJksKgbfgIGepNo2cIUB3V1B3IvNiBYNQaDSTtfhhx0CwVPI0UJe0+bm4g5VgcGoqOcnjmjqDSdnhgEoamcsZuXO1aWQy8KAwOAuTYYGwi7w5h+Kr0SJ8MFihpNbx+4Erq7BYBuzsdiH1jCAzoSfl0rVirNbRXlBBlLX+BP0XJLAPGzTkAuAOqb0WT5AH7OcdCm5B8TgRwSRKIHQtaLCwg1RAAAOwAAAAAAAAAAAA==) no-repeat center center;height:40px;}
+
 /* the outer wrapper */
 #calculator{
 	border-radius:5px;
-	background-color:#C7E1F9;
+	background-color:#C3CBDF;
 	padding:5px;
 	max-width:600px;
 	margin-bottom:20px;
 }
 
 /* Composition */
-.outline{border:1px solid #387DFF;border-radius:3px; overflow:hidden;background-color:#FFF;}
+.outline{border:1px solid #EFDE8B;border-radius:3px; overflow:hidden;background-color:#FFF;}
 .header{margin-top:0;}
 
 div.chn div{background-color:#DDDDFF;}
 .align_r{text-align:right;}
 .code{font-family:courier;color:black}
-.error{
+div.error{
 	color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;border-radius:2px;
 	background-color:#FFF;
+}
+
+input.error{
+	border:1px solid red;color:red;
 }
 .warning{text-align:center;float:left;width:594px;clear:both;border:1px solid orange;padding:2px;background-color:#FFEECC;}
 .formula{color:green;font-weight:bold;}
@@ -74,14 +85,14 @@ div.chn div{background-color:#DDDDFF;}
 /*
 Help and shorthand links
 */
-.help {Position:absolute;right:0px;width:430px;text-align:left;background-color:#FFEEDD;padding:3px;border:1px solid #BBAA99;padding-top:25px;border-radius:4px;}
-.shorthand_toggles{text-align:right;}
+.help {position:absolute;right:0px;width:30%;text-align:left;background-color:#FFEBDB;padding:3px;border:1px solid #BBAA99;border-radius:4px;}
+h2.toggles{display:inline-block;}
+.toggles{text-align:right;}
 .help_toggles{float:left;}
-.shorthand h2,.help_toggles h2{margin:0px 2px;border-bottom:0px;font-size:14px;display:inline-block;}
+.shorthand h2,.help_toggles h2{margin:0px 2px;border-bottom:0px;font-size:14px;display:inline-block;background-color:none;}
 .help h2{margin:0px;}
 .shorthand{
-	position:absolute;
-	right:2px;top:4px;width:433px;
+
 	overflow:auto;
 	background-color:#EEEEEE;border-bottom:1px solid #BACEE0;
 }
@@ -119,24 +130,35 @@ Shorthand and isotope output
 #shorthand{
 	visibility:hidden;
 	display:none;
-	background-color:#BBDDBB;
+	/*background-color:#BBDDBB;*/
 	clear:both;
 }
-#element_list{
+#shorthand table{background-color:#FFF;}
+#element_list,#shorthand{
 	visibility:hidden;
 	display:none;
-	background-color:#DDEEFF;
+	background-color:#FFF9DB;
+	border:1px solid #6476A0;
+	border-radius: 2px;
 	padding:2px;
 	overflow:auto;
 	clear:both;
+	position: absolute;
+	right:2px;
 }
+
+#element_list table{
+	margin:0px;
+}
+
+.blank{opacity:0;}
 #element_info{
 	right:440px;position:absolute;top:8px;
 	visibility:hidden;
 	display:none;
 	width:150px;
-	border:1px solid #4499FF;
-	background-color:#DDEEFF;
+	border:1px solid #6476a0;
+	background-color:#fff9db;
 	border-radius:2px;
 }
 #element_info b{display:none;}
@@ -145,10 +167,10 @@ Shorthand and isotope output
 	font-size:12px;
 }
 div.c_e{float:left;width:20%;text-align:center;margin-top:0px;}
-td.c_e{width:18px;height:15px;}
-.c_e a{display:block;}
+td.c_e{width:18px;height:15px;background-color:#fff;}
+.c_e a{display:block;;}
 .c_e a:hover{background-color:#CCCCDD;}
-.no_isotopes_entered{background-color:#FFDDBB;}
+.no_isotopes_entered{background-color:#ffebdb;}
 
 /* elemental composition output */
 .element{    float:left;width:20%;}
@@ -159,7 +181,7 @@ td.c_e{width:18px;height:15px;}
 .ms_header{float:left;width:100%;}
 .m_z{padding:0px;float:left;width:10%;font-style:italic;}
 .ms_intensity{float:left;width:78%;}
-.ms_intensity div.percentage{height:10px;background-color:#000080;margin-bottom:4px;}
+.ms_intensity div.percentage{height:10px;margin-bottom:4px;}
 .ms_intensity_num{float:left;width:12%; text-align:right;}
 .info{width:100%;clear:both;}
 #conversion_section{width:550px;float:left;}
@@ -179,10 +201,14 @@ td.c_e{width:18px;height:15px;}
 .e_c input.field_enter_text, .e_h input.field_enter_text, .e_n input.field_enter_text, .multiplier input.field_enter_text{color:black;margin-right:5px;}
 #chn_copy_paste{clear:both;padding-top:3px;padding-left:3px;}
 /* 'footer' */
-.bottom{
-	position: fixed;bottom: 10px;
+.bottom,.iupac{
 	margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right
 }
+.iupac a{color: rgb(136, 136, 136);}
+.bottom{
+		position: fixed;bottom: 10px;
+}
+
 #bottom_left{left:10px;}
 #bottom_right{right:10px;}
 
@@ -264,7 +290,7 @@ var CCalc = {
 	shorthand:'',
 	periodic:'',
 
-	/* store values already iterated over, so don't have to re-predict values of formula is same */
+	/* store values already iterated over, so don't have to re-predict values of formula if same */
 	cache_initial:{
 		formula:'',
 		formula_expanded:'',
@@ -275,6 +301,15 @@ var CCalc = {
 		m_z:''
 	},
 	cache:[],
+
+	cache_check:function(f){
+		return (typeof(CCalc.cache[f]) != 'undefined')?true:false;
+	},
+
+	/* this initialises the cache only*/
+	cache_add:function(f){
+		CCalc.cache[f] = CCalc.cache_initial;
+	},
 	
 	/* browser console logging? */
 	logging:true,
@@ -320,13 +355,24 @@ var CCalc = {
 
 	},
 
+	is_viable:function(item){
+		return this.is_element(item) || this.is_shorthand(item);
+	},
+
+	is_shorthand:function(item){
+		return (CCalc.fragments[item])?true:false;
+	},
+	is_element:function(item){
+		return (CCalc.elemental[item])?true:false;
+	},
+
 	/*
 	takes a string, expands it fully out to show how many of a certain element are therein
 	does not do the expanding of shorthand, but this is done separately
 	*/
 	expand:function(formula){
 		this.expand_it++;
-		this.log(expand_formula_iteration+") Given the formula '"+formula+"'");
+		// this.log(expand_formula_iteration+") Given the formula '"+formula+"'");
 
 		var curr_elem_num = 0;var tmp_formula;
 	
@@ -348,7 +394,6 @@ var CCalc = {
 					if(elements_match[i]){
 	
 						var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
-	//					tmp_string+='<br><b>matched items in : '+tmp_match[0]+'</'+'b>';
 						// for the elements already added, we can use to check if already in 'elem_added'/not
 						var pattern= new RegExp(tmp_match[1]+',');
 						// force it to definitely be a string, and with no whitespace at the ends
@@ -357,7 +402,6 @@ var CCalc = {
 						// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
 						if(!pattern.test(elem_added) && CCalc.elemental[tmp_match[1]]){
 							CCalc.elemental[tmp_match[1]][3] = 0;
-	//						tmp_string += "<br>setting CCalc.elemental[tmp_match[2]][1] AND CCalc.elemental[tmp_match[2]][2] to '0' the mass and number of '"+tmp_match[1]+"' since the element (which is valid) was not found in '"+elem_added+"' using the pattern "+pattern+"";
 						}
 						// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
 						if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
@@ -426,7 +470,7 @@ var CCalc = {
 				if(formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i)){
 					// temporarily get the information out
 					tmp_match = formula.match(/\(([a-z0-9]*)\)([0-9\.]*)/i);
-					this.log(tmp_match);
+					// this.log(tmp_match);
 				}
 				/* something's gone really wrong here, and we'll stop */
 				else{
@@ -476,6 +520,75 @@ var CCalc = {
 		}
 
 		return(formula);
+	},
+
+	simplify:function(formula){
+		// formula needs expanding
+		formula = this.expand_brackets(formula);
+
+		// to store the elements found
+		var condensed = [];
+		var regex = /([A-Z][a-z]*)([0-9]*)/g;
+		while(matches = regex.exec(formula)){
+			// elements with an implicit number of 1
+			if(matches[2] == ''){matches[2] = 1;}
+
+			// not found already?
+			if(!condensed[matches[1]]){
+				condensed[matches[1]] = 0;
+			}
+
+			// add in the current number of matches
+			condensed[matches[1]] += parseInt(matches[2]);
+		}
+
+
+
+		// stupid as this looks, we're going to rebuild the formula with expanded
+		var tmp = '';
+		var redo = false;
+		for (i in condensed){
+			if(CCalc.is_shorthand(i)){
+				tmp +='('+CCalc.fragments[i]+')'+condensed[i];
+				redo=true;
+			}
+			else{
+				tmp += i+condensed[i];
+			}
+		}
+
+		// get a consistent method of the condensed formula
+		var ret = '';
+
+		// no shorthand present
+		if(redo == false){
+			condensed.sort();	
+			// loop the data to add in
+			for(i in condensed){
+				// implicit '1' being snuffed
+				if(condensed[i] ==1){
+					condensed[i] = '';
+				}
+				ret += i+condensed[i];
+			}
+		}
+		else{
+			ret = this.simplify(tmp);
+		}
+
+
+		return ret;
+	},
+
+	checkShared: function(){
+		el = CCalc.html.get_el('formula');
+		// get the window.location.hash and see if we need take information from this
+		// note a browser might prefill this on a restore, or on a reload
+		if(el.value=='' && window.location.hash.length>0){
+			this.log('got an hash to deal with');
+			// perhaps a bit too trusting?
+			el.value = window.location.hash.replace(/#/,'');
+		}
 	}
 
 }
@@ -533,6 +646,7 @@ CCalc.html = {
 		if(document.getElementById){
 			return document.getElementById(id);
 		}
+		else{return false;}
 	},
 
 	/*
@@ -555,6 +669,27 @@ CCalc.html = {
 			el.value = val;
 		}
 	},
+
+	errorText:function(id){
+		var el = CCalc.html.get_el(id);
+		if(el === false || typeof(el) =='undefined'){return;}
+		if(el.className.match(/ ?error ?/)){return;}
+		set_class(el,'error');
+	},
+
+	removeClass:function (id,to_remove){
+		var el = CCalc.html.get_el(id);
+		if(!el || el === false || typeof(el) =='undefined'){return;}
+		var reg = new RegExp(' ?'+to_remove+' ?');
+		var cn = el.className.replace(reg,'');
+		el.className = cn;
+		;
+	},
+
+	/* adds in the subscripts as needed */
+	make_pretty: function(f){
+		return f.replace(/(\d+)/g,"<sub>$1</sub>");
+	}
 
  }
 </script>
@@ -828,6 +963,9 @@ function calculate_info(formula){
 	if((formula == prev_formula) && (show_mass_spec == (CCalc.html.get_el('show_mass_spec').checked? 1:0))){return false;}
 	else{prev_formula = formula;}
 
+	// as we've changed teh forumula, we'll update the hash in the url so that we can share the url with others
+	window.location.hash = formula;
+
   // reset first as we don't always have a clean slate
   CCalc.reset_all();
   if(formula.replace(/ */,'')==''){
@@ -843,12 +981,18 @@ function calculate_info(formula){
 	if(document.getElementById){
 		// to replace the other function
 		CCalc.expand(formula);
+		formula_simplified = CCalc.simplify(formula);
 		//expand_formula(formula);
+
+		if(CCalc.cache_check(formula_simplified) == false){
+			CCalc.cache_add(formula_simplified);
+		}
 
 	
 		// output
  	// make the formula look pretty
-		formula_formatted = formula.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+		// formula_formatted = formula.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+		formula_formatted = CCalc.html.make_pretty(formula);
 		// add to the string
 
 		if(elem_added.length>0){
@@ -916,9 +1060,10 @@ function calculate_info(formula){
 			var formula_no_html = formula_simplified;
 
 			// format the simplified formula
-			formula_simplified = formula_simplified.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+			// formula_simplified = formula_simplified.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+			formula_simplified = CCalc.html.make_pretty(formula_simplified);
 			// remove 'C<sub>1</'+'sub>'
-			formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
+			// formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
 
 			var msds_link = "http://www.sigmaaldrich.com/catalog/search/SearchResultsPage?Query="+formula_no_html+"&Scope=MolecularFormulaSearch";
 			msds_link = "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>";
@@ -1007,17 +1152,25 @@ function expand_formula(formula){
 }
 
 
+
+
 // show the shorthand supported
 function shorthand(visible){
 	var id;
 	if(CCalc.html.get_el('shorthand')){
 		if(CCalc.shorthand ===''){
-			var shorthand = 'Supported:<br>';
+			var shorthand = 'Shorthand:<br>';
 			// gather the information
-			var i;
+			var i,f;
 			shorthand +='<table>';
 			// generate all rows
-			for(i in fragments){shorthand += CCalc.html.tr(Array(i,CCalc.fragments[i]));}
+			for(i in CCalc.fragments){
+				// it's nicer pretty
+				f = CCalc.html.make_pretty(CCalc.fragments[i]);
+				// HTML building
+				shorthand += CCalc.html.tr(Array(i,'=&gt;',f));
+			}
+
 			shorthand += '</table>';
 			CCalc.shorthand = shorthand;
 		}
@@ -1099,7 +1252,7 @@ function element_list(visible){
 			element_list_2 += '</'+'tr></'+'table>';
 
 			// add in source of data
-			element_list_2 += "<div style=\"float:left;width:100%;margin-top:5px;text-align:center\"><a href=\"http://www.iupac.org/reports/1998/7001rosman/iso.pdf\" style=\"text-decoration:none;\" target=\"_blank\">Isotope data from 1997 Iupac report</"+"a></"+"div>";
+			element_list_2 += '<div class="iupac"><a href="http://www.iupac.org/reports/1998/7001rosman/iso.pdf" style="text-decoration:none;" target="_blank">Isotope data from Iupac report</'+'a></'+'div>';
 
 			// cache this
 			CCalc.periodic = element_list_2;
@@ -1169,11 +1322,21 @@ function show_hide(element){
 }
 
 function update_mmols(mol_mass){;
+	if(isNaN(CCalc.html.getVal('mass'))){
+		CCalc.html.errorText('mass');
+		return;
+	}
+	CCalc.html.removeClass('mass','error');
 	CCalc.html.setVal('mmols', CCalc.html.getVal('mass')*CCalc.html.getVal('mass_multiplier')/mol_mass/CCalc.html.getVal('mmol_multiplier'));
 	// reset the equivalents
 	CCalc.html.setVal('equivalents',1);
 }
-function update_mass(mol_mass){;
+function update_mass(mol_mass){
+	if(isNaN(CCalc.html.getVal('mmols'))){
+		CCalc.html.errorText('mmols');
+		return;
+	}
+	CCalc.html.removeClass('mmols','error');
 	// update the mass
 	CCalc.html.setVal('mass', CCalc.html.getVal('mmols')*CCalc.html.getVal('mmol_multiplier')*CCalc.html.getVal('equivalents')*mol_mass/CCalc.html.getVal('mass_multiplier'));
 	// update the volume
@@ -1323,11 +1486,11 @@ function toggleInputText(field_obj,initial_text,initial_class,highlighted_class)
 function set_class(objectID,new_class){
 	if (document.getElementById) {
 		// perhaps already an object passed?
-		if(objectID.style){
-			objectID.className = new_class;
+		if(objectID && typeof(objectID) == 'object' && objectID.style){
+			objectID.className += ' '+new_class;
 		}
 		else if(CCalc.html.get_el(objectID)){
-			CCalc.html.get_el(objectID).className = new_class;
+			CCalc.html.get_el(objectID).className += ' '+new_class;
 		}
 	}
 	else if (document.layers){
@@ -1416,7 +1579,13 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 
 */
 window.onload=function(){
-  document.chemicals.formula.focus();calculate_info(document.chemicals.formula.value);calculate_chn();
+  // so we can start typing
+  document.chemicals.formula.focus();
+
+  // do we have an shared url?
+  CCalc.checkShared();
+
+  calculate_info(document.chemicals.formula.value);calculate_chn();
 	/* add event listeners */
 	document.getElementById('reset_form').addEventListener('click',reset_button_click);
 }
@@ -1436,6 +1605,19 @@ function reset_button_click(){
 Hello.  You appear to have Javascript disabled.  Unfortunately for you, this tool requires javascript tuned on.  Please enable it, and refresh the page
 </noscript>
 <div class="help">
+	<div class="shorthand">
+		<h2 class="toggles"><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
+		<h2>
+			<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;">shorthand &#x25BC;</a>
+		</h2>
+		<h2>
+			<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
+		</h2>
+	</div>
+	<div id="element_list" style="visibility:hidden;display:none;"></div>
+	<div id="shorthand" style="visibility:hidden;display:none;"></div>
+	<div id="element_info" style="visibility:hidden;display:none;"></div>
+
 	<div id="help"><b>How to use</b>:
 	<ol><li>Place your cursor in the field at the top-left (it should be automatically there).</li>
 	
@@ -1478,28 +1660,12 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 
 <div id="calculator">
 <h1>Chemical composition calculations</h1>
-<div class="shorthand">
-	<div class="help_toggles">
-		<h2><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
-	</div>
-	<div class="shorthand_toggles">
-		<h2>
-			<a href="#" onclick="shorthand(document.getElementById('shorthand').style.visibility);return false;"><span class="large-screen">supported </span>shorthand &#x25BC;</a>
-		</h2>
-		<h2>
-			<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
-		</h2>
-	</div>
-	<div id="shorthand" style="visibility:hidden;display:none;"></div>
-	<div id="element_list" style="visibility:hidden;display:none;"></div>
-</div>
-<div id="element_info" style="visibility:hidden;display:none;"></div>
 
 <div class="auto_overflow">
 <form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
 <p>
 	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text">
-	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"><label for="show_mass_spec">predict [M<sup>+</sup>] peak </label><input id="reset_form" value="clear" type="reset">
+	<input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"> <label for="show_mass_spec">predict [M<sup>+</sup>] peak </label><input id="reset_form" value="reset" type="reset">
 </p>
 <div class="auto_overflow">
  <div id="error"></div>
@@ -1547,8 +1713,8 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 				<!--
 				// modern browsers
 				var img_src = 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAZCAYAAACVfbYAAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2AMNCyk07tQSUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAABRElEQVRYw92XIRKDMBBFSSa6qqZTWcEBuAOnwFZ1MJgKNKIGw1TVcoregQMgKjs1VRyAVKWTCbsN0JKkWZsJ5GV3/98EgcdBXD1Ymqb803pVVe+z0zzkfdEOWJirUPvTY7B2OW7QfRAgczVTEIgAxiBVQONwNA/hcuvgbAkYdQ37jgxIfRQSAe4lnABE4da7O/9nuL5oCfsnMCEk59VVCwb6nAz2vG2N+aDO11Rvw8RFVktiOmNLXJiAU32O+tRj4PhlEsxkqRPTmRsLJ/cg1mu62ZLauNGxYHVUfjX5MPVWbamlGnVUBkmTTRYWVC3VEl1S2bA4dHEgZy1pMq2vYeJCbTc9ljUI+GezpQ1ACEKAzgF0bnCGRGSKsMil6eWrQPQcs/Vj2ANiPmcvNltSHzPmLBzkbWP8Dp0tXQrs6aMbwaB4AbAJruvzJ6U9AAAAAElFTkSuQmCC';
-				// IE does not support this
-				if(navigator.appName == 'Microsoft Internet Explorer'){img_src = 'chemical_formula_toggle.png'}
+				// IE7 and below do not support this
+				if(navigator.appName == 'Microsoft Internet Explorer' && navigator.appVersion <8){img_src = 'chemical_formula_toggle.png'}
 				// bad style, but it works easily
 				document.write('<img src="'+img_src+'" usemap="#arrows" border=0>');
 				// -->
@@ -1600,6 +1766,7 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
 </div>
 <div class="auto_overflow">
  <h3 id="composition_title">Composition</h3>
+ <div class="loading" style="display:none"></div>
  <div id="info" class="info">&nbsp;</div>
  <div class="clearfix"></div>
 </div>
