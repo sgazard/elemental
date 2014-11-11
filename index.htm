@@ -69,6 +69,7 @@ noscript{
 /* Composition */
 .outline{border:1px solid #EFDE8B;border-radius:3px; overflow:hidden;background-color:#FFF;}
 .header{margin-top:0;}
+#share{float:right;}
 
 div.chn div{background-color:#DDDDFF;}
 .align_r{text-align:right;}
@@ -179,7 +180,7 @@ div.c_e{float:left;width:20%;text-align:center;margin-top:0px;}
 td.c_e{width:18px;height:15px;background-color:#fff;}
 .c_e a{display:block;;}
 .c_e a:hover{background-color:#CCCCDD;}
-.no_isotopes_entered{background-color:#ffebdb;}
+.no_isotopes_entered{background-color:#ffebdb;display:none;}
 
 /* elemental composition output */
 .element{    float:left;width:20%;}
@@ -373,10 +374,10 @@ var CCalc = {
 		CCalc.html.set('c_expected','');CCalc.html.set('h_expected','');CCalc.html.set('n_expected','');
 		CCalc.html.set('molecular_formula','');
 		if(CCalc.html.get_el('formula').value == ''){
-			hide(CCalc.html.get_el('chn_copy_paste'));
+			hide(('chn_copy_paste'));
 		}
-		hide(CCalc.html.get_el('composition'));
-		hide(CCalc.html.get_el('working'));
+		hide(('composition'));
+		hide(('working'));
 	},
 
 	is_viable:function(item){
@@ -1022,7 +1023,7 @@ function calculate_info(formula){
 		return;
 	}
 
-	show(CCalc.html.get_el('working'));
+	show(('working'));
 
 	// update the show mass spec field if we gt this far
 	show_mass_spec = CCalc.html.get_el('show_mass_spec').checked? 1:0;
@@ -1057,7 +1058,7 @@ function calculate_info(formula){
 			var show_ms = false;if((CCalc.html.get_el('show_mass_spec').checked == true)){show_ms = true;}
 
 			// show the header
-			show(CCalc.html.get_el('composition'));
+			show(('composition'));
 			
 			// array to pass to the mass spec function arrays of(element name, number_of elements)
 			var ms = new Array();var len = elem_split.length;var j=0;
@@ -1138,19 +1139,19 @@ function calculate_info(formula){
 		// update the div
 		// get a reference to the DIV we're going to populate
 		
-		show(CCalc.html.get_el('composition'));
+		show(('composition'));
 		info = CCalc.html.set('condensed',tmp_string);
 		info = CCalc.html.set('info',tmp_string2);
 
 		var ms_ga = (show_ms)?'m/z shown':'';
 		if(show_ms){
-			show(CCalc.html.get_el('mass_spec'));
+			show(('mass_spec'));
 			CCalc.html.set('mass_spec_graph', ms);
 		}
-		else{hide(CCalc.html.get_el('mass_spec'));}
+		else{hide(('mass_spec'));}
 		info.style.className = 'info';
 		
-		hide(CCalc.html.get_el('working'));
+		hide(('working'));
 		CCalc.finished_calculating();
 
 		// google analytics
@@ -1333,24 +1334,28 @@ function element_list(visible){
 }
 
 function show_element_info(id){
+	var element_data,element_isotopes = '';
+	hide(('no_isotopes_entered'));
+
 	if(CCalc.html.get_el('element_info')){
 		if(CCalc.elemental[id]){
-			var str = "<i>"+id+" </"+"i><div><span class='large-screen'>Mass:</span><b>(</b>"+CCalc.elemental[id][2]+"<b>)</b></div>";
+			element_data = "<i>"+id+" </"+"i><div><span class='large-screen'>Mass:</span><b>(</b>"+CCalc.elemental[id][2]+"<b>)</b></div>";
 			var i;
 			if(typeof(CCalc.elemental[id][5]) == 'object'){
-				str+="<div><b> - </b><span class='large-screen'>Monoisotopic mass:</span> "+CCalc.elemental[id][4]+" </div>"
-				str+="<h6><span class='large-screen'> Isotopes &amp; abundances</span>:</"+"h6><b><br/></b>";
-				var tmp_str= '';
+				element_data+="<div><b> - </b><span class='large-screen'>Monoisotopic mass:</span> "+CCalc.elemental[id][4]+" </div>"
+
+				// show out all the isotopes (or not)
 				var summing = 0;
 				for(i in CCalc.elemental[id][5]){
-					tmp_str+="<div class='iso'>"+i+" <span class='large-screen'>- </span><b>: </b>"+CCalc.elemental[id][5][i]+"%<b>, </b></"+"div>";
+					element_isotopes+="<div class='iso'>"+i+" <span class='large-screen'>- </span><b>: </b>"+CCalc.elemental[id][5][i]+"%<b>, </b></"+"div>";
 					summing = summing + CCalc.elemental[id][5][i];
 				}
-				if(tmp_str.length==0){tmp_str = "<div class=\"no_isotopes_entered\">No isotopes known/entered for this element</"+"div>";}
-				str+=tmp_str;
-// 					str+= '<br>Total abundance check: '+summing+'%';
+				if(element_isotopes.length==0){
+					show(('no_isotopes_entered'));
+				}
 			}
-			CCalc.html.set('element_info',str);
+			CCalc.html.set('element_data',element_data);
+			CCalc.html.set('element_isotopes',element_isotopes);
 			show_hide('element_info');
 
 		}
@@ -1359,6 +1364,9 @@ function show_element_info(id){
 
 /* pass an object */
 function show(o){
+	if(!o.style && typeof(o)=='string'){
+		o = CCalc.html.get_el(o);
+	}
 	
 	o.style.visibility = 'visible';
 	o.style.display = 'block';
@@ -1366,6 +1374,9 @@ function show(o){
 
 /* pass an object */
 function hide(o){
+	if(!o.style && typeof(o)=='string'){
+		o = CCalc.html.get_el(o);
+	}
 	o.style.visibility = "hidden";
 	o.style.display = 'none';
 }
@@ -1698,7 +1709,16 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 	</div>
 	<div id="element_list" style="visibility:hidden;display:none;"></div>
 	<div id="shorthand" style="visibility:hidden;display:none;"></div>
-	<div id="element_info" style="visibility:hidden;display:none;"></div>
+	<!-- placeholder for the element information -->
+	<div id="element_info" style="visibility:hidden;display:none;">
+		<!-- data about the elements -->
+		<div id="element_data"></div>
+		<!-- isotope list here -->
+		<h6><span class='large-screen'> Isotopes &amp; abundances</span>:</h6><b><br/></b>
+		<div id="element_isotopes"></div>
+
+		<div id="no_isotopes_entered" class="no_isotopes_entered">No isotopes known/entered for this element</div>
+	</div>
 
 	<div id="help">
 		<b>How to use</b>:
@@ -1733,7 +1753,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 </div>
 
 <div id="calculator">
-<h1>Chemical composition calculations</h1>
+<h1>Chemical composition calculations<span id="share">share</span></h1>
 
 <div class="auto_overflow">
 <form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
