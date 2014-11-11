@@ -9,13 +9,13 @@
 
 /* general settings */
 body{font-family:arial;font-size:0.8em;padding:3px;margin:0;}
-table{border-collapse:collapse;margin:3px 0px;border:1px solid #387DFF;}
+table{border-collapse:collapse;margin:3px 0px;border:1px solid #EFDE8B;}
 td{padding:2px;}
 table#periodic td{padding:0px;}
 table#periodic a{padding:2px;}
-thead td, .header div,.header{font-weight:bold;background-color:#DDDD88;border:0px}
+thead td, .header div,.header{font-weight:bold;background-color:#9D8929;border:0px;color:#FFF9DB;}
 table tr{}
-h1,h2,h3,h4{margin:5px 0px 2px;background-color:#EEE;padding:3px;border-bottom:1px solid #BACEE0;}
+h1,h3,h4{margin:5px 0px 2px;background-color:#243969;padding:3px;border-bottom:1px solid #BACEE0;color:#FFF;}
 
 thead td{
 	font-weight:bold;
@@ -51,14 +51,14 @@ noscript{
 /* the outer wrapper */
 #calculator{
 	border-radius:5px;
-	background-color:#C7E1F9;
+	background-color:#C3CBDF;
 	padding:5px;
 	max-width:600px;
 	margin-bottom:20px;
 }
 
 /* Composition */
-.outline{border:1px solid #387DFF;border-radius:3px; overflow:hidden;background-color:#FFF;}
+.outline{border:1px solid #EFDE8B;border-radius:3px; overflow:hidden;background-color:#FFF;}
 .header{margin-top:0;}
 
 div.chn div{background-color:#DDDDFF;}
@@ -85,11 +85,11 @@ input.error{
 /*
 Help and shorthand links
 */
-.help {position:absolute;right:0px;width:30%;text-align:left;background-color:#FFEEDD;padding:3px;border:1px solid #BBAA99;border-radius:4px;}
+.help {position:absolute;right:0px;width:30%;text-align:left;background-color:#FFEBDB;padding:3px;border:1px solid #BBAA99;border-radius:4px;}
 h2.toggles{display:inline-block;}
 .toggles{text-align:right;}
 .help_toggles{float:left;}
-.shorthand h2,.help_toggles h2{margin:0px 2px;border-bottom:0px;font-size:14px;display:inline-block;}
+.shorthand h2,.help_toggles h2{margin:0px 2px;border-bottom:0px;font-size:14px;display:inline-block;background-color:none;}
 .help h2{margin:0px;}
 .shorthand{
 
@@ -130,14 +130,15 @@ Shorthand and isotope output
 #shorthand{
 	visibility:hidden;
 	display:none;
-	background-color:#BBDDBB;
+	/*background-color:#BBDDBB;*/
 	clear:both;
 }
-#element_list{
+#shorthand table{background-color:#FFF;}
+#element_list,#shorthand{
 	visibility:hidden;
 	display:none;
-	background-color:#EEE;
-	border:1px solid #AAA;
+	background-color:#FFF9DB;
+	border:1px solid #6476A0;
 	border-radius: 2px;
 	padding:2px;
 	overflow:auto;
@@ -146,14 +147,18 @@ Shorthand and isotope output
 	right:2px;
 }
 
+#element_list table{
+	margin:0px;
+}
+
 .blank{opacity:0;}
 #element_info{
 	right:440px;position:absolute;top:8px;
 	visibility:hidden;
 	display:none;
 	width:150px;
-	border:1px solid #4499FF;
-	background-color:#DDEEFF;
+	border:1px solid #6476a0;
+	background-color:#fff9db;
 	border-radius:2px;
 }
 #element_info b{display:none;}
@@ -165,7 +170,7 @@ div.c_e{float:left;width:20%;text-align:center;margin-top:0px;}
 td.c_e{width:18px;height:15px;background-color:#fff;}
 .c_e a{display:block;;}
 .c_e a:hover{background-color:#CCCCDD;}
-.no_isotopes_entered{background-color:#FFDDBB;}
+.no_isotopes_entered{background-color:#ffebdb;}
 
 /* elemental composition output */
 .element{    float:left;width:20%;}
@@ -176,7 +181,7 @@ td.c_e{width:18px;height:15px;background-color:#fff;}
 .ms_header{float:left;width:100%;}
 .m_z{padding:0px;float:left;width:10%;font-style:italic;}
 .ms_intensity{float:left;width:78%;}
-.ms_intensity div.percentage{height:10px;background-color:#000080;margin-bottom:4px;}
+.ms_intensity div.percentage{height:10px;margin-bottom:4px;}
 .ms_intensity_num{float:left;width:12%; text-align:right;}
 .info{width:100%;clear:both;}
 #conversion_section{width:550px;float:left;}
@@ -196,10 +201,14 @@ td.c_e{width:18px;height:15px;background-color:#fff;}
 .e_c input.field_enter_text, .e_h input.field_enter_text, .e_n input.field_enter_text, .multiplier input.field_enter_text{color:black;margin-right:5px;}
 #chn_copy_paste{clear:both;padding-top:3px;padding-left:3px;}
 /* 'footer' */
-.bottom{
-	position: fixed;bottom: 10px;
+.bottom,.iupac{
 	margin-top: 10px; color: rgb(136, 136, 136); font-size: 0.9em;text-align:right
 }
+.iupac a{color: rgb(136, 136, 136);}
+.bottom{
+		position: fixed;bottom: 10px;
+}
+
 #bottom_left{left:10px;}
 #bottom_right{right:10px;}
 
@@ -1150,7 +1159,7 @@ function shorthand(visible){
 	var id;
 	if(CCalc.html.get_el('shorthand')){
 		if(CCalc.shorthand ===''){
-			var shorthand = 'Supported:<br>';
+			var shorthand = 'Shorthand:<br>';
 			// gather the information
 			var i,f;
 			shorthand +='<table>';
@@ -1243,7 +1252,7 @@ function element_list(visible){
 			element_list_2 += '</'+'tr></'+'table>';
 
 			// add in source of data
-			element_list_2 += "<div style=\"float:left;width:100%;margin-top:5px;text-align:center\"><a href=\"http://www.iupac.org/reports/1998/7001rosman/iso.pdf\" style=\"text-decoration:none;\" target=\"_blank\">Isotope data from 1997 Iupac report</"+"a></"+"div>";
+			element_list_2 += '<div class="iupac"><a href="http://www.iupac.org/reports/1998/7001rosman/iso.pdf" style="text-decoration:none;" target="_blank">Isotope data from Iupac report</'+'a></'+'div>';
 
 			// cache this
 			CCalc.periodic = element_list_2;
@@ -1604,9 +1613,9 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 		<h2>
 			<a href="#" onclick="element_list(document.getElementById('element_list').style.visibility);return false;">elements &amp; isotopes  &#x25BC;</a>
 		</h2>
-		<div id="shorthand" style="visibility:hidden;display:none;"></div>
-		<div id="element_list" style="visibility:hidden;display:none;"></div>
 	</div>
+	<div id="element_list" style="visibility:hidden;display:none;"></div>
+	<div id="shorthand" style="visibility:hidden;display:none;"></div>
 	<div id="element_info" style="visibility:hidden;display:none;"></div>
 
 	<div id="help"><b>How to use</b>:
