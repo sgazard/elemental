@@ -286,6 +286,7 @@ the event and formula will be logged, as that will be all I need to replicate/fi
 <script type="text/javascript">
 
 var CCalc = {
+	calculating:false,
 	/* place to store the shorthand and periocid table; don't regenerate the HTML unnecessarily */
 	shorthand:'',
 	periodic:'',
@@ -301,6 +302,20 @@ var CCalc = {
 		m_z:''
 	},
 	cache:[],
+
+	// function so we don't access objects directly
+	is_calculating:function(){
+		return this.calculating;
+	},
+
+	set_calculating:function(){
+		this.calculating = true;
+	},
+
+	finished_calculating:function(){
+		this.calculating = true;
+	},
+
 
 	cache_check:function(f){
 		return (typeof(CCalc.cache[f]) != 'undefined')?true:false;
@@ -1589,6 +1604,18 @@ window.onload=function(){
 	/* add event listeners */
 	document.getElementById('reset_form').addEventListener('click',reset_button_click);
 }
+
+
+/* */
+window.onhashchange = function(){
+	// check if calculating
+	if(!CCalc.is_calculating()){
+		// update the field
+		document.getElementById('formula').value = window.location.hash.replace(/#/,'');
+		calculate_info(document.chemicals.formula.value);calculate_chn();
+	}
+}
+
 
 function reset_button_click(){
 	 molecular_mass='';var a123 = document.getElementById('error');a123.innerHTML = '';a123.className='';calculate_info('');CCalc.reset_all();
