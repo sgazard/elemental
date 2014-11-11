@@ -1,7 +1,7 @@
 elemental
 =========
 
-Composition calculator for chemicals
+Composition calculator for chemicals.  For use in lab work and workup from lab work (see below for features)
 
 Features
 ========
@@ -12,7 +12,8 @@ Features
 * predicted elemental composition
 * elemental analysis from experimental results
 * determining needed chemical amounts for filling in COSSH forms
-* works offline in the browser.  No information is ever sent out, apart from google analytics information
+* works offline in the browser.  No internet connection is required.  
+* No information is ever sent out, apart from google analytics information, which helps me to work out where people are from, and what screen sizes people are using so that I can work on this more effectively
  
 To use
 ======
@@ -20,10 +21,14 @@ Simply point your browser at the file here on git.  Or, save it to your computer
 
 Why it was built
 ================
-Simply, I needed it in 2008 during my PHD.  It's been available online, but I wanted to improve the code (certain parts are horrible), make it cleaner, and improve performance where possible, as a few bottlenecks exist.
+Simply, I needed it in 2008 during my PHD.  It's been available online, but I wanted to improve the code (certain parts are in dire need of improvement), make it cleaner, and improve performance where possible, as a few bottlenecks exist.
 
 What you Won't see here
 =======================
 Angular, backbone, or any other framework.
 
-Why?  Well, when it was built, the intention was that you could take it as a web app with you to any computer, anywhere, meaning you might not have an internet connection.  Despite the advances in connectivity, many parts of the world are without ubiquitous, cheap internet connections.  At a university with a very high speed connection (think multiple 10Gbps fibre connections) not all computers connected to instruments had an internet connection, so offline access to this is very useful.  While writing my thesis, I was in countries where power was only around for 4 hours/day (if I were lucky), so it's intentional to have this version working without frameworks and run on a very simple subset of Javascript
+Why?  Well, when it was built, the intention was that you could take it as a web app with you to any computer, anywhere, meaning you might not have an internet connection.  Despite the advances in connectivity, many parts of the world are without ubiquitous, cheap internet connections.  I was at a university with a very high speed connection (think multiple 10Gbps fibre connections), and not all computers connected to instruments had an internet connection, so offline access to this is very useful.  While writing my thesis, I was in countries where power was only around for 4 hours/day (if I were lucky), and data access was even more spotty so it's intentional to have this version working without frameworks and run on a very simple subset of Javascript that requires very little technical knowledge.
+
+What you can do
+===============
+Use it!  copy it to your computer and use it on the road, anywhere.  
