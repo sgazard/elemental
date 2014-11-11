@@ -69,7 +69,8 @@ noscript{
 /* Composition */
 .outline{border:1px solid #EFDE8B;border-radius:3px; overflow:hidden;background-color:#FFF;}
 .header{margin-top:0;}
-#share{float:right;}
+#share{float:right;padding-right:5px;}
+#share input{width:100%;}
 
 div.chn div{background-color:#DDDDFF;}
 .align_r{text-align:right;}
@@ -629,6 +630,37 @@ var CCalc = {
 	clearHash:function(){
 		// this.log('clearing the hash');
 		window.location.hash = '';
+	},
+
+	// add in sharing functionality
+	share:function(){
+		CCalc.log('clicking');
+		var share = CCalc.html.get_el('share');
+		// clean slate
+		share.innerHTML = '';
+
+		var form = CCalc.html.make_el('form');
+		var input = CCalc.html.make_el('input');
+
+		input.value = window.location.href;
+
+		// so we can share things
+		input.addEventListener('blur',CCalc.share_reset,false);
+
+
+
+		// overwrite so we can add in fields
+		form = share.appendChild(form);
+		input = form.appendChild(input);
+
+		input.focus();
+		input.select();
+
+	},
+
+	share_reset:function(){
+		CCalc.log('blurring');
+		CCalc.html.get_el('share').innerHTML = 'share';
 	}
 
 }
@@ -694,6 +726,13 @@ CCalc.html = {
 			return document.getElementById(id);
 		}
 		else{return false;}
+	},
+
+	// wrapper for document.createElement
+	make_el:function(tag){
+		if(typeof(tag)=='string'){
+			return document.createElement(tag);
+		}
 	},
 
 	/*
@@ -1653,7 +1692,7 @@ function isNumeric(value) {return typeof value != "boolean" && value !== null &&
 */
 window.onload=function(){
   // so we can start typing
-  document.chemicals.formula.focus();
+  CCalc.html.get_el('formula').focus();
 
   // do we have an shared url?
   CCalc.checkShared();
@@ -1661,6 +1700,9 @@ window.onload=function(){
   calculate_info(document.chemicals.formula.value);calculate_chn();
 	/* add event listeners */
 	CCalc.html.get_el('reset_form').addEventListener('click',reset_button_click);
+
+	// so we can share things
+	CCalc.html.get_el('share').addEventListener('click',CCalc.share,false);
 }
 
 
