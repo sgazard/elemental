@@ -287,7 +287,6 @@ the event and formula will be logged, as that will be all I need to replicate/fi
 
   ga('create', 'UA-23464216-2', 'gazard.com');
   ga('send', 'pageview');
-
 </script>
 
 
@@ -591,7 +590,7 @@ var CCalc = {
 			// loop the data to add in
 			for(i in condensed){
 				// implicit '1' being snuffed
-				if(condensed[i] ==1){
+				if(condensed[i] == 1){
 					condensed[i] = '';
 				}
 				ret += i+condensed[i];
@@ -600,7 +599,7 @@ var CCalc = {
 		else{
 			ret = this.simplify(tmp);
 		}
-
+		// console.log(condensed);
 
 		return ret;
 	},
@@ -1113,6 +1112,7 @@ function calculate_info(formula){
 
 			// format the simplified formula
 			// formula_simplified = formula_simplified.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
+			formula_simplified = CCalc.simplify(formula_simplified);
 			formula_simplified = CCalc.html.make_pretty(formula_simplified);
 			// remove 'C<sub>1</'+'sub>'
 			// formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
@@ -1142,6 +1142,7 @@ function calculate_info(formula){
 		info = CCalc.html.set('condensed',tmp_string);
 		info = CCalc.html.set('info',tmp_string2);
 
+		var ms_ga = (show_ms)?'m/z shown':'';
 		if(show_ms){
 			show(CCalc.html.get_el('mass_spec'));
 			CCalc.html.set('mass_spec_graph', ms);
@@ -1151,6 +1152,9 @@ function calculate_info(formula){
 		
 		hide(CCalc.html.get_el('working'));
 		CCalc.finished_calculating();
+
+		// google analytics
+		ga('send','event','calclation','finished',ms_ga);
 
 	}
 
@@ -1652,7 +1656,6 @@ window.onload=function(){
 /* */
 window.onhashchange = function(){
 	// check if calculating
-	CCalc.log('onhashchange');
 	if(!CCalc.is_calculating()){
 		h = CCalc.getHash();
 		if(h.length>0){
