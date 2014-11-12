@@ -77,7 +77,10 @@ div.chn div{background-color:#DDDDFF;}
 .align_r{text-align:right;}
 .code{font-family:courier;color:black}
 div.error{
-	color:red;padding:5px;border:1px solid red;float:left;width:600px;clear:both;border-radius:2px;
+	color:red;
+	padding:5px;
+	border:1px solid red;
+	clear:both;border-radius:2px;
 	background-color:#FFF;
 }
 
@@ -90,7 +93,7 @@ input.error{
 /* for long-winded calculations.  E.g. Sn6 */
 #working{
 	display:none;
-	border:1px solid grey;
+	border:1px solid gray;
 	background-color:#aaa;
 }
 
@@ -482,7 +485,7 @@ var CCalc = {
 
 		/* currently loops 'i_max times, if square brackets used */
 		while(formula.match(/[\[\(]/)){
-			tmp_match = new Array();tmp_formula = '';
+			tmp_match = [];tmp_formula = '';
 			try{
 				// clear the error message on each loop
 				CCalc.html.set('error','');
@@ -657,10 +660,91 @@ var CCalc = {
 
 	},
 
+	/* remove the share form and put it back to where it was */
 	share_reset:function(){
 		CCalc.log('blurring');
 		CCalc.html.get_el('share').innerHTML = 'share';
+	},
+
+	mass_spec:function(elemental_composition){
+		var r = '';
+		// clear the global variable of information
+		mass_spec_info = [];
+		mass_spec_max_percentage = 0.0000001;
+		var percentage = 0;
+		var bg;var prev_m_z = 0;var shown=false;
+
+		// work it out (uses a global value)
+		run_through_isotopes(elemental_composition,0,0,[],[0,1]);
+	//				 console.info("number of isotopes:"+mass_spec_info.length);
+		// sort the information
+		// due to JavaScript's poor support for numbered incides, we're going to have:
+		// to loop through the data,
+		// making the indices a value,
+		// sort based on the value, and THEN display the information (joy)
+		var i;var tmp = [];var j = 0;
+		console.log(mass_spec_max_percentage);
+		for(i in mass_spec_info){
+			console.log(mass_spec_max_percentage);
+			
+			tmp[j] = [i,mass_spec_info[i]];
+	// 		console.info("re-sorting: "+i+" : "+mass_spec_info[i]);
+			if(mass_spec_max_percentage<mass_spec_info[i]){
+				mass_spec_max_percentage = mass_spec_info[i];
+			}
+			j++;
+		}
+		tmp.sort();
+		console.log(mass_spec_max_percentage);
+
+		console.log(tmp);
+
+		var k=0;
+		// output it
+		r+="<div>";j=0;
+		// for later comparison
+		var tmp_len = r.length;
+		// modern browsers
+		var img_src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAKCAYAAAB10jRKAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABRJREFUCNdjYGBo+M/EwMDAQCwBAEdGAZK3aijLAAAAAElFTkSuQmCC';
+
+
+		for(var i in tmp){
+			// percentage of total
+			percentage = parseFloat(tmp[i][1])/parseFloat(mass_spec_max_percentage)*100;
+			// format nicely
+			percentage = percentage.toFixed(4);
+			// check if needed to show due to being too small
+			if(!shown && (percentage<mass_spec_min_visible)){continue;}
+			else{shown=true;}
+	//					 console.info("Ion '"+tmp[i][0]+"' -- prev_m_z = '"+prev_m_z+"'");
+			if(j%2 == 1){bg = 'highlighted';}else{bg='';}
+			if((prev_m_z>0) && (tmp[i][0]-prev_m_z)>1){
+	//			console.info("attempting iterations: ");
+				for(k=1;k<(tmp[i][0]-prev_m_z);k++){
+	//				console.info("iteration "+k);
+					r+='<div class="'+bg+' auto_overflow">';
+					r+='<div class="m_z '+bg+'">'+(prev_m_z+k)+'&nbsp;</'+'div>';
+					r+='<div class="ms_intensity '+bg+'">&nbsp;</'+'div>';
+					r+='<div class="ms_intensity_num '+bg+'">&nbsp;</'+'div>';
+					r+='<div class="clearfix"></'+'div></'+'div>';
+					// backgrounds
+					j++;if(j%2 == 1){bg = 'highlighted';}else{bg='';}
+				}
+			}
+			r+='<div class="'+bg+'">';
+			r+= '<div class="m_z '+bg+'">'+tmp[i][0]+'&nbsp;</'+'div>';
+			r+='<div class="ms_intensity '+bg+'"><div style="width:'+percentage+'%" class="percentage"><img src="'+img_src+'" style="width:100%;height:10px" alt="'+percentage+'%"></'+'div></'+'div>';
+			r+='<div class="ms_intensity_num '+bg+'">'+percentage+'% </'+'div>';
+			r+='<div class="clearfix"></'+'div></'+'div>';
+			j++;
+			prev_m_z = parseInt(tmp[i][0]);
+		}
+	  // check for no information
+		if(r.length == tmp_len){r+="<div class=\"warning\">One (or more) of the elements you've entered does not have isotopic abundance data entered into this system.<br><i>The mass spectrum cannot be calculated</"+"i><br><br>This could be because no data exists, or because the sustance is naturally radioactive and so does not have a stable isotopic composition</"+"div>";}
+	  r +='</'+'div>';
+		return(r);
 	}
+
 
 }
 
@@ -1004,7 +1088,7 @@ var expand_formula_iteration = 0;
 var mass_used = 0;
 var mmol_used = 0;
 var prev_formula = '';
-var mass_spec_info = new Array();
+var mass_spec_info = [];
 var mass_spec_max_percentage = 0.000000001;
 // minimum percentage to need for showing in the mass spec peaks
 var mass_spec_min_visible =0.01;
@@ -1099,7 +1183,7 @@ function calculate_info(formula){
 			show(('composition'));
 			
 			// array to pass to the mass spec function arrays of(element name, number_of elements)
-			var ms = new Array();var len = elem_split.length;var j=0;
+			var ms = [];var len = elem_split.length;var j=0;
 			var num_isotopes = 1;var tmp_num = 0;var chn = 0;var classes = '';var bg;
 			for(i=0;i<len;i++){
 				classes = '';
@@ -1129,23 +1213,18 @@ function calculate_info(formula){
 					// check for non-integer value
 					if(Math.ceil(CCalc.elemental[elem_split[i]][3]) ==CCalc.elemental[elem_split[i]][3]){formula_simplified +=CCalc.elemental[elem_split[i]][3];}
 					else{formula_simplified += CCalc.elemental[elem_split[i]][3].toFixed(2);}
-				// mass spec information; number of isotopes too
-// 				tmp_num = 0;
-// 				for(var abc in CCalc.elemental[elem_split[i]][3]){tmp_num++;}
-//					 if(tmp_num == 0){tmp_num = 1;}
-//					 tmp_string+='('+num_isotopes+')*(Math.pow('+tmp_num+','+num_atoms+')) for atom with mass of '+atom_mass+'<br>';
-//					 num_isotopes = (num_isotopes)*(Math.pow(tmp_num,num_atoms)); // num_atoms,tmp_num?
 
+					// mass spec information; number of isotopes too
 					for(var x=0;x<num_atoms;x++){
-//					tmp_string += j+"=&gt;"+elem_split[i]+":"+1+"<br>";
-						ms[j] = Array(elem_split[i],1,CCalc.elemental[elem_split[i]][5]);
+						ms[j] = [elem_split[i],1,CCalc.elemental[elem_split[i]][5]];
 						j++;
 					}
 				}
 
 			}
 //			 tmp_string +="total number of isotopes: '"+num_isotopes+"'<br>";
-			if(show_ms){ms = mass_spec(ms);}else{ms = '';}
+			// buil the mass spec out of the data
+			ms = (show_ms)? CCalc.mass_spec(ms) :'';
 			tmp_string2 += '</'+'div></'+'div>';
 			
 			// still need to make sure that we don't have errant '1' as needed
@@ -1271,7 +1350,7 @@ function shorthand(visible){
 				// it's nicer pretty
 				f = CCalc.html.make_pretty(CCalc.fragments[i]);
 				// HTML building
-				shorthand += CCalc.html.tr(Array(i,'=&gt;',f));
+				shorthand += CCalc.html.tr([i,'=&gt;',f]);
 			}
 
 			shorthand += '</table>';
@@ -1467,77 +1546,6 @@ function update_volume(mol_mass){
 		CCalc.html.setVal('volume', CCalc.html.getVal('mmols')*CCalc.html.getVal('mmol_multiplier')*mol_mass/CCalc.html.getVal('density')*CCalc.html.getVal('volume_multiplier'));
 }
 
-function mass_spec(elemental_composition){
-	var r = '';
-	// clear the global variable of information
-	mass_spec_info = new Array();
-	mass_spec_max_percentage = 0.0000001;
-	var percentage = 0;
-	var bg;var prev_m_z = 0;var shown=false;
-
-	// work it out (uses a global value)
-	run_through_isotopes(elemental_composition,0,0,Array(),Array(0,1));
-//				 console.info("number of isotopes:"+mass_spec_info.length);
-	// sort the information
-	// due to JavaScript's poor support for numbered incides, we're going to have:
-	// to loop through the data,
-	// making the indices a value,
-	// sort based on the value, and THEN display the information (joy)
-	var i;var tmp = Array();var j = 0;
-	for(var i in mass_spec_info){
-		tmp[j] = Array(i,mass_spec_info[i]);
-// 		console.info("re-sorting: "+i+" : "+mass_spec_info[i]);
-		if(mass_spec_max_percentage<mass_spec_info[i]){mass_spec_max_percentage = mass_spec_info[i];}
-		j++;
-	}
-	tmp.sort();
-
-	var k=0;
-	// output it
-	r+="<div>";j=0;
-	// for later comparison
-	var tmp_len = r.length;
-	// modern browsers
-	var img_src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAKCAYAAAB10jRKAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABRJREFUCNdjYGBo+M/EwMDAQCwBAEdGAZK3aijLAAAAAElFTkSuQmCC';
-	// IE does not support this
-	if(navigator.appName == 'Microsoft Internet Explorer'){img_src = 'chemical_formula_blue_bar.png'}
-
-	for(var i in tmp){
-		// percentage of total
-		percentage = parseFloat(tmp[i][1])/parseFloat(mass_spec_max_percentage)*100;
-		// format nicely
-		percentage = percentage.toFixed(4);
-		// check if needed to show due to being too small
-		if(!shown && (percentage<mass_spec_min_visible)){continue;}
-		else{shown=true;}
-//					 console.info("Ion '"+tmp[i][0]+"' -- prev_m_z = '"+prev_m_z+"'");
-		if(j%2 == 1){bg = 'highlighted';}else{bg='';}
-		if((prev_m_z>0) && (tmp[i][0]-prev_m_z)>1){
-//			console.info("attempting iterations: ");
-			for(k=1;k<(tmp[i][0]-prev_m_z);k++){
-//				console.info("iteration "+k);
-				r+='<div class="'+bg+' auto_overflow">';
-				r+='<div class="m_z '+bg+'">'+(prev_m_z+k)+'&nbsp;</'+'div>';
-				r+='<div class="ms_intensity '+bg+'">&nbsp;</'+'div>';
-				r+='<div class="ms_intensity_num '+bg+'">&nbsp;</'+'div>';
-				r+='<div class="clearfix"></'+'div></'+'div>';
-				// backgrounds
-				j++;if(j%2 == 1){bg = 'highlighted';}else{bg='';}
-			}
-		}
-		r+='<div class="'+bg+'">';
-		r+= '<div class="m_z '+bg+'">'+tmp[i][0]+'&nbsp;</'+'div>';
-		r+='<div class="ms_intensity '+bg+'"><div style="width:'+percentage+'%" class="percentage"><img src="'+img_src+'" style="width:100%;height:10px" alt="'+percentage+'%"></'+'div></'+'div>';
-		r+='<div class="ms_intensity_num '+bg+'">'+percentage+'% </'+'div>';
-		r+='<div class="clearfix"></'+'div></'+'div>';
-		j++;
-		prev_m_z = parseInt(tmp[i][0]);
-	}
-  // check for no information
-	if(r.length == tmp_len){r+="<div class=\"warning\">One (or more) of the elements you've entered does not have isotopic abundance data entered into this system.<br><i>The mass spectrum cannot be calculated</"+"i><br><br>This could be because no data exists, or because the sustance is naturally radioactive and so does not have a stable isotopic composition</"+"div>";}
-  r +='</'+'div>';
-	return(r);
-}
 
 // will need to call itself itereatively to make this all work
 // run_through_isotopes(array_all_info,number,value_from_object,array_of_final_ions,??)
@@ -1558,7 +1566,13 @@ function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 			curr_mass = parseFloat(ion_info[0])+parseFloat(i);
 // 			console.info(curr_isotope+"	 : "+i+" : "+info[curr_elem][2][i]+" -- Gives: mass number of '"+curr_mass+"' and probability of '"+(parseFloat(ion_info[1])*(info[curr_elem][2][i]/100))+"'");
 
-							tmp = run_through_isotopes(info,curr_elem+1,i,all_ions,Array(curr_mass,parseFloat(ion_info[1])*(info[curr_elem][2][i]/100)));
+			tmp = run_through_isotopes(
+				info,
+				curr_elem+1,
+				i,
+				all_ions,
+				[curr_mass,parseFloat(ion_info[1])*(info[curr_elem][2][i]/100)]
+			);
 		}
 	}
 	else{
@@ -1648,7 +1662,7 @@ function calculate_chn(){
 		h = h/1.0079;
 		n = n/14.007;
 		// sort to figure out which is the smaller
-		var tmp = new Array(c,h,n);
+		var tmp = [c,h,n];
 		tmp.sort(function(a,b){return a - b});
 		min = 0;
 		for(var a in tmp){
@@ -1922,9 +1936,9 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
 </div>
 
 
-<div id="bottom_left" class="bottom">Version 1.2.2 (15-Jan-2014)</div>
+<div id="bottom_left" class="bottom">Version 1.3 (12-Nov-2014)</div>
 <div id="bottom_right" class="bottom">
- If you like this tool or want to send on comments, please contact <a href="https://github.com/sgazard/elemental">me on GitHub</a>
+ If you like this tool or want to send on comments, please contact <a href="https://github.com/sgazard/elemental/">me on GitHub</a>
 </div>
 </body>
 </html>
