@@ -48,6 +48,7 @@ noscript{
 
 .full_width{
 	width:100%;
+	clear:both;
 }
 
 /* loader icon
@@ -313,6 +314,9 @@ var CCalc = {
 	},
 	cache:[],
 
+	// this works assuming you've been on signa aldrich
+	msds:'https://www.sigmaaldrich.com/catalog/search?interface=All&N=0&mode=match%20partialmax&focus=product&term=',
+
 	// function so we don't access objects directly
 	is_calculating:function(){
 		return this.calculating;
@@ -400,65 +404,57 @@ var CCalc = {
 		this.expand_it++;
 		// this.log(expand_formula_iteration+") Given the formula '"+formula+"'");
 
-		var curr_elem_num = 0;var tmp_formula;
+		var curr_elem_num = 0;
+		var tmp_formula,i,len,tmp_match,pattern;
 	
 		var formula_mod = this.expand_brackets(formula);
 
 		// match the elements.
 		var elements_match = formula_mod.match(/((\.?[0-9*])?[\(\[]*[A-Z][a-z]*[0-9\.]*)/g);
+
 	
 		// check we've matched something entered
-		if((formula_mod.length) && (isArray(elements_match)) ){
-			// check we've got something resembling a formula
-			if(formula_mod.length>0 && elements_match.length>0){
+		if(
+			(formula_mod.length && formula_mod.length>0)
+		 	&& (isArray(elements_match) && elements_match.length>0)
+		){
+			len = elements_match.length;
+			//might need to multiply items if inside brackets
+			for(i=0;i<len;i++){
+				// got a match of [a-z][0-9].  will need to split those apart, and form a
+				// NEW array containing element and amount.  Note, we need to check if an element has already
+				// been added so that formulas such as NiNO3.6H20 work well
+				if(elements_match[i]){
 
-				//might need to multiply items if inside brackets
-				for(var i=0;i<elements_match.length;i++){
-					// got a match of [a-z][0-9].  will need to split those apart, and form a
-					// NEW array containing element and amount.  Note, we need to check if an element has already
-					// been added so that formulas such as NiNO3.6H20 work well
-					if(elements_match[i]){
-	
-						var tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
-						// for the elements already added, we can use to check if already in 'elem_added'/not
-						var pattern= new RegExp(tmp_match[1]+',');
-						// force it to definitely be a string, and with no whitespace at the ends
-						tmp_match[1] = new String(tmp_match[1].replace(/^\s+|\s+$/g, ''));
-						// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
-						// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
-						if(!pattern.test(elem_added) && CCalc.elemental[tmp_match[1]]){
-							CCalc.elemental[tmp_match[1]][3] = 0;
-						}
-						// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
-						if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
-							tmp_match[2]=1;
-	// 								tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
-						}
-						// Make sure that the matched value is a number
-						else{tmp_match[2] = parseFloat(tmp_match[2]);}
-	
-						if(!CCalc.elemental[tmp_match[1]] && !CCalc.fragments[tmp_match[1]]){
-							tmp_string += CCalc.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
-						}
-						else if(CCalc.fragments[tmp_match[1]]){
-							// call itself to make sure we can use the brackets in shorthand (Bu) => (CH2)3(CH3)
-							tmp_formula = "("+CCalc.fragments[tmp_match[1]]+")"+tmp_match[2];
-	
-							// check for needed expansion of brackets
-							expand_formula(tmp_formula);
-	//					tmp_string+="expand_formula: Before conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
-	//					tmp_string+="expand_formula(): &nbsp; Did not find an element, but a shorthand.  Substituted in "+tmp_match[1]+" =&gt; "+CCalc.fragments[tmp_match[1]]+" =>"+tmp_formula+" formula_mod = "+formula_mod+"<br>";
-	//					tmp_string+="expand_formula: After conversion on "+formula+" (having matched "+tmp_match[1]+"), we have "+elements_match.length+" elements in the array, and are on number "+(i+1)+"<br>";
-						}
-						else{
-	//					tmp_string+= "Added "+tmp_match[1]+"<sub>"+tmp_match[2]+"</"+"sub> ("+formula_mod+")<br>";
-							tmp_string = add_element(pattern,tmp_string,tmp_match[1],tmp_match[2],curr_elem_num);
-						}
+					tmp_match = elements_match[i].match(/([A-Z][a-z]*)([0-9\.]*)/);
+					// for the elements already added, we can use to check if already in 'elem_added'/not
+					pattern= new RegExp(tmp_match[1]+',');
+					// force it to definitely be a string, and with no whitespace at the ends
+					tmp_match[1] = new String(tmp_match[1].replace(/^\s+|\s+$/g, ''));
+					// check if we've not yet added this to the 'elem_added variable' (in the loop after an 'onkeyup')
+					// if not, set the chem_element value to 0, else each time a keypress is registered we add to what's already there
+					if(!pattern.test(elem_added) && CCalc.elemental[tmp_match[1]]){
+						CCalc.elemental[tmp_match[1]][3] = 0;
+					}
+					// add a value of 1 where 1 is assumed e.g. the oxygen in H2O
+					if((tmp_match[1].length>0) && (tmp_match[2].length == 0)){
+						tmp_match[2]=1;
+// 								tmp_string += "<br>setting to '1' the number of "+tmp_match[1];
+					}
+					// Make sure that the matched value is a number
+					else{tmp_match[2] = parseFloat(tmp_match[2]);}
+
+					// fragments should have been simplified out of here a long time ago
+					if(!CCalc.elemental[tmp_match[1]] && !CCalc.fragments[tmp_match[1]]){
+						tmp_string += CCalc.message('Unknown element/shorthand <b>'+tmp_match[1]+'</'+'b>','error');
+					}
+					else{
+//					tmp_string+= "Added "+tmp_match[1]+"<sub>"+tmp_match[2]+"</"+"sub> ("+formula_mod+")<br>";
+						tmp_string = add_element(pattern,tmp_string,tmp_match[1],tmp_match[2],curr_elem_num);
 					}
 				}
 			}
 		}
-			;
 	},
 	
 	/* we don't worry about bracket types */
@@ -552,8 +548,12 @@ var CCalc = {
 		// formula needs expanding
 		formula = this.expand_brackets(formula);
 
+		// variables we're about to use
+		var matches,i;
+
 		// to store the elements found
 		var condensed = [];
+
 		var regex = /([A-Z][a-z]*)([0-9]*)/g;
 		while(matches = regex.exec(formula)){
 			// elements with an implicit number of 1
@@ -601,13 +601,12 @@ var CCalc = {
 		else{
 			ret = this.simplify(tmp);
 		}
-		// console.log(condensed);
 
 		return ret;
 	},
 
 	checkShared: function(){
-		el = CCalc.html.get_el('formula');
+		var el = CCalc.html.get_el('formula');
 		// get the window.location.hash and see if we need take information from this
 		// note a browser might prefill this on a restore, or on a reload
 		if(el.value=='' && window.location.hash.length>0){
@@ -733,6 +732,7 @@ CCalc.html = {
 		if(typeof(tag)=='string'){
 			return document.createElement(tag);
 		}
+		return false;
 	},
 
 	/*
@@ -1070,9 +1070,8 @@ function calculate_info(formula){
 	// use the DOM method
 	if(document.getElementById){
 		// to replace the other function
-		CCalc.expand(formula);
 		formula_simplified = CCalc.simplify(formula);
-		//expand_formula(formula);
+		CCalc.expand(formula_simplified);
 
 		if(CCalc.cache_check(formula_simplified) == false){
 			CCalc.cache_add(formula_simplified);
@@ -1094,7 +1093,7 @@ function calculate_info(formula){
 			var elem_split = elem_added.split(',');
 			var tmp_mass=0;
 			var bg_num=0;var bg;var num_atoms;var atom_mass;
-			var show_ms = false;if((CCalc.html.get_el('show_mass_spec').checked == true)){show_ms = true;}
+			var show_ms = (CCalc.html.get_el('show_mass_spec').checked == true)?true:false;
 
 			// show the header
 			show(('composition'));
@@ -1148,16 +1147,17 @@ function calculate_info(formula){
 //			 tmp_string +="total number of isotopes: '"+num_isotopes+"'<br>";
 			if(show_ms){ms = mass_spec(ms);}else{ms = '';}
 			tmp_string2 += '</'+'div></'+'div>';
-			var formula_no_html = formula_simplified;
+			
+			// still need to make sure that we don't have errant '1' as needed
+			var formula_no_html = CCalc.simplify(formula_simplified);
 
 			// format the simplified formula
-			// formula_simplified = formula_simplified.replace(/([^\(\[\{])([a-zA-Z]*)([0-9\.]*)/g,"$1$2<sub>$3</"+"sub>");
-			formula_simplified = CCalc.simplify(formula_simplified);
-			formula_simplified = CCalc.html.make_pretty(formula_simplified);
+			formula_simplified = CCalc.html.make_pretty(CCalc.simplify(formula_simplified));
+
 			// remove 'C<sub>1</'+'sub>'
 			// formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
 
-			var msds_link = "http://www.sigmaaldrich.com/catalog/search/SearchResultsPage?Query="+formula_no_html+"&Scope=MolecularFormulaSearch";
+			var msds_link = CCalc.msds+formula_no_html;
 			msds_link = "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>";
 // 			tmp_string += "<div>Information for <span class=formula>"+formula_formatted+"</"+"span>=&gt; <span class=formula></"+"span><br>";
 			tmp_string+= "<table class=\"full_width\"><thead><tr><td>Condensed formula</"+"td><td>Composed of</"+"td><td>Mass</"+"td><td>Monoisotopic mass</"+"td><td><abbr title=\"MSDS from Sigma Aldrich\">MSDS</"+"abbr></"+"td></"+"tr></"+"thead>";
@@ -1175,26 +1175,29 @@ function calculate_info(formula){
 			tmp_string += "</'+'div><div class=clearfix></'+'div></'+'div>";
 		}
 		else{tmp_string += '&nbsp;';}
+
+
 		// update the div
 		// get a reference to the DIV we're going to populate
-		
 		show(('composition'));
 		info = CCalc.html.set('condensed',tmp_string);
 		info = CCalc.html.set('info',tmp_string2);
+		info.style.className = 'info';
 
-		var ms_ga = (show_ms)?'m/z shown':'';
+		// if we have a mass spec to show, then do so
 		if(show_ms){
 			show(('mass_spec'));
 			CCalc.html.set('mass_spec_graph', ms);
 		}
 		else{hide(('mass_spec'));}
-		info.style.className = 'info';
 		
+		// tidy up the UI
 		hide(('working'));
 		CCalc.finished_calculating();
 
 		// google analytics
-		ga('send','event','calclation','finished',ms_ga);
+		var ms_ga = (show_ms)?1:0;
+		ga('send','event','calculation','finished',ms_ga);
 
 	}
 
@@ -1250,9 +1253,6 @@ function add_element(pattern,tmp_string,elem_curr,elem_amt,curr_elem_num){
 function expand_brackets(formula){
 }
 
-// function to add a run through a string; made into a function simply because expanding the shorthand made it simpler
-function expand_formula(formula){
-}
 
 
 
