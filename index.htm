@@ -338,11 +338,36 @@ var CCalc = {
 		return (typeof(CCalc.cache[f]) != 'undefined')?true:false;
 	},
 
+	cache_key_check:function(f,key){
+		return (this.cache_check(f) && (CCalc.cache[f][key]) != '')?true:false;
+	},
+
 	/* this initialises the cache only*/
 	cache_add:function(f){
+		console.log('adding in cache for: '+f);
 		CCalc.cache[f] = CCalc.cache_initial;
 	},
+
+	// f => formula (simplified)
+	cache_set:function(f,key,value){
+		if(!this.cache_check(f)){
+			this.cache_add(f);
+		}
+
+		CCalc.cache[f][key] = value;
+
+	},
 	
+	// f => formula (simplified)
+	cache_get:function(f,key){
+		if(!this.cache_check(f)){
+			return '';
+		}
+
+		return CCalc.cache[f][key];
+
+	},
+
 	/* browser console logging? */
 	logging:true,
 	logging_enabled:false,
@@ -388,13 +413,17 @@ var CCalc = {
 		hide(('working'));
 	},
 
+	/* is this element we have something that's acutally viable? */
 	is_viable:function(item){
 		return this.is_element(item) || this.is_shorthand(item);
 	},
 
+	/* simple check that this is a shorthand?*/
 	is_shorthand:function(item){
 		return (CCalc.fragments[item])?true:false;
 	},
+
+	/* is this an element? */
 	is_element:function(item){
 		return (CCalc.elemental[item])?true:false;
 	},
@@ -422,6 +451,7 @@ var CCalc = {
 		 	&& (isArray(elements_match) && elements_match.length>0)
 		){
 			len = elements_match.length;
+
 			//might need to multiply items if inside brackets
 			for(i=0;i<len;i++){
 				// got a match of [a-z][0-9].  will need to split those apart, and form a
@@ -666,39 +696,55 @@ var CCalc = {
 		CCalc.html.get_el('share').innerHTML = 'share';
 	},
 
-	mass_spec:function(elemental_composition){
+	mass_spec:function(elemental_composition, formula_simplified){
+		console.log('elemental_composition');
+		console.log(elemental_composition);
+		console.log(formula_simplified);
 		var r = '';
 		// clear the global variable of information
 		mass_spec_info = [];
+
+		// so we can normalise things
 		mass_spec_max_percentage = 0.0000001;
 		var percentage = 0;
 		var bg;var prev_m_z = 0;var shown=false;
-
-		// work it out (uses a global value)
-		run_through_isotopes(elemental_composition,0,0,[],[0,1]);
-	//				 console.info("number of isotopes:"+mass_spec_info.length);
-		// sort the information
-		// due to JavaScript's poor support for numbered incides, we're going to have:
-		// to loop through the data,
-		// making the indices a value,
-		// sort based on the value, and THEN display the information (joy)
 		var i;var tmp = [];var j = 0;
-		console.log(mass_spec_max_percentage);
-		for(i in mass_spec_info){
-			console.log(mass_spec_max_percentage);
+
+		if(!CCalc.cache_key_check(formula_simplified,'m_z')){
+			console.log('caching needed');
+
+			// work it out (uses a global value)
+			run_through_isotopes(elemental_composition,0,0,[],[0,1]);
+
+			// sort the information
+			// due to JavaScript's poor support for numbered incides, we're going to have:
+			// to loop through the data,
+			// making the indices a value,
+			// sort based on the value, and THEN display the information (joy)
 			
-			tmp[j] = [i,mass_spec_info[i]];
-	// 		console.info("re-sorting: "+i+" : "+mass_spec_info[i]);
-			if(mass_spec_max_percentage<mass_spec_info[i]){
-				mass_spec_max_percentage = mass_spec_info[i];
+			for(i in mass_spec_info){
+				
+				tmp[j] = [i,mass_spec_info[i]];
+
+				if(mass_spec_max_percentage<mass_spec_info[i]){
+					mass_spec_max_percentage = mass_spec_info[i];
+				}
+				j++;
 			}
-			j++;
+			tmp.sort();
+
+			CCalc.cache_set(formula_simplified,'m_z',tmp);
+			CCalc.cache_set(formula_simplified,'m_z_max_percent',mass_spec_max_percentage);
 		}
-		tmp.sort();
-		console.log(mass_spec_max_percentage);
+		else{
+			console.log(formula_simplified+ ' loaded from cache');
+			tmp = CCalc.cache_get(formula_simplified,'m_z');
+			mass_spec_max_percentage = CCalc.cache_get(formula_simplified,'m_z_max_percent');
+			console.log(mass_spec_max_percentage);
+		}	
 
 		console.log(tmp);
-
+		console.log(CCalc.cache);
 		var k=0;
 		// output it
 		r+="<div>";j=0;
@@ -1224,7 +1270,7 @@ function calculate_info(formula){
 			}
 //			 tmp_string +="total number of isotopes: '"+num_isotopes+"'<br>";
 			// buil the mass spec out of the data
-			ms = (show_ms)? CCalc.mass_spec(ms) :'';
+			ms = (show_ms)? CCalc.mass_spec(ms,formula_simplified) :'';
 			tmp_string2 += '</'+'div></'+'div>';
 			
 			// still need to make sure that we don't have errant '1' as needed
@@ -1547,16 +1593,16 @@ function update_volume(mol_mass){
 }
 
 
-// will need to call itself itereatively to make this all work
+// will need to call itself iteratively to make this all work
 // run_through_isotopes(array_all_info,number,value_from_object,array_of_final_ions,??)
 function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 	var curr_mass;var tmp;
-//		console.info("CURR_ELEM "+curr_elem+":: "+ion_info+" vs. "+mass_spec_min_visible+" & remembering:"+mass_spec_max_percentage);
 	// mass spec max percentage can only increase.	if it's a peak that will be noise, we need to kill it off
-		if(((ion_info[1]/mass_spec_max_percentage)<(mass_spec_min_visible/10))){
-//		console.info("Stopped ion of "+ion_info[1]+"% from being added.  Molecular mass was:"+ion_info[0]+" max_mass_spec: "+mass_spec_max_percentage);
-			return false;
-		}
+	if(((ion_info[1]/mass_spec_max_percentage)<(mass_spec_min_visible/10))){
+		// return false;
+		// console.info("Stopped ion of "+ion_info[1]+"% from being added.  Molecular mass was:"+ion_info[0]+" max_mass_spec: "+mass_spec_max_percentage);
+	}
+	
 	if(info[curr_elem] && (typeof(info[curr_elem][2]) == 'object')){
 		// tmp vars
 		var tmp;
@@ -1578,7 +1624,7 @@ function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 	else{
 // 		console.info("STOP! got the following ion: '"+ion_info[0]+"' with an 'abundance' listed at: '"+ion_info[1]+"'");
 		// set a new max percentage, if needed
-			if(ion_info[1]>mass_spec_max_percentage){mass_spec_max_percentage = ion_info[1];}
+		if(ion_info[1]>mass_spec_max_percentage){mass_spec_max_percentage = ion_info[1];}
 		// add percentage value if needed
 		if(mass_spec_info[ion_info[0]]){
 //				 console.info("appending information");
@@ -1587,8 +1633,8 @@ function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 		// for debug only
 //			 else{				console.info("setting first instance of ion");}
 		if(ion_info[1]){
-				mass_spec_info[ion_info[0]] = ion_info[1];
-			}
+			mass_spec_info[ion_info[0]] = ion_info[1];
+		}
 	}
 	return(true);
 }
