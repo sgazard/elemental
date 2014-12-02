@@ -12,9 +12,9 @@ Features
 * predicted elemental composition
 * elemental analysis from experimental results
 * determining needed chemical amounts for filling in COSSH forms
-* works offline in the browser.  No internet connection is required.  
+* works offline in the browser.  No internet connection is required.
 * No information is ever sent out, apart from google analytics information, which helps me to work out where people are from, and what screen sizes people are using so that I can work on this more effectively
- 
+
 To use
 ======
 Simply point your browser at the [public file on git](http://sgazard.github.io/elemental/)  Or, save it to your computer.  Modern browsers will need only to save one file, making it easier to move around once saved
@@ -32,3 +32,8 @@ Why?  Well, when it was built, the intention was that you could take it as a web
 What you can do
 ===============
 Use it.  If you need it offline, copy it to your computer and use it on the road, anywhere.  You could be using it on a plane flight or in the middle of the desert, or even under the ocean!
+
+Something not working (a bug)?  Got a suggestion?
+=============================
+Open a new Issue (you may have to create a github account) and I'll work on it as soon as I can
+https://github.com/sgazard/elemental/issues/new
