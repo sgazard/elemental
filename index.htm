@@ -339,28 +339,36 @@ var CCalc = {
 	},
 
 	cache_key_check:function(f,key){
-		return (this.cache_check(f) && (CCalc.cache[f][key]) != '')?true:false;
+		return (CCalc.cache_check(f) && (CCalc.cache[f][key]) != '')?true:false;
 	},
 
 	/* this initialises the cache only*/
 	cache_add:function(f){
-		console.log('adding in cache for: '+f);
-		CCalc.cache[f] = CCalc.cache_initial;
+		// can't just copy this as it will copy a reference.  Need to manually
+		// copy all values from the initial reference (sigh)
+		var temp = {},i = '';
+		for (i in CCalc.cache_initial){
+			temp[i] = CCalc.cache_initial[i];
+		}
+
+		// set it all up now
+		CCalc.cache[f] = temp;
 	},
 
 	// f => formula (simplified)
 	cache_set:function(f,key,value){
-		if(!this.cache_check(f)){
-			this.cache_add(f);
+		if(!CCalc.cache_check(f)){
+			CCalc.cache_add(f);
 		}
 
 		CCalc.cache[f][key] = value;
 
 	},
 	
+	// get an item from the cache
 	// f => formula (simplified)
 	cache_get:function(f,key){
-		if(!this.cache_check(f)){
+		if(!CCalc.cache_check(f)){
 			return '';
 		}
 
@@ -697,9 +705,6 @@ var CCalc = {
 	},
 
 	mass_spec:function(elemental_composition, formula_simplified){
-		console.log('elemental_composition');
-		console.log(elemental_composition);
-		console.log(formula_simplified);
 		var r = '';
 		// clear the global variable of information
 		mass_spec_info = [];
@@ -711,7 +716,6 @@ var CCalc = {
 		var i;var tmp = [];var j = 0;
 
 		if(!CCalc.cache_key_check(formula_simplified,'m_z')){
-			console.log('caching needed');
 
 			// work it out (uses a global value)
 			run_through_isotopes(elemental_composition,0,0,[],[0,1]);
@@ -740,18 +744,14 @@ var CCalc = {
 			console.log(formula_simplified+ ' loaded from cache');
 			tmp = CCalc.cache_get(formula_simplified,'m_z');
 			mass_spec_max_percentage = CCalc.cache_get(formula_simplified,'m_z_max_percent');
-			console.log(mass_spec_max_percentage);
 		}	
 
-		console.log(tmp);
-		console.log(CCalc.cache);
 		var k=0;
 		// output it
 		r+="<div>";j=0;
 		// for later comparison
 		var tmp_len = r.length;
 		// modern browsers
-		var img_src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAKCAYAAAB10jRKAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABRJREFUCNdjYGBo+M/EwMDAQCwBAEdGAZK3aijLAAAAAElFTkSuQmCC';
 
 
 		for(var i in tmp){
@@ -768,20 +768,14 @@ var CCalc = {
 	//			console.info("attempting iterations: ");
 				for(k=1;k<(tmp[i][0]-prev_m_z);k++){
 	//				console.info("iteration "+k);
-					r+='<div class="'+bg+' auto_overflow">';
-					r+='<div class="m_z '+bg+'">'+(prev_m_z+k)+'&nbsp;</'+'div>';
-					r+='<div class="ms_intensity '+bg+'">&nbsp;</'+'div>';
-					r+='<div class="ms_intensity_num '+bg+'">&nbsp;</'+'div>';
-					r+='<div class="clearfix"></'+'div></'+'div>';
+					r+= CCalc.html.m_z_row(prev_m_z+k,'','',bg);
 					// backgrounds
 					j++;if(j%2 == 1){bg = 'highlighted';}else{bg='';}
 				}
 			}
-			r+='<div class="'+bg+'">';
-			r+= '<div class="m_z '+bg+'">'+tmp[i][0]+'&nbsp;</'+'div>';
-			r+='<div class="ms_intensity '+bg+'"><div style="width:'+percentage+'%" class="percentage"><img src="'+img_src+'" style="width:100%;height:10px" alt="'+percentage+'%"></'+'div></'+'div>';
-			r+='<div class="ms_intensity_num '+bg+'">'+percentage+'% </'+'div>';
-			r+='<div class="clearfix"></'+'div></'+'div>';
+
+			r+= CCalc.html.m_z_row(tmp[i][0],percentage,percentage,bg);
+
 			j++;
 			prev_m_z = parseInt(tmp[i][0]);
 		}
@@ -801,6 +795,8 @@ This extension makes things testable :)
 
 */
 CCalc.html = {
+	img_src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAKCAYAAAB10jRKAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABRJREFUCNdjYGBo+M/EwMDAQCwBAEdGAZK3aijLAAAAAElFTkSuQmCC',
+
 	/*
 
 	details for tables
@@ -905,6 +901,23 @@ CCalc.html = {
 	/* adds in the subscripts as needed */
 	make_pretty: function(f){
 		return f.replace(/(\d+)/g,"<sub>$1</sub>");
+	},
+
+	m_z_row: function(m_z,percentage,percentage,bg){
+		var r = '';
+		r+='<div class="'+bg+'">';
+		r+= '<div class="m_z '+bg+'">'+m_z+'&nbsp;</'+'div>';
+		r+='<div class="ms_intensity '+bg+'">';
+		// display a percentage
+		if(percentage>0){
+			r += '<div style="width:'+percentage+'%" class="percentage"><img src="'+this.img_src+'" style="width:100%;height:10px" alt="'+percentage+'%"></'+'div>';
+		}else{r+='&nbsp;';}
+		r+= '</'+'div>';
+		r+='<div class="ms_intensity_num '+bg+'">'+percentage+'% </'+'div>';
+		r+='<div class="clearfix"></'+'div></'+'div>';
+
+
+		return r;
 	}
 
  }
@@ -1203,6 +1216,7 @@ function calculate_info(formula){
 		formula_simplified = CCalc.simplify(formula);
 		CCalc.expand(formula_simplified);
 
+		// need to do the caching?
 		if(CCalc.cache_check(formula_simplified) == false){
 			CCalc.cache_add(formula_simplified);
 		}
@@ -1283,29 +1297,24 @@ function calculate_info(formula){
 			// formula_simplified = formula_simplified.replace(/<sub\>1\<\/sub>/g,'');
 
 			var msds_link = CCalc.msds+formula_no_html;
-			msds_link = "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>";
-//			tmp_string += "<div>Information for <span class=formula>"+formula_formatted+"</"+"span>=&gt; <span class=formula></"+"span><br>";
-			tmp_string+= "<table class=\"full_width\"><thead><tr><td>Condensed formula</"+"td><td>Composed of</"+"td><td>Mass</"+"td><td>Monoisotopic mass</"+"td><td><abbr title=\"MSDS from Sigma Aldrich\">MSDS</"+"abbr></"+"td></"+"tr></"+"thead>";
-			tmp_string+= "<tr>"+
-				CCalc.html.td(formula_simplified,'formula')+
-				CCalc.html.td(elem_added.replace(/,/g,", "),'formula')+
-				CCalc.html.td(mass.toFixed(max_decimal_places),'formula')+
-				CCalc.html.td(mono_mass.toFixed(max_decimal_places),'formula')+
-				"<td>"+msds_link+"</"+"td></"+"tr></"+"table>";
+
+			// set the correct amounts in the correct place
+			CCalc.html.set('condensed_formula',formula_simplified);
+			CCalc.html.set('condensed_composition',elem_added.replace(/,/g,", "));
+			CCalc.html.set('condensed_mass',mass.toFixed(max_decimal_places));
+			CCalc.html.set('condensed_mono',mono_mass.toFixed(max_decimal_places));
+			CCalc.html.set('condensed_msds', "<a href=\""+msds_link+"\" target=\"_blank\">search</"+"a>");
 			// update teh elemental analysis copy paste
 			CCalc.html.set('molecular_formula',formula_simplified);
 
 			var mmols = (document.chemicals.amt_added.value*1000/mass);
 			molecular_mass = mass.toFixed(max_decimal_places);
-			tmp_string += "</'+'div><div class=clearfix></'+'div></'+'div>";
 		}
-		else{tmp_string += '&nbsp;';}
 
 
 		// update the div
 		// get a reference to the DIV we're going to populate
 		show(('composition'));
-		info = CCalc.html.set('condensed',tmp_string);
 		info = CCalc.html.set('info',tmp_string2);
 		info.style.className = 'info';
 
@@ -1955,7 +1964,28 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
  <div id="composition">
 	<h3 id="composition_title">Composition</h3>
 		<div class="loading" style="display:none"></div>
-		<div id="condensed"></div>
+		<div id="condensed">
+			<table class="full_width">
+				<thead>
+					<tr>
+						<td>Condensed formula</td>
+						<td>Composed of</td>
+						<td>Mass</td>
+						<td>Monoisotopic mass</td>
+						<td><abbr title="MSDS from Sigma Aldrich">MSDS</abbr></td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="formula" id="condensed_formula"></td>
+						<td class="formula" id="condensed_composition"></td>
+						<td class="formula" id="condensed_mass"></td>
+						<td class="formula" id="condensed_mono"></td>
+						<td id="condensed_msds"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 		<div id="composition_elements" class="outline">
 		<div>
 			<div class="header">
