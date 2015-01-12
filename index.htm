@@ -773,7 +773,6 @@ var CCalc = {
 			CCalc.end_timing('m_z');
 
 		  // GOOGLE analytics event for the mass spec
-		  CCalc.log('sending on tracking information');
 		  ga('send','timing','mass spec', String(isotope_combinations), CCalc.get_timing('m_z'));
 
 		}
@@ -825,7 +824,6 @@ var CCalc = {
 
 	start_timing:function(key){
 		CCalc.timing[key] = {start:new Date().getTime(),end:0,diff:0};
-		// CCalc.log(CCalc.timing[key].start);
 	},
 
 	end_timing:function(key){
@@ -1384,7 +1382,6 @@ function calculate_info(formula){
 
 		// google analytics
 		var ms_ga = (show_ms)?1:0;
-		CCalc.log('sending GA event for M/Z turned on?');
 		ga('send','event','calculation','finished',String(ms_ga));
 
 	}
