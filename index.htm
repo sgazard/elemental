@@ -764,6 +764,12 @@ var CCalc = {
 			CCalc.cache_set(formula_simplified,'m_z',tmp);
 			CCalc.cache_set(formula_simplified,'m_z_max_percent',mass_spec_max_percentage);
 			CCalc.end_timing('m_z');
+
+		  // GOOGLE analytics event for the mass spec
+		  if(window._trackEvent){
+		  	_trackEvent('mass spec', 'finished', isotope_combinations, CCalc.get_timing('m_z'));
+		  }
+			
 		}
 		else{
 			// console.log(formula_simplified+ ' loaded from cache');
@@ -807,6 +813,7 @@ var CCalc = {
 	  // check for no information
 		if(r.length == tmp_len){r+="<div class=\"warning\">One (or more) of the elements you've entered does not have isotopic abundance data entered into this system.<br><i>The mass spectrum cannot be calculated</"+"i><br><br>This could be because no data exists, or because the sustance is naturally radioactive and so does not have a stable isotopic composition</"+"div>";}
 	  r +='</'+'div>';
+
 		return(r);
 	},
 
@@ -820,9 +827,11 @@ var CCalc = {
 
 		// work out the difference in milliseconds as that's what we care about
 		CCalc.timing[key].diff = this.timing[key].end-this.timing[key].start;
-		CCalc.log(key+": \t"+CCalc.timing[key].diff);
-	}
+	},
 
+	get_timing: function(key){
+		return CCalc.timing[key].diff;
+	}
 
 }
 
