@@ -720,6 +720,27 @@ var CCalc = {
 		if(!CCalc.cache_key_check(formula_simplified,'m_z')){
 			CCalc.start_timing('m_z');
 
+
+			// start as 1 as we're doing a multiplication
+			var isotope_combinations = 1;
+			var count = 0;
+			for (i in elemental_composition){
+				count = 0;
+				for (j in elemental_composition[i][2]){
+					count++;
+				}
+
+				isotope_combinations  = isotope_combinations * count;
+			}
+
+			// e.g. Sn6
+			if(isotope_combinations >100000){
+				if(confirm('Calculating the Mass spec could take a while.  Do you want this to happen?')==false){
+					return 'Mass spec calculation has been cancelled';
+				}
+			}
+
+
 			// work it out (uses a global value)
 			run_through_isotopes(elemental_composition,0,0,[],[0,1]);
 
