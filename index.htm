@@ -317,6 +317,8 @@ var CCalc = {
 	},
 	cache:[],
 
+	timing:[],
+
 	// this works assuming you've been on signa aldrich
 	msds:'https://www.sigmaaldrich.com/catalog/search?interface=All&N=0&mode=match%20partialmax&focus=product&term=',
 
@@ -392,7 +394,7 @@ var CCalc = {
 		if(this.logging){
 			this.check_logging();
 			if(this.logging_enabled == true){
-				window.console.log(msg)
+				window.console.log(msg);
 			}
 		}
 	},
@@ -611,7 +613,7 @@ var CCalc = {
 
 
 
-		// stupid as this looks, we're going to rebuild the formula with expanded
+		// stupid as this looks, we're going to rebuild the formula with expanded shorthand
 		var tmp = '';
 		var redo = false;
 		for (i in condensed){
@@ -674,7 +676,6 @@ var CCalc = {
 
 	// add in sharing functionality
 	share:function(){
-		CCalc.log('clicking');
 		var share = CCalc.html.get_el('share');
 		// clean slate
 		share.innerHTML = '';
@@ -700,7 +701,6 @@ var CCalc = {
 
 	/* remove the share form and put it back to where it was */
 	share_reset:function(){
-		CCalc.log('blurring');
 		CCalc.html.get_el('share').innerHTML = 'share';
 	},
 
@@ -715,7 +715,31 @@ var CCalc = {
 		var bg;var prev_m_z = 0;var shown=false;
 		var i;var tmp = [];var j = 0;
 
+
+
 		if(!CCalc.cache_key_check(formula_simplified,'m_z')){
+			CCalc.start_timing('m_z');
+
+
+			// start as 1 as we're doing a multiplication
+			var isotope_combinations = 1;
+			var count = 0;
+			for (i in elemental_composition){
+				count = 0;
+				for (j in elemental_composition[i][2]){
+					count++;
+				}
+
+				isotope_combinations  = isotope_combinations * count;
+			}
+
+			// e.g. Sn6
+			if(isotope_combinations >100000){
+				if(confirm('Calculating the Mass spec could take a while.  Do you want this to happen?')==false){
+					return 'Mass spec calculation has been cancelled';
+				}
+			}
+
 
 			// work it out (uses a global value)
 			run_through_isotopes(elemental_composition,0,0,[],[0,1]);
@@ -739,9 +763,16 @@ var CCalc = {
 
 			CCalc.cache_set(formula_simplified,'m_z',tmp);
 			CCalc.cache_set(formula_simplified,'m_z_max_percent',mass_spec_max_percentage);
+			CCalc.end_timing('m_z');
+
+		  // GOOGLE analytics event for the mass spec
+		  if(window._trackEvent){
+		  	_trackEvent('mass spec', 'finished', isotope_combinations, CCalc.get_timing('m_z'));
+		  }
+			
 		}
 		else{
-			console.log(formula_simplified+ ' loaded from cache');
+			// console.log(formula_simplified+ ' loaded from cache');
 			tmp = CCalc.cache_get(formula_simplified,'m_z');
 			mass_spec_max_percentage = CCalc.cache_get(formula_simplified,'m_z_max_percent');
 		}	
@@ -782,9 +813,25 @@ var CCalc = {
 	  // check for no information
 		if(r.length == tmp_len){r+="<div class=\"warning\">One (or more) of the elements you've entered does not have isotopic abundance data entered into this system.<br><i>The mass spectrum cannot be calculated</"+"i><br><br>This could be because no data exists, or because the sustance is naturally radioactive and so does not have a stable isotopic composition</"+"div>";}
 	  r +='</'+'div>';
-		return(r);
-	}
 
+		return(r);
+	},
+
+	start_timing:function(key){
+		CCalc.timing[key] = {start:new Date().getTime(),end:0,diff:0};
+		// CCalc.log(CCalc.timing[key].start);
+	},
+
+	end_timing:function(key){
+		CCalc.timing[key].end = new Date().getTime();
+
+		// work out the difference in milliseconds as that's what we care about
+		CCalc.timing[key].diff = this.timing[key].end-this.timing[key].start;
+	},
+
+	get_timing: function(key){
+		return CCalc.timing[key].diff;
+	}
 
 }
 
@@ -1606,7 +1653,10 @@ function update_volume(mol_mass){
 // run_through_isotopes(array_all_info,number,value_from_object,array_of_final_ions,??)
 function run_through_isotopes(info,curr_elem,curr_isotope,all_ions,ion_info){
 	var curr_mass;var tmp;
-	// mass spec max percentage can only increase.	if it's a peak that will be noise, we need to kill it off
+	/* mass spec max percentage can only increase.	
+	If it's likely to bea peak that will likely be noise, we need to kill it off
+	as this will slow down calculations
+	*/
 	if(((ion_info[1]/mass_spec_max_percentage)<(mass_spec_min_visible/10))){
 		// return false;
 		// console.info("Stopped ion of "+ion_info[1]+"% from being added.  Molecular mass was:"+ion_info[0]+" max_mass_spec: "+mass_spec_max_percentage);
@@ -1781,7 +1831,6 @@ window.onhashchange = function(){
 	if(!CCalc.is_calculating()){
 		h = CCalc.getHash();
 		if(h.length>0){
-			// CCalc.log('we have a hash:'+h);
 			var f = CCalc.html.get_el('formula');
 			// update the field
 			f.value = h;
