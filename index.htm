@@ -733,8 +733,15 @@ var CCalc = {
 				isotope_combinations  = isotope_combinations * count;
 			}
 
+		  // log the number of isotopes that are being calculated
+		  if(window.ga){
+		  	ga('send','mass spec', 'isotopes', isotope_combinations);
+		  }
+
+
 			// e.g. Sn6
-			if(isotope_combinations >100000){
+			// this takes typically >2 seconds...
+			if(isotope_combinations >1000000){
 				if(confirm('Calculating the Mass spec could take a while.  Do you want this to happen?')==false){
 					return 'Mass spec calculation has been cancelled';
 				}
@@ -766,10 +773,10 @@ var CCalc = {
 			CCalc.end_timing('m_z');
 
 		  // GOOGLE analytics event for the mass spec
-		  if(window._trackEvent){
-		  	_trackEvent('mass spec', 'finished', isotope_combinations, CCalc.get_timing('m_z'));
+		  if(window.ga){
+		  	ga('send','mass spec time', isotope_combinations, CCalc.get_timing('m_z'));
 		  }
-			
+
 		}
 		else{
 			// console.log(formula_simplified+ ' loaded from cache');
