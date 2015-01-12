@@ -291,7 +291,7 @@ the event and formula will be logged, as that will be all I need to replicate/fi
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-23464216-2', 'gazard.com');
+  ga('create', 'UA-23464216-2');
   ga('send', 'pageview');
 </script>
 
@@ -734,9 +734,9 @@ var CCalc = {
 			}
 
 		  // log the number of isotopes that are being calculated
-		  if(window.ga){
-		  	ga('send','mass spec', 'isotopes', isotope_combinations);
-		  }
+		  // if(window.ga){
+		  // 	ga('send','mass spec', 'isotopes', isotope_combinations);
+		  // }
 
 
 			// e.g. Sn6
@@ -773,9 +773,7 @@ var CCalc = {
 			CCalc.end_timing('m_z');
 
 		  // GOOGLE analytics event for the mass spec
-		  if(window.ga){
-		  	ga('send','mass spec time', isotope_combinations, CCalc.get_timing('m_z'));
-		  }
+		  ga('send','timing','mass spec', String(isotope_combinations), CCalc.get_timing('m_z'));
 
 		}
 		else{
@@ -826,7 +824,6 @@ var CCalc = {
 
 	start_timing:function(key){
 		CCalc.timing[key] = {start:new Date().getTime(),end:0,diff:0};
-		// CCalc.log(CCalc.timing[key].start);
 	},
 
 	end_timing:function(key){
@@ -1385,7 +1382,7 @@ function calculate_info(formula){
 
 		// google analytics
 		var ms_ga = (show_ms)?1:0;
-		ga('send','event','calculation','finished',ms_ga);
+		ga('send','event','calculation','finished',String(ms_ga));
 
 	}
 
