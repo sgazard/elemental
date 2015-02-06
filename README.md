@@ -1,7 +1,13 @@
-elemental
+elemental - What is this?
 =========
-
+Use it online: [click here to use](http://sgazard.github.io/elemental/)  
 Composition calculator for chemicals.  For use in lab work and workup from lab work (see below for features)
+
+To use
+======
+* point your browser at the [public file on git](http://sgazard.github.io/elemental/)  
+* Or, save it to your computer (offline use).  
+	* Modern browsers will need only to save one file, making it easier to move around once saved
 
 Features
 ========
@@ -15,9 +21,6 @@ Features
 * works offline in the browser.  No internet connection is required.
 * No information is ever sent out, apart from google analytics information, which helps me to work out where people are from, and what screen sizes people are using so that I can work on this more effectively
 
-To use
-======
-Simply point your browser at the [public file on git](http://sgazard.github.io/elemental/)  Or, save it to your computer.  Modern browsers will need only to save one file, making it easier to move around once saved
 
 Why it was built
 ================
