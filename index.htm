@@ -406,10 +406,10 @@ var CCalc = {
 
 	/* reset functions */
 	reset_all:function(){
-		CCalc.html.setVal('c','%C');
-		CCalc.html.setVal('h','%H');
-		CCalc.html.setVal('n','%N');
-		CCalc.html.setVal('multiplier','mult');
+		CCalc.html.setVal('c','');
+		CCalc.html.setVal('h','');
+		CCalc.html.setVal('n','');
+		CCalc.html.setVal('multiplier','');
 
 		set_class('c','');set_class('h','');set_class('n','');set_class('mult','');
 		CCalc.html.set('e_c','');CCalc.html.set('e_h','');CCalc.html.set('e_n','');
@@ -1922,7 +1922,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 <div class="auto_overflow">
 <form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
 <p>
-	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text">
+	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text" placeholder="enter formula here">
 	<label for="show_mass_spec"><input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"> predict [M<sup>+</sup>] peak </label><input id="reset_form" value="reset" type="reset">
 </p>
 <div class="auto_overflow">
@@ -1936,7 +1936,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 	<div class="cossh_form">
 		<div class="mass">
 			<div class="u_h mass">Mass used</div>
-			<div class="mass"><input id="mass" name="amt_added" onkeyup="update_mmols(molecular_mass)" class="mass" type="text"><!-- onkeyup="calculate_info(document.chemicals.formula.value)" --></div>
+			<div class="mass"><input id="mass" name="amt_added" onkeyup="update_mmols(molecular_mass)" class="mass" type="text" placeholder="e.g. 1.2"><!-- onkeyup="calculate_info(document.chemicals.formula.value)" --></div>
 		</div>
 		<div class="unit">
 			<div class="u_h unit">unit</div>
@@ -1945,7 +1945,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 		<!-- volume and units -->
 		<div class="volume">
 			<div class="u_h volume">volume</div>
-			<div class="volume"><input name="volume" id="volume" value="1" type="text"></div>
+			<div class="volume"><input name="volume" id="volume" value="1" type="text"  placeholder="e.g. 2.3"></div>
 		</div>
 		<div class="unit">
 			<div class="u_h unit">unit</div>
@@ -1954,7 +1954,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 
 		<div class="density">
 			<div class="u_h density">density</div>
-			<div class="density"><input name="density" id="density" value="1" style="width:20px;" type="text"></div>
+			<div class="density"><input name="density" id="density" value="1" style="width:20px;" type="text" placeholder="e.g. 0.987"></div>
 		</div>
 	</div>
 
@@ -1972,11 +1972,11 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 		</div>
 		<div class="equivalents">
 			<div class="u_h equivalents"><abbr title="works only when updating the mass/volume">equiv</abbr></div>
-			<div class="equivalents"><input name="equivalents" id="equivalents" class="equivalents" value="1" type="text"></div>
+			<div class="equivalents"><input name="equivalents" id="equivalents" class="equivalents" value="1" type="text" placeholder=" 1 "></div>
 		</div>
 		<div class="mmols">
 			<div class="u_h mmols">mmols</div>
-			<div class="mmols"><input name="mmols" id="mmols" class="mmols" onkeyup="update_mass(molecular_mass)" type="text"></div>
+			<div class="mmols"><input name="mmols" id="mmols" class="mmols" onkeyup="update_mass(molecular_mass)" type="text" placeholder="e.g. 1.02"></div>
 		</div>
 
 		<div class="unit">
@@ -1991,10 +1991,10 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 <div id="elemental_analysis">
 <h3>Elemental analysis workup</h3>
 <div class="cossh_form">
-	<div class="multiplier"><input name="multiplier" id="multiplier" value="mult" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'mult','','field_enter_text');calculate_chn();" onblur="toggleInputText(this,'mult','','field_enter_text');calculate_chn();"></div>
-	<div class="e_c"><input name="c" id="c" value="%C" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%C','','field_enter_text');calculate_chn();" onblur="toggleInputText(this,'%C','','field_enter_text');calculate_chn();"></div>
-	<div class="e_h"><input name="h" id="h" value="%H" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%H','','field_enter_text');calculate_chn();" onblur="toggleInputText(this,'%H','','field_enter_text');calculate_chn();"></div>
-	<div class="e_n"><input name="n" id="n" value="%N" onkeyup="calculate_chn();" onfocus="toggleInputText(this,'%N','','field_enter_text','');calculate_chn();" onblur="toggleInputText(this,'%N','','field_enter_text','');calculate_chn();"></div>
+	<div class="multiplier"><input name="multiplier" id="multiplier" onkeyup="calculate_chn();" placeholder="mult"></div>
+	<div class="e_c"><input name="c" id="c" onkeyup="calculate_chn();" placeholder="%C"></div>
+	<div class="e_h"><input name="h" id="h" onkeyup="calculate_chn();" placeholder="%H"></div>
+	<div class="e_n"><input name="n" id="n" onkeyup="calculate_chn();" placeholder="%N"></div>
 </div>
 <div class="cossh_form">
 	<div id="yields">&#8594; </div>
