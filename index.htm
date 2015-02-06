@@ -1919,7 +1919,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 		<b>How to use</b>:
 		<ol>
 			<li>Type a chemical formula</li>
-			<li>Chemical composition, mass spec, and elemental analysis will be shown <i>as you type</i></li>
+			<li>Composition, <a href="http://en.wikipedia.org/wiki/Mass_spectrometry" target="_blank">Mass Spec</a>, and elemental analysis will be shown <i>as you type</i></li>
 		</ol>
 		 
 		<b>Reaction calculations (optional)</b>:<br>
@@ -1952,7 +1952,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 	<div class="auto_overflow">
 	<form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
 	<p>
-		<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text" placeholder="enter formula here">
+		<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text" placeholder="enter formula. Mass spec, composition, will be calculated">
 		<label for="show_mass_spec"><input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox" checked=checked> predict [M<sup>+</sup>] peak </label><input id="reset_form" value="reset" type="reset">
 	</p>
 	<div class="auto_overflow">
