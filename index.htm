@@ -116,6 +116,11 @@ h2.toggles{display:inline-block;}
 .data{width:375px;float:left;padding-left:3px}
 .chn{}
 
+.help ol, .help ul{
+	margin:5px 0 0 12px;padding:3px;
+}
+.help ul ul{margin:0px;margin-left:8px; padding:0px;}
+
 /* units */
   /* unit heading */
 .u_h{font-style:italic;}
@@ -1912,28 +1917,27 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 
 	<div id="help">
 		<b>How to use</b>:
-		<ol><li>Place your cursor in the field at the top-left (it should be automatically there).</li>
-		
-		<li>Type a Chemical Formula</li>
-		<li>Chemical composition and elemental analysis will be shown <i>as you type</i></li>
+		<ol>
+			<li>Type a chemical formula</li>
+			<li>Chemical composition, mass spec, and elemental analysis will be shown <i>as you type</i></li>
 		</ol>
 		 
-		<b>optional</b>:<br>
-		for each conversion, please alter the type of units as needed before converting
+		<b>Reaction calculations (optional)</b>:<br>
+		Alter the type of units as needed before converting
 		<ul>
 		<li>Converting mass to mmol
 			<ul>
-			<li>Enter a mass in the mass field, and click the arrow with the yellow box on it to get the mmol</li>
+			<li>Enter a mass, and click the yellow box arrow to calculate the (m)mol</li>
 			</ul>
 		</li>
 		<li>Converting volume to mmol (no mass needed)
 			<ul>
-			<li>Enter a volume in the volume field, and a density, and click the arrow with the blue droplet on it to get the mmol</li>
+			<li>Enter a volume, <em>and</em> a density.  Click the arrow with the blue droplet to calculate (m)mol</li>
 			</ul>
 		</li>
 		<li>Converting mmol to volume/mass
 			<ul>
-			<li>Fill in the density field (if needed), and enter the value of mol/mmol.  conversion is automatic
+			<li>Fill in the density field (if needed), and enter the value of mol/mmol. 
 			</li>
 			</ul>
 		</li>
@@ -1949,7 +1953,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 	<form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
 	<p>
 		<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text" placeholder="enter formula here">
-		<label for="show_mass_spec"><input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"> predict [M<sup>+</sup>] peak </label><input id="reset_form" value="reset" type="reset">
+		<label for="show_mass_spec"><input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox" checked=checked> predict [M<sup>+</sup>] peak </label><input id="reset_form" value="reset" type="reset">
 	</p>
 	<div class="auto_overflow">
 		<div id="error"></div>
@@ -1957,7 +1961,7 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 	</div>
 	<div id="working">calculation in progress ... </div>
 	<div class="auto_overflow">
-		<h3>COSSH forms</h3>
+		<h3>Reaction amounts (COSSH forms)</h3>
 		<div class="conversion_section auto_overflow">
 			<div class="cossh_form">
 				<div class="mass">
