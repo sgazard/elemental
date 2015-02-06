@@ -1,13 +1,13 @@
 elemental - What is this?
 =========
+TL;DR: [click here to use](http://sgazard.github.io/elemental/)  
 Composition calculator for chemicals.  For use in lab work and workup from lab work (see below for features)
 
 To use
 ======
-Do one of the following:
 * point your browser at the [public file on git](http://sgazard.github.io/elemental/)  
 * Or, save it to your computer.  
-		* Modern browsers will need only to save one file, making it easier to move around once saved
+	* Modern browsers will need only to save one file, making it easier to move around once saved
 
 Features
 ========
