@@ -289,7 +289,7 @@ the event and formula will be logged, as that will be all I need to replicate/fi
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
   ga('create', 'UA-23464216-2');
   ga('send', 'pageview');
@@ -385,6 +385,10 @@ var CCalc = {
 	/* iteration information */
 	expand_it:0,
 
+	/* only when proven around so we allow it. 
+	May be started offline ... */
+	google_analytics:'',
+
 	/* iniversal message generator */
 	message:function(message, type){
 		return '<div class="'+type+'">'+message+'</div>';
@@ -402,6 +406,21 @@ var CCalc = {
 	/* is a console.log enabled? */
 	check_logging:function(){
 		this.logging_enabled = (window.console && window.console.log)?true:false;
+	},
+
+	/* if we have google analytics, then fire off the function.  It we don't, then we're fairly stuffed */
+	ga_exists:function(){
+		if(typeof(CCalc.google_analytics) == 'boolean'){
+			return CCalc.google_analytics;
+		}
+
+		// if we're here, then we don't have it checked for
+		CCalc.check_ga_exists
+	},
+
+	/* quick check for it being available */
+	check_ga_exists:function(){
+		CCalc.google_analytics = (typeof(window.ga) == 'function')? true:false;
 	},
 
 	/* reset functions */
