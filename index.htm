@@ -1924,100 +1924,103 @@ Hello.  You appear to have Javascript disabled.  Unfortunately for you, this too
 </div>
 
 <div id="calculator">
-<h1>Chemical composition calculations<span id="share">share</span></h1>
+	<h1>Chemical composition calculations<span id="share">share</span></h1>
 
-<div class="auto_overflow">
-<form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
-<p>
-	<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text" placeholder="enter formula here">
-	<label for="show_mass_spec"><input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"> predict [M<sup>+</sup>] peak </label><input id="reset_form" value="reset" type="reset">
-</p>
-<div class="auto_overflow">
- <div id="error"></div>
- <div class="clearfix"></div>
-</div>
-<div id="working">calculation in progress ... </div>
-<div class="auto_overflow">
-<h3>COSSH forms</h3>
- <div class="conversion_section auto_overflow">
-	<div class="cossh_form">
-		<div class="mass">
-			<div class="u_h mass">Mass used</div>
-			<div class="mass"><input id="mass" name="amt_added" onkeyup="update_mmols(molecular_mass)" class="mass" type="text" placeholder="e.g. 1.2"><!-- onkeyup="calculate_info(document.chemicals.formula.value)" --></div>
-		</div>
-		<div class="unit">
-			<div class="u_h unit">unit</div>
-			<div class="unit"><select name="mass_multiplier" id="mass_multiplier"><option selected="selected" value="1">g</option><option value="0.001">mg</option><option value="1000">kg</option></select></div>
-		</div>
-		<!-- volume and units -->
-		<div class="volume">
-			<div class="u_h volume">volume</div>
-			<div class="volume"><input name="volume" id="volume" value="1" type="text"  placeholder="e.g. 2.3"></div>
-		</div>
-		<div class="unit">
-			<div class="u_h unit">unit</div>
-			<div class="unit"><select name="volume_multiplier" id="volume_multiplier" onchange="update_volume(molecular_mass)"><option value="1000">µL</option><option value="1" selected="selected">ml</option><option value="0.001">L</option></select></div>
-		</div>
-
-		<div class="density">
-			<div class="u_h density">density</div>
-			<div class="density"><input name="density" id="density" value="1" style="width:20px;" type="text" placeholder="e.g. 0.987"></div>
-		</div>
+	<div class="auto_overflow">
+	<form action="" onsubmit="calculate_info(document.chemicals.formula.value);return false;" name="chemicals">
+	<p>
+		<input name="formula" id="formula" onkeyup="calculate_info(this.value);calculate_chn();" style="width: 300px;" type="text" placeholder="enter formula here">
+		<label for="show_mass_spec"><input id="show_mass_spec" name="show_mass_spec" onclick="var d = document.chemicals.formula.value;calculate_info(d);" type="checkbox"> predict [M<sup>+</sup>] peak </label><input id="reset_form" value="reset" type="reset">
+	</p>
+	<div class="auto_overflow">
+		<div id="error"></div>
+		<div class="clearfix"></div>
 	</div>
+	<div id="working">calculation in progress ... </div>
+	<div class="auto_overflow">
+		<h3>COSSH forms</h3>
+		<div class="conversion_section auto_overflow">
+			<div class="cossh_form">
+				<div class="mass">
+					<div class="u_h mass">Mass used</div>
+					<div class="mass"><input id="mass" name="amt_added" onkeyup="update_mmols(molecular_mass)" class="mass" type="text" placeholder="e.g. 1.2"><!-- onkeyup="calculate_info(document.chemicals.formula.value)" --></div>
+				</div>
+				<div class="unit">
+					<div class="u_h unit">unit</div>
+					<div class="unit"><select name="mass_multiplier" id="mass_multiplier"><option selected="selected" value="1">g</option><option value="0.001">mg</option><option value="1000">kg</option></select></div>
+				</div>
+				<!-- volume and units -->
+				<div class="volume">
+					<div class="u_h volume">volume</div>
+					<div class="volume"><input name="volume" id="volume" value="1" type="text"  placeholder="e.g. 2.3"></div>
+				</div>
+				<div class="unit">
+					<div class="u_h unit">unit</div>
+					<div class="unit"><select name="volume_multiplier" id="volume_multiplier" onchange="update_volume(molecular_mass)"><option value="1000">µL</option><option value="1" selected="selected">ml</option><option value="0.001">L</option></select></div>
+				</div>
 
-	<div class="cossh_form">
-		<div class="update">
-			<div class="u_h update">update</div>
-			<div class="update">
-				<map id="arrows" name="arrows">
-				<area shape="rect" coords="0,0,27,25" href="#" onclick="update_mass(molecular_mass)" alt="update the mass based on the mmol">
-				<area shape="rect" coords="28,0,55,12" href="#" onclick="update_mmols(molecular_mass)" alt="update the mmol based on the mass">
-				<area shape="rect" coords="28,13,55,25" href="#" onclick="update_mmols_volume(molecular_mass)" alt="update the mmol based on the volume">
-				</map>
-				<img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAZCAYAAACVfbYAAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2AMNCyk07tQSUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAABRElEQVRYw92XIRKDMBBFSSa6qqZTWcEBuAOnwFZ1MJgKNKIGw1TVcoregQMgKjs1VRyAVKWTCbsN0JKkWZsJ5GV3/98EgcdBXD1Ymqb803pVVe+z0zzkfdEOWJirUPvTY7B2OW7QfRAgczVTEIgAxiBVQONwNA/hcuvgbAkYdQ37jgxIfRQSAe4lnABE4da7O/9nuL5oCfsnMCEk59VVCwb6nAz2vG2N+aDO11Rvw8RFVktiOmNLXJiAU32O+tRj4PhlEsxkqRPTmRsLJ/cg1mu62ZLauNGxYHVUfjX5MPVWbamlGnVUBkmTTRYWVC3VEl1S2bA4dHEgZy1pMq2vYeJCbTc9ljUI+GezpQ1ACEKAzgF0bnCGRGSKsMil6eWrQPQcs/Vj2ANiPmcvNltSHzPmLBzkbWP8Dp0tXQrs6aMbwaB4AbAJruvzJ6U9AAAAAElFTkSuQmCC" usemap="#arrows" border=0 alt="click to change">
+				<div class="density">
+					<div class="u_h density">density</div>
+					<div class="density"><input name="density" id="density" value="1" style="width:20px;" type="text" placeholder="e.g. 0.987"></div>
+				</div>
 			</div>
-		</div>
-		<div class="equivalents">
-			<div class="u_h equivalents"><abbr title="works only when updating the mass/volume">equiv</abbr></div>
-			<div class="equivalents"><input name="equivalents" id="equivalents" class="equivalents" value="1" type="text" placeholder=" 1 "></div>
-		</div>
-		<div class="mmols">
-			<div class="u_h mmols">mmols</div>
-			<div class="mmols"><input name="mmols" id="mmols" class="mmols" onkeyup="update_mass(molecular_mass)" type="text" placeholder="e.g. 1.02"></div>
-		</div>
+			<!-- end the cossh form row -->
 
-		<div class="unit">
-			<div class="u_h unit">unit</div>
-			<div class="unit"><select id="mmol_multiplier" name="mmol_multiplier"><option selected="selected" value="0.001">mmol</option><option value="1">mol</option></select></div>
+			<div class="cossh_form">
+				<div class="update">
+					<div class="u_h update">update</div>
+					<div class="update">
+						<map id="arrows" name="arrows">
+						<area shape="rect" coords="0,0,27,25" href="#" onclick="update_mass(molecular_mass)" alt="update the mass based on the mmol">
+						<area shape="rect" coords="28,0,55,12" href="#" onclick="update_mmols(molecular_mass)" alt="update the mmol based on the mass">
+						<area shape="rect" coords="28,13,55,25" href="#" onclick="update_mmols_volume(molecular_mass)" alt="update the mmol based on the volume">
+						</map>
+						<img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAZCAYAAACVfbYAAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2AMNCyk07tQSUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAABRElEQVRYw92XIRKDMBBFSSa6qqZTWcEBuAOnwFZ1MJgKNKIGw1TVcoregQMgKjs1VRyAVKWTCbsN0JKkWZsJ5GV3/98EgcdBXD1Ymqb803pVVe+z0zzkfdEOWJirUPvTY7B2OW7QfRAgczVTEIgAxiBVQONwNA/hcuvgbAkYdQ37jgxIfRQSAe4lnABE4da7O/9nuL5oCfsnMCEk59VVCwb6nAz2vG2N+aDO11Rvw8RFVktiOmNLXJiAU32O+tRj4PhlEsxkqRPTmRsLJ/cg1mu62ZLauNGxYHVUfjX5MPVWbamlGnVUBkmTTRYWVC3VEl1S2bA4dHEgZy1pMq2vYeJCbTc9ljUI+GezpQ1ACEKAzgF0bnCGRGSKsMil6eWrQPQcs/Vj2ANiPmcvNltSHzPmLBzkbWP8Dp0tXQrs6aMbwaB4AbAJruvzJ6U9AAAAAElFTkSuQmCC" usemap="#arrows" border=0 alt="click to change">
+					</div>
+				</div>
+				<div class="equivalents">
+					<div class="u_h equivalents"><abbr title="works only when updating the mass/volume">equiv</abbr></div>
+					<div class="equivalents"><input name="equivalents" id="equivalents" class="equivalents" value="1" type="text" placeholder=" 1 "></div>
+				</div>
+				<div class="mmols">
+					<div class="u_h mmols">mmols</div>
+					<div class="mmols"><input name="mmols" id="mmols" class="mmols" onkeyup="update_mass(molecular_mass)" type="text" placeholder="e.g. 1.02"></div>
+				</div>
+
+				<div class="unit">
+					<div class="u_h unit">unit</div>
+					<div class="unit"><select id="mmol_multiplier" name="mmol_multiplier"><option selected="selected" value="0.001">mmol</option><option value="1">mol</option></select></div>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+			<!-- end the cossh form row -->
 		</div>
 		<div class="clearfix"></div>
-		</div>
- </div>
- <div class="clearfix"></div>
-</div>
-<div id="elemental_analysis">
-<h3>Elemental analysis workup</h3>
-<div class="cossh_form">
-	<div class="multiplier"><input name="multiplier" id="multiplier" onkeyup="calculate_chn();" placeholder="mult"></div>
-	<div class="e_c"><input name="c" id="c" onkeyup="calculate_chn();" placeholder="%C"></div>
-	<div class="e_h"><input name="h" id="h" onkeyup="calculate_chn();" placeholder="%H"></div>
-	<div class="e_n"><input name="n" id="n" onkeyup="calculate_chn();" placeholder="%N"></div>
-</div>
-<div class="cossh_form">
-	<div id="yields">&#8594; </div>
+	</div>
 
-	<div class="e_c">C: <span id="e_c"></span></div>
-	<div class="e_h">H: <span id="e_h"></span></div>
-	<div class="e_n">N: <span id="e_n"></span></div>
-</div>
-<div id="chn_copy_paste" style="visibility:hidden;display:none;">expected for <span id="molecular_formula"></span>&nbsp;(found):
-C: <span id="c_expected"></span>&nbsp;(<span id="c_found">0</span>)
-H: <span id="h_expected"></span>&nbsp;(<span id="h_found">0</span>)
-N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
-</div>
-</div>
-</form>
- <div class="clearfix"></div>
+	<div id="elemental_analysis">
+		<h3>Elemental analysis workup</h3>
+		<div class="cossh_form">
+			<div class="multiplier"><input name="multiplier" id="multiplier" onkeyup="calculate_chn();" placeholder="mult"></div>
+			<div class="e_c"><input name="c" id="c" onkeyup="calculate_chn();" placeholder="%C"></div>
+			<div class="e_h"><input name="h" id="h" onkeyup="calculate_chn();" placeholder="%H"></div>
+			<div class="e_n"><input name="n" id="n" onkeyup="calculate_chn();" placeholder="%N"></div>
+		</div>
+		<div class="cossh_form">
+			<div id="yields">&#8594; </div>
+
+			<div class="e_c">C: <span id="e_c"></span></div>
+			<div class="e_h">H: <span id="e_h"></span></div>
+			<div class="e_n">N: <span id="e_n"></span></div>
+		</div>
+		<div id="chn_copy_paste" style="visibility:hidden;display:none;">expected for <span id="molecular_formula"></span>&nbsp;(found):
+		C: <span id="c_expected"></span>&nbsp;(<span id="c_found">0</span>)
+		H: <span id="h_expected"></span>&nbsp;(<span id="h_found">0</span>)
+		N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
+		</div>
+	</div>
+	</form>
+	<div class="clearfix"></div>
 
 </div>
 <div class="auto_overflow">
@@ -2070,11 +2073,14 @@ N: <span id="n_expected"></span>&nbsp;(<span id="n_found">0</span>)
 		<div class="clearfix"></div>
 	</div>
 </div>
+</div>
 
 
-<div id="bottom_left" class="bottom"><a href="http://sgazard.github.io/elemental/" title="current version is here">Version 1.3.5 (13-Jan-2015)</a></div>
-<div id="bottom_right" class="bottom">
- If you like this tool or want to send on comments, please contact <a href="https://github.com/sgazard/elemental/">me on GitHub</a>
+<div id="footer">
+	<div id="bottom_left" class="bottom"><a href="http://sgazard.github.io/elemental/" title="current version is here">Version 1.3.5 (13-Jan-2015)</a></div>
+	<div id="bottom_right" class="bottom">
+	 If you like this tool or want to send on comments, please contact <a href="https://github.com/sgazard/elemental/">me on GitHub</a>
+	</div>
 </div>
 </body>
 </html>
