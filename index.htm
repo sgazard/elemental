@@ -1858,9 +1858,16 @@ function reset_button_click(){
 
 <!-- template for the HTML -->
 <body>
+
+<!-- warnings for unsupported technology -->
 <noscript>
 Hello.  You appear to have Javascript disabled.  Unfortunately for you, this tool requires javascript tuned on.  Please enable it, and refresh the page
 </noscript>
+
+<!-- we don't support IE less than v8 as we are using inline images which don't work -->
+<!--[if IE lt 8]>
+<div class="error">Hello, you're using Internet Explorer.  Some of the images you need to use this app will not show up on your device.  Please use Internet Explorer 8 or use another browser like Safari, <a href="http://www.google.com/chrome">Chrome</a> or <a href="http://www.getfirefox.com">Firefox</a></div>
+<![endif]-->	
 <div class="help">
 	<div class="shorthand">
 		<h2 class="toggles"><a href="#" onclick="show_hide('help');return false;">Help &#x25BC;</a></h2>
