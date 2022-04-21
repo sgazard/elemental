@@ -290,14 +290,14 @@ determining what is actually most used so that things can be improved.
 I might use it to log events which take a long time.  If I do (currently do not), only
 the event and formula will be logged, as that will be all I need to replicate/fix the issue.
 -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8934KT6KBH"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-23464216-2');
-  ga('send', 'pageview');
+  gtag('config', 'G-8934KT6KBH');
 </script>
 
 
@@ -1492,7 +1492,7 @@ function shorthand(visible){
 		// populate it with the information
 		id = CCalc.html.set('shorthand',shorthand);
 		// set its height to '0', make it visible, and then try to make it visibl
-//			alert(id.style['visibility']);
+//			console.log(id.style['visibility']);
 		show_hide('shorthand');
 	}
 	return false;
@@ -1574,7 +1574,7 @@ function element_list(visible){
 		// populate it with the information
 		id = CCalc.html.set('element_list',element_list_2);
 		// set its height to '0', make it visible, and then try to make it visibl
-//			alert(id.style['visibility']);
+//			console.log(id.style['visibility']);
 		show_hide('element_list');
 	}
 	return false;
@@ -1632,7 +1632,7 @@ function hide(o){
 function show_hide(element){
 	if(CCalc.html.get_el(element)){
 		var o = CCalc.html.get_el(element);
-//			alert(element+'--> style.visibility = '+o.style.visibility+"\n"+'style.display = '+o.style.display);
+//			console.log(element+'--> style.visibility = '+o.style.visibility+"\n"+'style.display = '+o.style.display);
 		if(o.style.visibility =='hidden'){
 			show(o);
 		}
@@ -1788,7 +1788,7 @@ function calculate_chn(){
 		CCalc.html.set('n_found',n);
 		// check we're not doing something stupid with div/0
 		if(c+h+n == 0){return false;}
-		// alert('calculating CHN');
+		// console.log('calculating CHN');
 
 		// convert to initial mol
 		c = c/12.011;
