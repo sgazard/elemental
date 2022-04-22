@@ -420,12 +420,12 @@ var CCalc = {
 		}
 
 		// if we're here, then we don't have it checked for
-		CCalc.check_ga_exists
+		CCalc.check_ga_exists();
 	},
 
 	/* quick check for it being available */
 	check_ga_exists:function(){
-		CCalc.google_analytics = (typeof(window.ga) == 'function')? true:false;
+		CCalc.google_analytics = (typeof(window.gtag) == 'function')? true:false;
 	},
 
 	/* reset functions */
@@ -765,7 +765,7 @@ var CCalc = {
 
 			// e.g. Sn6
 			// this takes typically >2 seconds...
-			if(isotope_combinations >1000000){
+			if(isotope_combinations >10000000){
 				if(confirm('Calculating the Mass spec could take a while.  Do you want this to happen?')==false){
 					return 'Mass spec calculation has been cancelled';
 				}
